@@ -1,0 +1,9 @@
+{
+  "apis": [
+    {
+      "name": "example_provider",
+      "api_key": "YOUR_API_KEY_HERE",
+      "active": true
+    }
+  ]
+}

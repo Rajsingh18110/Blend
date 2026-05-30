@@ -1,0 +1,51 @@
+# Secrets & credentials
+.env
+.env.*
+*.env
+!.env.example
+admin_config.json
+secrets.json
+secrets.yml
+credentials.json
+config.local.json
+*.pem
+*.key
+*.p12
+*.pfx
+serviceAccount*.json
+
+# API key files
+api_keys_local.py
+*_secrets.*
+*_credentials.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+backend/venv/
+.venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Local config overrides
+blend_config.local.yml
+local_settings.py
+
+# OS generated files
+Thumbs.db

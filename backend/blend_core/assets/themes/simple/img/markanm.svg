@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="853.677" height="146.304" viewBox="0 0 900 160" role="img" aria-label="Markanm">
+  <defs>
+    <linearGradient id="markanmGradient" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B2B"/>
+      <stop offset="100%" stop-color="#58A6FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="160" fill="none"/>
+  <path d="M45 124V35h21l32 47 32-47h21v89h-20V69l-33 49-33-49v55z" fill="url(#markanmGradient)"/>
+  <text x="180" y="112" font-family="Inter, Arial, sans-serif" font-size="84" font-weight="800" fill="#E6EDF3" letter-spacing="-3">Markanm</text>
+</svg>

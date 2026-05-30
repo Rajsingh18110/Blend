@@ -1,0 +1,38 @@
+# -----------------------------------------------
+# Blend Engine — by Markanm Team
+# https://markanm.com
+# -----------------------------------------------
+# SPDX-License-Identifier: Apache-2.0
+"""
+Method ``http_accept_language``
+-------------------------------
+
+The ``http_accept_language`` method evaluates a request as the request of a bot
+if the Accept-Language_ header is unset.
+
+.. _Accept-Language:
+   https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
+
+"""
+
+
+from ipaddress import (
+    IPv4Network,
+    IPv6Network,
+)
+
+import werkzeug
+import flask
+
+from . import config
+from ._helpers import too_many_requests
+
+
+def filter_request(
+    network: IPv4Network | IPv6Network,
+    request: flask.Request,
+    cfg: config.Config,  # pylint: disable=unused-argument
+) -> werkzeug.Response | None:
+    if request.headers.get('Accept-Language', '').strip() == '':
+        return too_many_requests(network, "missing HTTP header Accept-Language")
+    return None

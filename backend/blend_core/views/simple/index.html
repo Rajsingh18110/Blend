@@ -1,0 +1,209 @@
+{% extends "simple/base.html" %}
+{% set body_class = "blend-search-home" %}
+{% block content %}
+<style>
+  /* MARKANM SEARCH HOMEPAGE STYLES */
+  .g-home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    animation: fadeIn 0.4s ease-out;
+    padding: 0 20px;
+  }
+  .g-home-center {
+    width: 100%;
+    max-width: 680px;
+    text-align: center;
+  }
+  
+  .g-wordmark {
+    font-size: 64px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: var(--current-text);
+  }
+  .g-wordmark .accent {
+    color: var(--primary);
+  }
+  .g-home-tagline {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+  }
+  
+  /* Search Bar */
+  .g-search-shell {
+    display: flex;
+    align-items: center;
+    background: var(--current-card-bg);
+    border: 1px solid var(--current-border);
+    border-radius: 32px;
+    padding: 6px 20px;
+    box-shadow: var(--current-shadow);
+    transition: all 0.2s ease;
+    margin-bottom: 24px;
+  }
+  .g-search-shell:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(224, 90, 43, 0.15);
+  }
+  .g-search-icon {
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+  }
+  .g-search-input {
+    background: transparent;
+    border: none;
+    color: var(--current-text);
+    font-size: 18px;
+    width: 100%;
+    padding: 14px 16px;
+    outline: none;
+    font-family: inherit;
+  }
+  .g-search-btn {
+    background: var(--primary);
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    padding: 10px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .g-search-btn:hover {
+    background: #c64a1e;
+  }
+
+  /* Quick Tabs (Visual only on homepage, usually part of search input focus) */
+  .quick-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .quick-tabs span {
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quick-tabs span:hover {
+    background: var(--current-border);
+    color: var(--current-text);
+  }
+  .quick-tabs span.active {
+    color: var(--primary);
+    background: rgba(224, 90, 43, 0.1);
+  }
+
+  /* Shortcuts Grid */
+  .shortcuts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .shortcut-card {
+    background: var(--current-card-bg);
+    border: 1px solid var(--current-border);
+    border-radius: 12px;
+    padding: 16px;
+    text-decoration: none;
+    color: var(--current-text);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+  .shortcut-card:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--current-shadow);
+  }
+  .shortcut-card i {
+    font-size: 20px;
+    color: var(--text-muted);
+    font-style: normal;
+  }
+  .shortcut-card:hover i {
+    color: var(--primary);
+  }
+  
+  .g-footer {
+    position: absolute;
+    bottom: 20px;
+    left: 0; right: 0;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  .g-footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+    margin: 0 10px;
+  }
+  .g-footer a:hover {
+    color: var(--primary);
+  }
+</style>
+
+<div class="g-home">
+  <div class="g-home-center">
+    
+    <div class="g-wordmark">Blend<span class="accent">Search</span></div>
+    <div class="g-home-tagline">Search freely. Stay private. Browse a clean standalone search experience.</div>
+    
+    <form id="search_form" method="{{ method or 'POST' }}" action="{{ url_for('search') }}">
+      <div class="g-search-shell">
+        <div class="g-search-icon">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+        <input class="g-search-input" id="q" type="search" name="q" placeholder="What are you looking for?" value="{{ q|e }}" autofocus autocomplete="off">
+        <button type="submit" class="g-search-btn">Search</button>
+      </div>
+      
+      <div class="quick-tabs">
+        <span class="active">🌐 All</span>
+        <span>📷 Images</span>
+        <span>📹 Videos</span>
+        <span>📰 News</span>
+        <span>⚡ Fast Results</span>
+      </div>
+    </form>
+    
+    <!-- Shortcuts -->
+    <div class="shortcuts-grid">
+      <a href="{{ url_for('search') }}?q=privacy+search" class="shortcut-card">
+        <i>🔎</i> Quick Search
+      </a>
+      <a href="#" class="shortcut-card" onclick="document.getElementById('blendModal').style.display='flex'; return false;">
+        <i>ℹ️</i> About
+      </a>
+      <a href="{{ url_for('preferences') }}" class="shortcut-card">
+        <i>⚙️</i> Preferences
+      </a>
+      <a href="#" class="shortcut-card">
+        <i>A/अ</i> English / Hindi
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<div class="g-footer">
+  &copy; 2026 Blend Search &middot; <a href="#" onclick="document.getElementById('blendModal').style.display='flex'; return false;">About</a> &middot; <a href="{{ url_for('preferences') }}">Preferences</a>
+</div>
+{% endblock %}

@@ -1,0 +1,606 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Raj Singh / Markanm Team
+
+# -----------------------------------------------
+# Blend Engine — by Markanm Team
+# https://markanm.com
+# -----------------------------------------------
+"""Frontend-first launcher for the standalone Blend Search app."""
+
+from __future__ import annotations
+
+import os
+import threading
+import urllib.parse
+import urllib.request
+import json
+from datetime import date
+from pathlib import Path
+
+from flask import Response, jsonify, redirect, render_template_string, request, send_from_directory
+
+os.environ.setdefault("BLEND_EMBEDDED_BACKEND", "1")
+
+from blend.webapp import app, run
+from navar import build_ai_response
+from navar_identity import NAVAR_IDENTITY
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+FRONTEND_DIR = ROOT_DIR / "frontend"
+TEMPLATES_DIR = FRONTEND_DIR / "templates"
+STATIC_DIR = FRONTEND_DIR / "static"
+MARKANM_URL = "https://markanm.com"
+
+app.config["MAX_CONTENT_LENGTH"] = int(os.environ.get("BLEND_MAX_CONTENT_LENGTH", 1024 * 1024))
+SEARCH_STATS = {"total_searches": 0, "today": {}, "top_queries": {}, "engines": {}}
+
+
+def render_frontend(template_name: str, **context):
+    template_path = TEMPLATES_DIR / template_name
+    return render_template_string(
+        template_path.read_text(encoding="utf-8"),
+        markanm_url=MARKANM_URL,
+        navar_identity=NAVAR_IDENTITY,
+        **context,
+    )
+
+
+
+@app.before_request
+def override_browser_routes():
+    """Keep browser traffic on the new frontend and reserve `/search` for JSON only."""
+    if request.method == "OPTIONS":
+        return None
+
+
+    if request.path == "/autocompleter":
+        return autocomplete_response()
+
+    if request.path in {"/blend-home", "/newtab"}:
+        return redirect("/", code=302)
+
+    if request.path == "/search" and request.args.get("format") != "json":
+        query = (request.args.get("q") or request.form.get("q") or "").strip()
+        if query:
+            return redirect(f"/results.html?q={query}", code=302)
+        return redirect("/", code=302)
+    
+    # Intercept Blend Engine native routes and serve our custom frontend UI instead
+    if request.path in {"/", "/index.html"}:
+        return render_frontend("index.html")
+    if request.path in {"/about", "/about.html"}:
+        return render_frontend("about.html")
+    if request.path in {"/preferences", "/settings.html"}:
+        return render_frontend("settings.html")
+    if request.path == "/privacy.html":
+        return render_frontend("privacy.html")
+    if request.path == "/results.html":
+        return render_frontend("results.html")
+    if request.path == "/style.css":
+        return send_from_directory(STATIC_DIR, "style.css")
+
+
+@app.route("/")
+@app.route("/index.html")
+def frontend_index():
+    return render_frontend("index.html")
+
+
+@app.route("/results.html")
+def frontend_results():
+    return render_frontend("results.html")
+
+
+@app.route("/about.html")
+def frontend_about():
+    return render_frontend("about.html")
+
+
+@app.route("/privacy.html")
+def frontend_privacy():
+    return render_frontend("privacy.html")
+
+
+@app.route("/settings.html")
+@app.route("/preferences")
+def frontend_settings():
+    return render_frontend("settings.html")
+
+
+@app.route("/style.css")
+def frontend_style():
+    return send_from_directory(STATIC_DIR, "style.css")
+
+@app.route("/robots.txt")
+def robots_txt():
+    content = "User-agent: *\nAllow: /\nSitemap: https://blend-engine.onrender.com/sitemap.xml"
+    return Response(content, mimetype="text/plain")
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    content = '''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://blend-engine.onrender.com/</loc><priority>1.0</priority></url>
+  <url><loc>https://blend-engine.onrender.com/about.html</loc><priority>0.8</priority></url>
+  <url><loc>https://blend-engine.onrender.com/privacy.html</loc><priority>0.8</priority></url>
+  <url><loc>https://blend-engine.onrender.com/settings.html</loc><priority>0.5</priority></url>
+</urlset>'''
+    return Response(content, mimetype="application/xml")
+
+
+@app.route("/blend-config.js")
+def frontend_config():
+    return send_from_directory(TEMPLATES_DIR, "blend-config.js")
+
+
+@app.route("/search.html", methods=["GET", "POST"])
+def frontend_search_alias():
+    query = (request.args.get("q") or request.form.get("q") or "").strip()
+    if query:
+        return redirect(f"/results.html?q={query}", code=302)
+    return redirect("/", code=302)
+
+
+@app.route("/suggestions")
+def suggestions_alias():
+    return redirect(f"/autocompleter?q={request.args.get('q', '')}", code=307)
+
+
+def autocomplete_response():
+    q = request.args.get("q", "").strip()
+    if not q:
+        return jsonify([q, []])
+    try:
+        url = f"https://duckduckgo.com/ac/?q={urllib.parse.quote(q)}&type=list"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        
+        handlers = []
+        if request.headers.get("X-Blend-Tor") == "1":
+            try:
+                import socks, socket
+                socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 9050)
+                socket.socket = socks.socksocket
+            except ImportError:
+                pass
+
+        data = urllib.request.urlopen(req, timeout=3).read()
+        return app.response_class(data, mimetype="application/json")
+    except Exception:
+        suggestions = [
+            f"{q} tutorial",
+            f"{q} explained",
+            f"{q} github",
+            f"{q} documentation",
+            f"{q} 2026",
+            f"{q} site:reddit.com",
+        ]
+        return jsonify([q, suggestions])
+
+
+@app.route("/ping")
+def ping():
+    return jsonify({
+        "status": "ok",
+        "service": "Blend Search",
+        "brand": "MarkanM",
+        "version": "2.0.0",
+    })
+
+
+import time
+
+SEARCH_CACHE = {}
+CACHE_TTL = 300 # 5 minutes
+
+@app.route("/api/search")
+def api_search():
+    q = request.args.get("q", "").strip()
+    if not q:
+        return jsonify({"error": "empty query"}), 400
+
+    # Cache mechanism to prevent duplicate requests and improve performance
+    cache_key = request.url
+    if cache_key in SEARCH_CACHE:
+        cached_time, cached_resp = SEARCH_CACHE[cache_key]
+        if time.time() - cached_time < CACHE_TTL:
+            return cached_resp
+
+    # Memory Optimization: Aggressively purge cache to stay within Render 512MB limit
+    if len(SEARCH_CACHE) > 100:
+        now = time.time()
+        keys_to_delete = [k for k, v in SEARCH_CACHE.items() if now - v[0] > CACHE_TTL]
+        for k in keys_to_delete: del SEARCH_CACHE[k]
+        if len(SEARCH_CACHE) > 150:
+            SEARCH_CACHE.clear()
+
+
+    today = date.today().isoformat()
+    SEARCH_STATS["total_searches"] += 1
+    SEARCH_STATS["today"][today] = SEARCH_STATS["today"].get(today, 0) + 1
+    SEARCH_STATS["top_queries"][q] = SEARCH_STATS["top_queries"].get(q, 0) + 1
+    category = request.args.get("categories", "general")
+    SEARCH_STATS["engines"][category] = SEARCH_STATS["engines"].get(category, 0) + 1
+
+    query_string = request.args.to_dict(flat=True)
+    query_string["q"] = q
+    query_string["format"] = "json"
+    query_string["autoredirect"] = "0"
+
+    # Smart Routing: Intent manipulation and Open-Web Engine Routing
+    engines_to_force = request.args.get("engines", "")
+    
+    # Deep Music / Video Intent Routing via YouTube
+    if category in ["music", "videos"]:
+        try:
+            from ytdl_downloader import search_youtube
+            search_intent = q
+            if category == "music" and "song" not in q.lower() and "lyrics" not in q.lower() and "music" not in q.lower():
+                search_intent = q + " official audio or music video"
+                
+            yt_results = search_youtube(search_intent, max_results=15)
+            if yt_results:
+                return jsonify({
+                    "query": q,
+                    "number_of_results": len(yt_results),
+                    "results": yt_results,
+                    "answers": [],
+                    "suggestions": []
+                }), 200
+        except Exception as e:
+            print("YouTube search routing failed:", e)
+
+    # Advanced File Search and Open-Web Routing
+    if category == "files":
+        query_string["categories"] = "general"
+        if not engines_to_force:
+            # Default file search behavior: append filetypes
+            if not any(f in q.lower() for f in ['filetype:', 'ext:', 'pdf']):
+                query_string["q"] = q + " (filetype:pdf OR filetype:txt OR filetype:docx OR filetype:json OR filetype:csv OR site:github.com OR site:archive.org)"
+        else:
+            # If specific engines are requested (e.g. github, readthedocs, reddit)
+            # We map some to site: queries for better reliability if the internal engine fails
+            site_mappings = {
+                "github": "site:github.com",
+                "reddit": "site:reddit.com",
+                "wikipedia": "site:wikipedia.org",
+                "readxhub": "site:readxhub.in",
+                "docs": "(site:readthedocs.io OR site:docs.microsoft.com OR site:developer.mozilla.org)"
+            }
+            if engines_to_force in site_mappings:
+                query_string["q"] = q + " " + site_mappings[engines_to_force]
+                if "engines" in query_string:
+                    del query_string["engines"]
+
+    # Force reliable engines for Images and News to avoid IP Blocks and CPU timeouts on Render
+    if category == "images" and not engines_to_force:
+        query_string["engines"] = "duckduckgo images,qwant images"
+        if "categories" in query_string:
+            del query_string["categories"]
+    if category == "news" and not engines_to_force:
+        query_string["engines"] = "duckduckgo news,yahoo news"
+        if "categories" in query_string:
+            del query_string["categories"]
+
+    with app.test_client() as client:
+        resp = client.get("/search", query_string=query_string)
+
+    if resp.status_code < 500:
+        try:
+            payload = json.loads(resp.data.decode("utf-8"))
+            if payload.get("results"):
+                payload["results"] = _boost_results_by_query(q, payload["results"])
+                
+                # Payload Optimization: Truncate results to save RAM and bandwidth
+                if category == "images":
+                    payload["results"] = payload["results"][:20]
+                elif category == "news":
+                    payload["results"] = payload["results"][:15]
+                else:
+                    payload["results"] = payload["results"][:25]
+                    
+            if payload.get("results") and not payload.get("number_of_results"):
+                payload["number_of_results"] = len(payload["results"])
+            if payload.get("results") or category != "general":
+                final_resp = jsonify(payload), resp.status_code
+                SEARCH_CACHE[cache_key] = (time.time(), final_resp)
+                return final_resp
+        except Exception:
+            # Intercept SearxNG auto-redirect for exact URLs and convert it into a JSON result
+            if resp.status_code in (301, 302, 307) or (b"Redirecting..." in resp.data and b"target URL" in resp.data):
+                import re
+                m = re.search(b'href="([^"]+)"', resp.data)
+                redirect_url = m.group(1).decode("utf-8") if m else (q if q.startswith("http") else "https://" + q)
+                
+                payload = _empty_search_payload(q)
+                payload["results"] = [{
+                    "url": redirect_url,
+                    "title": f"{q} (Direct Link)",
+                    "content": "Exact website match for your query.",
+                    "parsed_url": ["https", urllib.parse.urlparse(redirect_url).netloc or q, "", "", "", ""]
+                }]
+                payload["number_of_results"] = 1
+                final_resp = jsonify(payload), 200
+                SEARCH_CACHE[cache_key] = (time.time(), final_resp)
+                return final_resp
+
+            final_resp = Response(resp.data, status=resp.status_code, mimetype=resp.mimetype)
+            SEARCH_CACHE[cache_key] = (time.time(), final_resp)
+            return final_resp
+
+    fallback = _fallback_web_search(q, category, int(request.args.get("pageno") or 1))
+    if fallback["results"]:
+        final_resp = jsonify(fallback)
+        SEARCH_CACHE[cache_key] = (time.time(), final_resp)
+        return final_resp
+
+    if resp.status_code < 500:
+        final_resp = Response(resp.data, status=resp.status_code, mimetype=resp.mimetype)
+        SEARCH_CACHE[cache_key] = (time.time(), final_resp)
+        return final_resp
+        
+    final_resp = jsonify(fallback), 200
+    SEARCH_CACHE[cache_key] = (time.time(), final_resp)
+    return final_resp
+
+
+def _fallback_web_search(q: str, category: str = "general", pageno: int = 1):
+    """Small backend fallback so the custom frontend never depends on static data."""
+    if category not in {"general", "web", "all"}:
+        return _empty_search_payload(q)
+
+    try:
+        from bs4 import BeautifulSoup
+    except Exception:
+        BeautifulSoup = None
+
+    if BeautifulSoup is None:
+        return _empty_search_payload(q)
+
+    try:
+        start = max(0, pageno - 1) * 30
+        url = "https://html.duckduckgo.com/html/?" + urllib.parse.urlencode({"q": q, "s": start})
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0",
+                "Accept": "text/html,application/xhtml+xml",
+            },
+        )
+        
+        if request.headers.get("X-Blend-Tor") == "1":
+            try:
+                import socks, socket
+                socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 9050)
+                socket.socket = socks.socksocket
+            except ImportError:
+                pass
+
+        html = urllib.request.urlopen(req, timeout=8).read()
+        soup = BeautifulSoup(html, "html.parser")
+        results = []
+        for item in soup.select(".result"):
+            link = item.select_one(".result__a")
+            if not link:
+                continue
+            href = _unwrap_ddg_url(link.get("href", ""))
+            title = link.get_text(" ", strip=True)
+            snippet_el = item.select_one(".result__snippet")
+            snippet = snippet_el.get_text(" ", strip=True) if snippet_el else ""
+            domain = urllib.parse.urlparse(href).netloc
+            if href and title:
+                results.append(
+                    {
+                        "url": href,
+                        "title": title,
+                        "content": snippet,
+                        "engine": "duckduckgo_fallback",
+                        "parsed_url": ["https", domain, "", "", "", ""],
+                    }
+                )
+        payload = _empty_search_payload(q)
+        payload["results"] = _boost_results_by_query(q, results[:20])
+        payload["number_of_results"] = len(payload["results"])
+        return payload
+    except Exception:
+        return _empty_search_payload(q)
+
+
+def _unwrap_ddg_url(url: str) -> str:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.path.startswith("/l/"):
+        query = urllib.parse.parse_qs(parsed.query)
+        uddg = query.get("uddg", [""])[0]
+        if uddg:
+            return urllib.parse.unquote(uddg)
+    return urllib.parse.urljoin("https://duckduckgo.com", url)
+
+
+def _empty_search_payload(q: str):
+    return {
+        "query": q,
+        "number_of_results": 0,
+        "results": [],
+        "answers": [],
+        "corrections": [],
+        "infoboxes": [],
+        "suggestions": [],
+        "unresponsive_engines": [],
+    }
+
+
+def _boost_results_by_query(q: str, results: list[dict]):
+    if not results:
+        return results
+
+    # Smart Authority Detection
+    AUTHORITY_DOMAINS = {
+        "wikipedia.org": -30, "github.com": -25, "stackoverflow.com": -25,
+        "reddit.com": -20, "quora.com": -15, "developer.mozilla.org": -20,
+        "docs.microsoft.com": -20, "medium.com": -10, "youtube.com": -15,
+        "news.ycombinator.com": -15, "readxhub.in": -15, "ncbi.nlm.nih.gov": -25,
+        "w3schools.com": -10, "geeksforgeeks.org": -10
+    }
+    
+    # Fake/Spam Domain Detection
+    SPAM_KEYWORDS = ["download-free", "crack", "nulled", "cheap", "buy-now", "generator", "free-robux", "redirect", "clickbait"]
+    
+    # Trusted TLDs
+    TRUSTED_TLDS = [".gov", ".edu", ".org", ".dev", ".io", ".in", ".co.uk", ".ac.uk"]
+    
+    query_words = set(w for w in q.lower().split() if len(w) > 2)
+    base = "".join(ch for ch in q.lower().strip().split()[0] if ch.isalnum() or ch in ".-") if q.strip() else ""
+
+    def score(item):
+        idx, result = item
+        # Consensus-based ranking baseline (upstream rank * 2)
+        s = idx * 2  
+        
+        url = result.get("url", "").lower()
+        title = result.get("title", "").lower()
+        content = result.get("content", "").lower()
+        
+        try:
+            host = urllib.parse.urlparse(url).netloc.removeprefix("www.")
+        except Exception:
+            host = ""
+        
+        # 1. Authority Boost
+        for domain, boost in AUTHORITY_DOMAINS.items():
+            if host == domain or host.endswith("." + domain):
+                s += boost
+                
+        # 2. Trusted TLD Boost
+        if any(host.endswith(tld) for tld in TRUSTED_TLDS):
+            s -= 10
+            
+        # 3. Exact Domain Match (with content check to prevent empty domains winning)
+        if base and (host == base or host.startswith(base + ".")) and len(content) > 30:
+            s -= 15
+            
+        # 4. Spam / Low Quality Penalty
+        if any(spam in url or spam in title for spam in SPAM_KEYWORDS):
+            s += 100
+        if len(content) < 20: # Empty/thin content penalty
+            s += 50
+            
+        # 5. Search Relevance Matching
+        match_count = sum(1 for w in query_words if w in title)
+        s -= (match_count * 5)
+        
+        return s
+
+    # Sort based on computed score
+    scored_results = sorted(enumerate(results), key=score)
+    return [r[1] for r in scored_results]
+
+
+@app.route("/api/ai", methods=["POST"])
+def api_ai():
+    data = request.get_json(force=True, silent=True) or {}
+    query = str(data.get("query") or data.get("message") or "").strip()[:500]
+    if not query:
+        return jsonify({"message": "Query cannot be empty"}), 400
+    results = (data.get("results") or [])[:10]
+    shortcuts = data.get("shortcuts") or []
+    mode = data.get("mode") or "fast"
+    current_tab = data.get("current_tab", "web")
+    current_url = data.get("current_url", "")
+    try:
+        return jsonify(build_ai_response(query, results, shortcuts, mode, current_tab=current_tab, current_url=current_url))
+    except Exception as exc:
+        return jsonify({"message": f"AI error: {exc}"}), 500
+
+@app.route('/api/proxy_download', methods=['GET'])
+def proxy_download():
+    """Proxies the stream to force a 'Save As' download in the browser and bypass IP locks."""
+    url = request.args.get('url')
+    title = request.args.get('title', 'Blend_Download')
+    ext = request.args.get('ext', 'mp4')
+    
+    if not url:
+        return "No URL provided", 400
+        
+    import requests
+    try:
+        req = requests.get(url, stream=True, timeout=10)
+        
+        headers = {
+            'Content-Disposition': f'attachment; filename="{title}.{ext}"'
+        }
+        if 'Content-Type' in req.headers:
+            headers['Content-Type'] = req.headers['Content-Type']
+        if 'Content-Length' in req.headers:
+            headers['Content-Length'] = req.headers['Content-Length']
+            
+        def generate():
+            for chunk in req.iter_content(chunk_size=8192):
+                if chunk:
+                    yield chunk
+                    
+        return Response(generate(), headers=headers)
+    except Exception as e:
+        return f"Download failed: {str(e)}", 500
+
+@app.route('/api/stream', methods=['GET'])
+def api_stream():
+    """
+    Extract real playable stream URLs from YouTube/any URL via yt-dlp.
+    Frontend uses these URLs in an HTML5 <video> element for actual playback.
+    """
+    url = request.args.get('url', '').strip()
+    if not url:
+        return jsonify({'success': False, 'error': 'No URL provided'}), 400
+    try:
+        from ytdl_downloader import get_stream_info
+        info = get_stream_info(url)
+        return jsonify(info)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/downloads_list', methods=['GET'])
+def list_downloads():
+    import os
+    downloads_dir = os.path.join(os.path.dirname(__file__), "downloads")
+    if not os.path.exists(downloads_dir):
+        return jsonify({"files": []})
+    
+    files_data = []
+    for filename in os.listdir(downloads_dir):
+        filepath = os.path.join(downloads_dir, filename)
+        if os.path.isfile(filepath):
+            size_bytes = os.path.getsize(filepath)
+            size_mb = round(size_bytes / (1024 * 1024), 2)
+            files_data.append({
+                "name": filename,
+                "path": filepath,
+                "size": f"{size_mb} MB"
+            })
+    return jsonify({"files": files_data})
+
+
+@app.after_request
+def add_privacy_headers(response):
+    allowed_origin = os.environ.get("BLEND_CORS_ORIGIN", "*")
+    response.headers.setdefault("Access-Control-Allow-Origin", allowed_origin)
+    response.headers.setdefault("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE")
+    response.headers.setdefault("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Cache-Control", "no-cache, no-store, must-revalidate")
+    return response
+
+
+@app.route("/", defaults={"path": ""}, methods=["OPTIONS"])
+@app.route("/<path:path>", methods=["OPTIONS"])
+def app_options_handler(path=""):
+    return "", 204
+
+
+if __name__ == "__main__":
+    port = os.environ.get("PORT", "8081")
+    print(f"🔍 Blend Search Engine Starting on Port {port}...")
+    print("🏠 Service is running")
+    print("🤖 Navar AI Assistant is active and powered by Sarvam AI (if configured)")
+    run()

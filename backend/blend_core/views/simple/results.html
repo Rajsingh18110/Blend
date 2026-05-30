@@ -1,0 +1,321 @@
+{% extends "simple/base.html" %}
+{% from 'simple/icons.html' import icon, icon_big, icon_small %}
+{% macro engine_data_form(engine_data) -%}
+    {% for engine_name, kv_data in engine_data.items() %}
+        {% for k, v in kv_data.items() %}
+            <input type="hidden" name="engine_data-{{ engine_name }}-{{ k|e }}" value="{{ v|e }}">
+        {% endfor %}
+    {% endfor %}
+{%- endmacro %}
+{% block title %}{% if query_in_title %}{{- q|e }} - {% endif %}{% endblock %}
+{% block meta %}<link rel="alternate" type="application/rss+xml" title="Blend search: {{ q|e }}" href="{{ url_for('search', _external=True) }}?q={{ q|urlencode }}&amp;categories={{ selected_categories|join(",") | replace(' ','+') }}&amp;pageno={{ pageno }}&amp;time_range={{ time_range }}&amp;language={{ current_language }}&amp;safesearch={{ safesearch }}&amp;format=rss">{% endblock %}
+{% block content %}
+<style>
+  /* RESULTS PAGE - MARKANM SEARCH THEME */
+  .g-results-page {
+    display: flex;
+    gap: 32px;
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: fadeIn 0.3s ease-out;
+  }
+  #results_main { flex: 1; min-width: 0; }
+  #sidebar { width: 340px; flex-shrink: 0; }
+  
+  /* Result Cards */
+  .result {
+    background: transparent;
+    padding: 16px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--current-border);
+    transition: background 0.2s;
+  }
+  .result:last-child {
+    border-bottom: none;
+  }
+  .result:hover {
+    background: rgba(0,0,0,0.02);
+  }
+  @media (prefers-color-scheme: dark) {
+    .result:hover { background: rgba(255,255,255,0.02); }
+  }
+  
+  /* Typography inside results */
+  .result h3 { margin: 4px 0 8px 0; font-size: 18px; font-weight: 400; }
+  .result h3 a { color: var(--link); text-decoration: none; }
+  .result h3 a:hover { text-decoration: underline; }
+  
+  .result .url_wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: var(--success);
+  }
+  
+  .result .content {
+    color: var(--text-muted);
+    line-height: 1.5;
+    font-size: 14px;
+  }
+
+  /* Sidebar styling */
+  #sidebar .sidebar-box {
+    background: var(--current-card-bg);
+    border: 1px solid var(--current-border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--current-shadow);
+  }
+  
+  .g-ai-card-header {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--text); font-weight: 600; font-size: 16px; margin-bottom: 12px;
+  }
+  .g-ai-card p {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .g-ai-card {
+    background: var(--current-card-bg);
+    border: 1px solid var(--current-border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: var(--current-shadow);
+  }
+
+  /* Sidebar logo */
+  .sidebar-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--current-text);
+  }
+  .sidebar-logo .accent { color: var(--primary); }
+  
+  .sidebar-links {
+    list-style: none; padding: 0; margin: 0;
+  }
+  .sidebar-links li { margin-bottom: 12px; }
+  .sidebar-links a { color: var(--link); text-decoration: none; font-size: 14px; }
+  .sidebar-links a:hover { text-decoration: underline; }
+  
+  /* Pagination */
+  #pagination {
+    display: flex; justify-content: center; gap: 12px; padding: 40px 0;
+  }
+  .page_number, .previous_page button, .next_page button {
+    background: var(--current-card-bg); border: 1px solid var(--current-border);
+    color: var(--current-text); padding: 8px 16px; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s ease;
+  }
+  .page_number_current {
+    background: var(--primary); color: #fff; border: 1px solid var(--primary);
+    padding: 8px 16px; border-radius: 8px; font-weight: bold;
+  }
+  .page_number:hover, .previous_page button:hover, .next_page button:hover {
+    border-color: var(--primary); color: var(--primary);
+  }
+
+  @media (max-width: 900px) {
+    .g-results-page { flex-direction: column; padding: 16px; }
+    #sidebar { width: 100%; }
+  }
+</style>
+
+{% include 'simple/search.html' %}
+
+{% if results and results|map(attribute='template')|unique|list|count == 1 %}
+  {% set only_template = 'only_template_' + results[0]['template']|default('default')|replace('.html', '') %}
+{% else %}
+  {% set only_template = '' %}
+{% endif %}
+
+<div id="results" class="g-results-page {{ only_template }}">
+    <div id="results_main">
+    {%- if answers -%}
+      {%- include 'simple/elements/answers.html' -%}
+    {%- endif %}
+
+    {%- if corrections -%}
+      {%- include 'simple/elements/corrections.html' -%}
+    {%- endif -%}
+
+    {% if g.markanm_ai_summary %}
+    <div class="g-ai-card">
+      <div class="g-ai-card-header">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Blend summary
+      </div>
+      <p>{{ g.markanm_ai_summary }}</p>
+    </div>
+    {% endif %}
+    <div id="urls" role="main">
+    {% for result in results %}
+        {% if result.open_group and not only_template %}<div class="template_group_{{ result['template']|replace('.html', '') }}">{% endif %}
+        {% set index = loop.index %}
+        {% include get_result_template('simple', result['template']) %}
+        {% if result.close_group and not only_template %}</div>{% endif %}
+    {% endfor %}
+    {% if not results and not answers %}
+        {% include 'simple/messages/no_results.html' %}
+    {% endif %}
+    </div>
+    </div>
+
+    <aside id="sidebar">
+
+        {%- if knowledge_card %}
+        <section class="sidebar-box" aria-label="Quick Answer">
+          <div class="g-ai-card-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            Quick Answer
+          </div>
+          <div style="font-weight:600;font-size:16px;color:var(--current-text);margin-bottom:4px;">{{ knowledge_card.title }}</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">{{ knowledge_card.subtitle }}</div>
+          <p class="g-ai-card" style="margin:0;font-size:14px;color:var(--text-muted);line-height:1.6;">{{ knowledge_card.summary }}</p>
+          {% if knowledge_card.facts %}
+          <div style="margin-top:12px;border-top:1px solid var(--current-border);padding-top:12px;">
+            {% for label, value in knowledge_card.facts %}
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--current-border);font-size:13px;">
+              <span style="color:var(--text-muted);">{{ label }}</span>
+              <strong>{{ value }}</strong>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </section>
+        {%- endif -%}
+
+        <!-- About Blend Search sidebar card -->
+        <div class="sidebar-box">
+          <div class="sidebar-logo">Blend<span class="accent">Search</span></div>
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:0 0 16px 0;">
+            Standalone privacy-first search focused on clean results and easy navigation.
+          </p>
+          <ul class="sidebar-links">
+            <li>● <a href="#" onclick="document.getElementById('blendModal').style.display='flex';return false;">About Blend Search</a></li>
+            <li>● <a href="{{ url_for('preferences') }}">Preferences</a></li>
+            <li>● <a href="{{ url_for('index') }}">Home</a></li>
+          </ul>
+        </div>
+
+        <!-- Quick Shortcuts -->
+        <div class="sidebar-box">
+          <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px;">Quick Shortcuts</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <a href="?q={{ q|e }}&categories=images" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--current-border);border-radius:20px;text-decoration:none;font-size:13px;color:var(--current-text);transition:all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="">📷 Image search</a>
+            <a href="?q={{ q|e }}&categories=videos" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--current-border);border-radius:20px;text-decoration:none;font-size:13px;color:var(--current-text);transition:all 0.2s;">📹 Videos</a>
+            <a href="?q={{ q|e }}&categories=news" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--current-border);border-radius:20px;text-decoration:none;font-size:13px;color:var(--current-text);transition:all 0.2s;">📰 Latest news</a>
+            <a href="?q={{ q|e }}&language=hi" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--current-border);border-radius:20px;text-decoration:none;font-size:13px;color:var(--current-text);transition:all 0.2s;">🌐 Hindi results</a>
+            <a href="{{ url_for('search') }}?q={{ q|urlencode }}&time_range=day" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--current-border);border-radius:20px;text-decoration:none;font-size:13px;color:var(--current-text);transition:all 0.2s;">⏱ Recent results</a>
+          </div>
+        </div>
+
+        {%- if infoboxes -%}
+          <div id="infoboxes" class="sidebar-box">
+            <details open>
+              <summary style="font-weight:600;cursor:pointer;margin-bottom:12px;">{{ _('Info') }}</summary>
+              {%- for infobox in infoboxes -%}
+                {%- include 'simple/elements/infobox.html' -%}
+              {%- endfor -%}
+            </details>
+          </div>
+        {%- endif -%}
+
+        {%- if suggestions -%}
+        <div class="sidebar-box">
+          <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px;">Related Searches</div>
+          {%- include 'simple/elements/suggestions.html' -%}
+        </div>
+        {%- endif -%}
+
+        <div id="sidebar-end-collapsible"></div>
+    </aside>
+
+    <div id="backToTop">
+      <a href="#" aria-label="{{ _('Back to top') }}">{{ icon_small('navigate-up') }}</a>
+    </div>
+    {% if paging %}
+    <nav id="pagination" role="navigation">
+        {% if pageno > 1 %}
+            <form method="{{ method or 'POST' }}" action="{{ url_for('search') }}" class="previous_page">
+                <div class="{% if rtl %}right{% else %}left{% endif %}">
+                  <input type="hidden" name="q" value="{{ q|e }}" >
+                  {% for category in selected_categories %}
+                  <input type="hidden" name="category_{{ category }}" value="1" >
+                  {% endfor %}
+                  <input type="hidden" name="pageno" value="{{ pageno-1 }}" >
+                  <input type="hidden" name="language" value="{{ current_language }}" >
+                  <input type="hidden" name="time_range" value="{{ time_range }}" >
+                  <input type="hidden" name="safesearch" value="{{ safesearch }}" >
+                  <input type="hidden" name="theme" value="{{ theme }}" >
+                  <input type="hidden" name="ai_mode" value="{{ ai_mode }}" >
+                  <input type="hidden" name="engine_scope" value="{{ engine_scope }}" >
+                  {% if timeout_limit %}<input type="hidden" name="timeout_limit" value="{{ timeout_limit|e }}" >{% endif %}
+                  {{- engine_data_form(engine_data) -}}
+                  <button role="link" type="submit">{{ icon_small('navigate-left') }} {{ _('Previous page') }}</button>
+                </div>
+            </form>
+        {% endif %}
+        {%- if results | count > 0 -%}
+          <form method="{{ method or 'POST' }}" action="{{ url_for('search') }}" class="next_page">
+              <div class="{% if rtl %}left{% else %}right{% endif %}">
+                <input type="hidden" name="q" value="{{ q|e }}" >
+                {% for category in selected_categories %}
+                <input type="hidden" name="category_{{ category }}" value="1" >
+                {% endfor %}
+                <input type="hidden" name="pageno" value="{{ pageno+1 }}" >
+                <input type="hidden" name="language" value="{{ current_language }}" >
+                <input type="hidden" name="time_range" value="{{ time_range }}" >
+                <input type="hidden" name="safesearch" value="{{ safesearch }}" >
+                <input type="hidden" name="theme" value="{{ theme }}" >
+                <input type="hidden" name="ai_mode" value="{{ ai_mode }}" >
+                <input type="hidden" name="engine_scope" value="{{ engine_scope }}" >
+                {% if timeout_limit %}<input type="hidden" name="timeout_limit" value="{{ timeout_limit|e }}" >{% endif %}
+                {{- engine_data_form(engine_data) -}}
+                <button role="link"  type="submit">{{ _('Next page') }} {{ icon_small('navigate-right') }}</button>
+              </div>
+          </form>
+        {%- endif -%}
+        {% set pstart = 1 %}
+        {% set pend = 11 %}
+        {% if pageno > 5 %}
+            {% set pstart = pageno - 4 %}
+            {% set pend = pageno + 6 %}
+        {% endif %}
+
+        <div class="numbered_pagination">
+        {% for x in range(pstart, pend) %}
+            <form method="{{ method or 'POST' }}" action="{{ url_for('search') }}" class="page_number">
+                <input type="hidden" name="q" value="{{ q|e }}" >
+                {% for category in selected_categories %}
+                <input type="hidden" name="category_{{ category }}" value="1" >
+                {% endfor %}
+                <input type="hidden" name="pageno" value="{{ x }}" >
+                <input type="hidden" name="language" value="{{ current_language }}" >
+                <input type="hidden" name="time_range" value="{{ time_range }}" >
+                <input type="hidden" name="safesearch" value="{{ safesearch }}" >
+                <input type="hidden" name="theme" value="{{ theme }}" >
+                <input type="hidden" name="ai_mode" value="{{ ai_mode }}" >
+                <input type="hidden" name="engine_scope" value="{{ engine_scope }}" >
+                {% if timeout_limit %}<input type="hidden" name="timeout_limit" value="{{ timeout_limit|e }}" >{% endif %}
+                {{- engine_data_form(engine_data) -}}
+                {% if pageno == x %}
+                <input role="link" class="page_number_current" type="button" value="{{ x }}">
+                {% else %}
+                <input role="link" class="page_number" type="submit" value="{{ x }}">
+                {% endif %}
+            </form>
+        {% endfor %}
+        </div>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
