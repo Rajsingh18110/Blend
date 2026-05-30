@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 128 128" role="img" aria-label="Markanm">
+  <defs>
+    <linearGradient id="legacyAliasGradient" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B2B"/>
+      <stop offset="100%" stop-color="#58A6FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#0D1117"/>
+  <path d="M24 97V31h15l25 37 25-37h15v66H89V56L64 93 39 56v41z" fill="url(#legacyAliasGradient)"/>
+</svg>

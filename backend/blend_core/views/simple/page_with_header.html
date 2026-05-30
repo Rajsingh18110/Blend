@@ -1,0 +1,9 @@
+{%- set body_class = "page_with_header" -%}
+{%- extends "simple/base.html" -%}
+{%- block header -%}
+  <a href="{{ url_for('index') }}">{{- '' -}}
+    <span class="g-search-wordmark" aria-label="Blend">
+      <span class="g-blue">B</span><span class="g-red">l</span><span class="g-yellow">e</span><span class="g-blue">n</span><span class="g-green">d</span>
+    </span>{{- '' -}}
+  </a>{{- '' -}}
+{%- endblock -%}

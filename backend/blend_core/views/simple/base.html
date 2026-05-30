@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html class="no-js theme-{{ preferences.get_value('simple_style') or 'auto' }} center-alignment-{{ preferences.get_value('center_alignment') and 'yes' or 'no' }}" lang="{{ locale_rfc5646 }}" {% if rtl %} dir="rtl"{% endif %}>
+<head>
+
+<meta name="author" content="Markanm Team">
+<meta name="publisher" content="Markanm">
+<meta name="copyright" content="Markanm Team">
+
+  <meta charset="UTF-8">
+  <meta name="endpoint" content="{{ endpoint }}">
+  <meta name="description" content="Blend Search: a standalone privacy-first search interface with clean results and no external assistant dependency.">
+  <meta name="keywords" content="Blend Search, private search, web search, standalone search">
+  <meta name="generator" content="Blend Search / standalone / {{ markanm_version }}">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noarchive">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %}{{ instance_name }}</title>
+  
+  <style>
+    /* MARKANM SEARCH THEME */
+    :root {
+      --primary: #d45b33;
+      --primary-strong: #b84a24;
+      --accent: #1d6d86;
+      --paper: #fffdfa;
+      --sand: #f3ede4;
+      --ink: #1d232b;
+      --ink-soft: #5f6975;
+      --line: #ded6c9;
+      --success: #2d7a52;
+      --shadow-light: 0 18px 40px rgba(64, 45, 28, 0.08);
+      --shadow-dark: 0 18px 44px rgba(0, 0, 0, 0.34);
+      --current-bg: var(--sand);
+      --current-bg-elevated: var(--paper);
+      --current-text: var(--ink);
+      --text-muted: var(--ink-soft);
+      --link: var(--accent);
+      --current-border: var(--line);
+      --current-card-bg: rgba(255, 253, 250, 0.88);
+      --current-shadow: var(--shadow-light);
+      --current-backdrop: rgba(255, 248, 240, 0.88);
+    }
+
+    html.theme-dark {
+      --current-bg: #111315;
+      --current-bg-elevated: #191c20;
+      --current-text: #f3f0eb;
+      --text-muted: #aeb5bf;
+      --link: #7ec7df;
+      --current-border: #2d3137;
+      --current-card-bg: rgba(25, 28, 32, 0.92);
+      --current-shadow: var(--shadow-dark);
+      --current-backdrop: rgba(17, 19, 21, 0.9);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html.theme-auto {
+        --current-bg: #111315;
+        --current-bg-elevated: #191c20;
+        --current-text: #f3f0eb;
+        --text-muted: #aeb5bf;
+        --link: #7ec7df;
+        --current-border: #2d3137;
+        --current-card-bg: rgba(25, 28, 32, 0.92);
+        --current-shadow: var(--shadow-dark);
+        --current-backdrop: rgba(17, 19, 21, 0.9);
+      }
+    }
+    
+    body {
+      background-color: var(--current-bg);
+      color: var(--current-text);
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      background-image:
+        radial-gradient(circle at top left, rgba(212, 91, 51, 0.08), transparent 32%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.24), transparent 28%);
+    }
+
+    /* Top Navigation */
+    #links_on_top {
+      display: flex;
+      justify-content: flex-end;
+      padding: 15px 30px;
+      gap: 20px;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--current-backdrop);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--current-border);
+    }
+    #links_on_top a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    #links_on_top a:hover {
+      color: var(--primary);
+    }
+
+    /* Logo / Branding */
+    .brand-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 30px;
+      color: var(--current-text);
+      text-decoration: none;
+      display: inline-block;
+    }
+    .brand-logo .accent {
+      color: var(--primary);
+    }
+
+    /* Modal Styling */
+    .blend-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.2s ease;
+    }
+    .blend-modal {
+      background: var(--current-card-bg);
+      border: 1px solid var(--current-border);
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: var(--current-shadow);
+      position: relative;
+    }
+    .blend-modal h2 {
+      margin-top: 0;
+      color: var(--primary);
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+    }
+    .blend-modal p {
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .close-modal {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .close-modal:hover {
+      color: var(--primary);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Common UI Elements */
+    input[type="text"], input[type="search"] {
+      background: var(--current-bg-elevated);
+      color: var(--current-text);
+      border: 1px solid var(--current-border);
+      border-radius: 24px;
+      padding: 12px 20px;
+      font-size: 16px;
+      box-shadow: var(--current-shadow);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus, input[type="search"]:focus {
+      border-color: var(--primary);
+    }
+  </style>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@700&display=swap" rel="stylesheet">
+
+  <script type="module" src="{{ url_for('static', filename='sxng-core.min.js') }}" client_settings="{{ client_settings }}"></script>
+  {% block meta %}{% endblock %}
+  {% if rtl %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='sxng-rtl.min.css') }}" type="text/css" media="screen">
+  {% else %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='sxng-ltr.min.css') }}" type="text/css" media="screen">
+  {% endif %}
+  {% if get_setting('server.limiter') or get_setting('server.public_instance') %}
+  <link rel="stylesheet" href="{{ url_for('client_token', token=link_token) }}" type="text/css">
+  {% endif %}
+  {% block head %}
+  <link title="{{ instance_name }}" type="application/opensearchdescription+xml" rel="search" href="{{ opensearch_url }}">
+  {% endblock %}
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" sizes="any">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <link rel="manifest" href="{{ url_for('manifest') }}" />
+</head>
+<body class="{{ endpoint }}_endpoint {{ body_class or '' }}">
+  
+  <nav id="links_on_top" style="justify-content:space-between;">
+    <!-- Logo -->
+    <a href="{{ url_for('index') }}" class="brand-logo" style="padding:0;">Blend<span class="accent">Search</span></a>
+
+    <!-- Nav Links -->
+    <div style="display:flex;gap:24px;align-items:center;">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="#" onclick="document.getElementById('blendModal').style.display='flex'; return false;">About</a>
+      <a href="#" onclick="document.getElementById('blendModal').style.display='flex'; return false;">Contact</a>
+      {%- block linkto_preferences -%}
+        {%- if request.args.get('preferences') -%}
+          <a href="{{ url_for('preferences') }}?preferences={{ request.args.get('preferences') }}&preferences_preview_only=true">Settings</a>
+        {%- else -%}
+          <a href="{{ url_for('preferences') }}">Settings</a>
+        {%- endif -%}
+      {%- endblock -%}
+    </div>
+  </nav>
+
+  <main id="main_{{  self._TemplateReference__context.name|replace('simple/', '')|replace('.html', '') }}" class="{{body_class}}">
+    {% if errors %}
+        <div class="dialog-error" role="alert">
+            <a href="#" class="close" aria-label="close" title="close">×</a>
+            <ul>
+            {% for message in errors %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% block header %}
+    {% endblock %}
+    
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <div id="blendModal" class="blend-modal-overlay" onclick="if(event.target===this)this.style.display='none'">
+    <div class="blend-modal">
+      <button class="close-modal" onclick="document.getElementById('blendModal').style.display='none'">&times;</button>
+      <h2>Blend Search</h2>
+      <p><strong>Blend Search</strong> is a standalone privacy-first search interface built to stay focused on clean results and simple navigation.</p>
+      <p>This copy has been separated from external assistant integrations so the app can run fully on its own.</p>
+      <p>Use it as an isolated search project and customize the UI freely from this folder.</p>
+      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+        <span style="padding:6px 14px;background:rgba(224,90,43,0.1);border:1px solid var(--primary);border-radius:20px;color:var(--primary);font-size:12px;font-weight:600;">🔒 Privacy First</span>
+        <span style="padding:6px 14px;background:rgba(29,109,134,0.1);border:1px solid var(--link);border-radius:20px;color:var(--link);font-size:12px;font-weight:600;">🧩 Standalone Copy</span>
+        <span style="padding:6px 14px;background:rgba(45,122,82,0.1);border:1px solid var(--success);border-radius:20px;color:var(--success);font-size:12px;font-weight:600;">🎨 Custom UI Ready</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

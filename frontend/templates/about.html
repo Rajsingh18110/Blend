@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+
+<meta name="author" content="Markanm Team">
+<meta name="publisher" content="Markanm">
+<meta name="copyright" content="Markanm Team">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Blend Search</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="logo">Blend<span style="color:var(--accent)">.</span><span class="powered">markanm</span></a>
+    <div class="topbar-badge">About</div>
+  </div>
+  <div class="topbar-search">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="top-search" placeholder="Search anything…" autocomplete="off" />
+  </div>
+  <button class="search-submit" onclick="doSearch()">Search</button>
+  <nav class="topbar-nav" style="margin-left:12px;">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="about.html" class="nav-link active">About</a>
+    <a href="privacy.html" class="nav-link">Privacy</a>
+    <a href="settings.html" class="nav-link">Settings</a>
+  </nav>
+</header>
+
+<main class="content-page">
+
+  <!-- HERO -->
+  <div class="page-hero">
+    <div class="page-tag">ℹ️ About Blend</div>
+    <h1 class="page-title">Search the web,<br/>on your terms.</h1>
+    <p class="page-subtitle">Blend is a privacy-first, AI-powered meta search engine. We believe your search history is yours — not ours.</p>
+  </div>
+
+  <!-- WHAT IS BLEND -->
+  <div class="section-block">
+    <h2 class="section-heading">What is Blend?</h2>
+    <p class="section-text">Blend is a meta search engine — it aggregates results from multiple search providers and delivers them to you without tracking who you are, what you searched, or where you're from.</p>
+    <p class="section-text">The name "Blend" reflects exactly what we do: we blend the best results from across the web into a single, clean, private interface. Think of it as a privacy-first layer on top of the existing web.</p>
+  </div>
+
+  <!-- WHY WE BUILT IT -->
+  <div class="section-block">
+    <h2 class="section-heading">Why we built this</h2>
+    <p class="section-text">Major search engines track your every query. They build profiles, sell data, and serve results filtered by algorithms optimized for engagement — not accuracy. We wanted something different: a search engine that respects you.</p>
+    <p class="section-text">Blend was born as an experiment in privacy-respecting web search. We've since grown it into a full-featured search engine with image, video, news, maps, and file search — all without compromising on privacy.</p>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="section-block">
+    <h2 class="section-heading">What makes Blend different</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Zero Tracking</div>
+        <div class="feature-desc">We store no search logs, no cookies, no IP addresses. Every search is stateless and anonymous.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🚫</div>
+        <div class="feature-title">No Ads</div>
+        <div class="feature-desc">No advertisers. No sponsored results. No profiling. Pure organic results from real engines.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Fast & Light</div>
+        <div class="feature-desc">Lightweight frontend, minimal JS. Results in under 500ms. Works on slow connections too.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Multi-Engine</div>
+        <div class="feature-desc">Aggregates from 7+ search engines. More sources = better, diverse results.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">AI-Powered</div>
+        <div class="feature-desc">Optional AI summaries powered by local models. No external API calls for your queries.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🇮🇳</div>
+        <div class="feature-title">India-First</div>
+        <div class="feature-desc">Optimized for Indian users. Supports Hindi search, India filter, and regional content.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📂</div>
+        <div class="feature-title">Multi-Tab Search</div>
+        <div class="feature-desc">Web, Images, Videos, News, Maps, Music, Files, Social — all in one place.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔓</div>
+        <div class="feature-title">Community Driven</div>
+        <div class="feature-desc">Blend welcomes contributions from the community. If you want to help, you can join the MarkanM team.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section-block">
+    <h2 class="section-heading">How it works</h2>
+    <p class="section-text">When you search on Blend, your query is sent simultaneously to multiple search engine APIs on our backend server. We strip all identifiers from these requests so engines cannot track you. Results are aggregated, deduplicated, ranked, and returned to you in milliseconds.</p>
+    <p class="section-text">We never proxy images or resources through our server unless necessary. External requests (thumbnails, favicons) are handled client-side so our server never sees your browsing behavior post-search.</p>
+    <div style="margin-top:20px;padding:16px 20px;background:rgba(0,201,167,0.06);border:1px solid rgba(0,201,167,0.15);border-radius:var(--radius-lg);">
+      <p style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:6px;">Query flow</p>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;">Your browser → Blend server (strips your IP) → Multiple search APIs → Results merged → Back to you</p>
+    </div>
+  </div>
+
+  <!-- ENGINES -->
+  <div class="section-block">
+    <h2 class="section-heading">Search engines we use</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:4px;">
+      <div style="padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>Web Indexers
+      </div>
+      <div style="padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>News Aggregators
+      </div>
+      <div style="padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>Map Providers
+      </div>
+      <div style="padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>Video Engines
+      </div>
+      <div style="padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>Image Registries
+      </div>
+      <div style="padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>Knowledge Bases
+      </div>
+      <div style="padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>Academic Papers
+      </div>
+      <div style="padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>Social Feeds
+      </div>
+      <div style="padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>Music Databases
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM -->
+  <div class="section-block">
+    <h2 class="section-heading">The team</h2>
+    <p class="section-text">Blend is maintained by a small group of developers passionate about privacy and building secure tools for everyone's growing tech community.</p>
+    <p class="section-text">We believe great software can be both powerful and privacy-respecting. Blend is our proof of that.</p>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section-block">
+    <h2 class="section-heading">Frequently asked questions</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Is Blend really free?</span><span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">Yes, Blend is completely free to use. We have no paid plans, no subscriptions, and no ads. We are made possible by voluntary contributions and community support.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Do you store my searches?</span><span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">No. We do not log queries, IP addresses, or any identifying information. Each search is independent and stateless on our side.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Can I self-host Blend?</span><span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">Blend's core functionality is available for self-hosting. You can run your own instance on localhost or any server by following the team's deployment guidelines.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>How is Blend different from other engines?</span><span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">Blend is built from scratch with a unique UI, AI-powered features, and India-specific optimizations including Hindi search and regional content filtering.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>What data do the underlying search engines collect?</span><span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">We strip identifiers from requests we send to search engines, but they may still collect minimal technical data (e.g. the search query itself, as that is unavoidable). Read our Privacy page for details.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Can I contribute to Blend?</span><span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">Absolutely! We welcome contributions. If you want to contribute, you can join the MarkanM team and help us build better tools.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="text-align:center;padding:40px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);margin-top:8px;">
+    <h3 style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700;margin-bottom:10px;color:var(--text);">Ready to search differently?</h3>
+    <p style="color:var(--text2);margin-bottom:24px;font-size:15px;">No account needed. No setup. Just open and search.</p>
+    <a href="index.html" style="display:inline-block;padding:12px 28px;background:var(--accent);color:#000;font-weight:700;border-radius:var(--radius-xl);text-decoration:none;font-size:15px;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">Start Searching →</a>
+  </div>
+
+</main>
+
+<footer>
+  <span class="footer-copy">© 2026 Blend · Search Engine</span>
+  <div class="footer-links">
+    <a href="index.html" class="footer-link">Home</a>
+    <a href="privacy.html" class="footer-link">Privacy</a>
+    <a href="settings.html" class="footer-link">Settings</a>
+    <a href="#" class="footer-link">Join Us</a>
+    <a href="https://markanm.com/contact" class="footer-link">Contact</a>
+  </div>
+</footer>
+
+<script>
+  function toggleFaq(el) {
+    el.parentElement.classList.toggle('open');
+  }
+  function doSearch() {
+    const q = document.getElementById('top-search').value.trim();
+    if (q) window.location.href = `results.html?q=${encodeURIComponent(q)}&tab=web`;
+  }
+  document.getElementById('top-search').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+</script>
+</body>
+</html>
