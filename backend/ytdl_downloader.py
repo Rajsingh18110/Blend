@@ -7,7 +7,124 @@
 # -----------------------------------------------
 import yt_dlp
 import os
+import shutil
 import sys
+
+
+def _ffmpeg_available():
+    return shutil.which("ffmpeg") is not None
+
+
+def _quality_height_cap(quality):
+    return {
+        "4k": 2160,
+        "1080p": 1080,
+        "720p": 720,
+        "360p": 360,
+    }.get((quality or "best").lower())
+
+
+def _build_download_options(quality, output_dir, file_id):
+    quality = (quality or "best").lower()
+    ffmpeg_available = _ffmpeg_available()
+
+    ydl_opts = {
+        'outtmpl': os.path.join(output_dir, f'%(title)s_{file_id}.%(ext)s'),
+        'noplaylist': True,
+        'quiet': True,
+        'no_warnings': True,
+        'geo_bypass': True,
+        'nocheckcertificate': True,
+        'extractor_args': {'youtube': ['player_client=android']},
+    }
+
+    if quality == "audio":
+        ydl_opts['format'] = 'bestaudio/best'
+        if ffmpeg_available:
+            ydl_opts['postprocessors'] = [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '0',
+            }]
+        return ydl_opts
+
+    if ffmpeg_available:
+        if quality == "4k":
+            ydl_opts['format'] = 'bestvideo[height<=2160]+bestaudio/best'
+            ydl_opts['merge_output_format'] = 'mp4'
+        elif quality == "1080p":
+            ydl_opts['format'] = 'bestvideo[height<=1080]+bestaudio/best'
+            ydl_opts['merge_output_format'] = 'mp4'
+        elif quality == "720p":
+            ydl_opts['format'] = 'bestvideo[height<=720]+bestaudio/best'
+            ydl_opts['merge_output_format'] = 'mp4'
+        elif quality == "360p":
+            ydl_opts['format'] = 'best[height<=360]/bestvideo[height<=360]+bestaudio/best'
+            ydl_opts['merge_output_format'] = 'mp4'
+        else:
+            ydl_opts['format'] = 'best/bestvideo+bestaudio'
+            ydl_opts['merge_output_format'] = 'mp4'
+        return ydl_opts
+
+    # ffmpeg is unavailable, so only select formats that are already muxed
+    # (video + audio in a single file). This keeps downloads working instead
+    # of failing during the merge/post-processing step.
+    height_cap = _quality_height_cap(quality)
+    if height_cap:
+        ydl_opts['format'] = (
+            f'best[height<={height_cap}][vcodec!=none][acodec!=none]'
+            f'/best[vcodec!=none][acodec!=none]'
+        )
+    else:
+        ydl_opts['format'] = (
+            'best[vcodec!=none][acodec!=none]'
+        )
+    return ydl_opts
+
+
+def _resolve_download_path(output_dir, file_id, info, ydl):
+    candidates = []
+
+    def add_candidate(path):
+        if isinstance(path, str) and path and path not in candidates:
+            candidates.append(path)
+
+    add_candidate(info.get('filepath'))
+    add_candidate(info.get('_filename'))
+
+    try:
+        add_candidate(ydl.prepare_filename(info))
+    except Exception:
+        pass
+
+    for requested in info.get('requested_downloads') or []:
+        if isinstance(requested, dict):
+            add_candidate(requested.get('filepath'))
+            add_candidate(requested.get('_filename'))
+            add_candidate(requested.get('filename'))
+
+    for requested in info.get('requested_formats') or []:
+        if isinstance(requested, dict):
+            add_candidate(requested.get('filepath'))
+            add_candidate(requested.get('_filename'))
+
+    for path in candidates:
+        if path and os.path.exists(path) and not path.endswith(('.part', '.ytdl')):
+            return path
+
+    if os.path.isdir(output_dir):
+        matching_files = []
+        for name in os.listdir(output_dir):
+            if file_id in name and not name.endswith(('.part', '.ytdl')):
+                path = os.path.join(output_dir, name)
+                if os.path.isfile(path):
+                    matching_files.append(path)
+
+        if matching_files:
+            matching_files.sort(key=os.path.getmtime, reverse=True)
+            return matching_files[0]
+
+    return None
 
 
 def get_stream_info(url):
@@ -125,53 +242,29 @@ def get_stream_info(url):
         return {'success': False, 'error': str(e)}
 
 
-def download_video(url, quality="best", output_dir="downloads"):
-    """
-    Smart Downloader using yt-dlp.
-    Allows downloading in best quality, 1080p, 720p, or Audio only.
-    """
+def download_video(url, quality="best"):
+    import tempfile
+    import uuid
+    output_dir = os.path.join(tempfile.gettempdir(), "blend_downloads")
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    ydl_opts = {
-        'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
-        'noplaylist': True,
-        'quiet': True,
-    }
-
-    if quality == "audio":
-        ydl_opts['format'] = 'bestaudio/best'
-        ydl_opts['postprocessors'] = [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }]
-    elif quality == "4k":
-        ydl_opts['format'] = 'bestvideo[height<=2160]+bestaudio/best'
-        ydl_opts['merge_output_format'] = 'mp4'
-    elif quality == "1440p":
-        ydl_opts['format'] = 'bestvideo[height<=1440]+bestaudio/best'
-        ydl_opts['merge_output_format'] = 'mp4'
-    elif quality == "1080p":
-        ydl_opts['format'] = 'bestvideo[height<=1080]+bestaudio/best'
-        ydl_opts['merge_output_format'] = 'mp4'
-    elif quality == "720p":
-        ydl_opts['format'] = 'bestvideo[height<=720]+bestaudio/best'
-        ydl_opts['merge_output_format'] = 'mp4'
-    elif quality == "360p":
-        ydl_opts['format'] = 'bestvideo[height<=360]+bestaudio/best'
-        ydl_opts['merge_output_format'] = 'mp4'
-    else:
-        ydl_opts['format'] = 'bestvideo+bestaudio/best'
-        ydl_opts['merge_output_format'] = 'mp4'
+    file_id = str(uuid.uuid4())[:8]
+    ydl_opts = _build_download_options(quality, output_dir, file_id)
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
-        return True
+            info = ydl.extract_info(url, download=True)
+            file_path = _resolve_download_path(output_dir, file_id, info, ydl)
+            if not file_path:
+                raise RuntimeError(
+                    f"yt-dlp finished but no output file was found for quality='{quality}'. "
+                    "Try a lower quality or install ffmpeg for merged downloads."
+                )
+            return file_path
     except Exception as e:
         print(f"Download error: {e}")
-        return False
+        raise RuntimeError(f"Download failed: {e}") from e
 
 
 def search_youtube(query, max_results=15):
@@ -231,4 +324,8 @@ if __name__ == "__main__":
         sys.exit(1)
     url = sys.argv[1]
     quality = sys.argv[2] if len(sys.argv) > 2 else "best"
-    download_video(url, quality)
+    try:
+        print(download_video(url, quality))
+    except Exception as exc:
+        print(f"Download failed: {exc}")
+        sys.exit(1)

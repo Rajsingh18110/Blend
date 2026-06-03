@@ -320,40 +320,18 @@ def _clean_llm_text(text: str) -> str:
     return text.strip()
 
 def _call_llm(messages: list[dict]) -> str:
-    # Design for Render deployment - Environment variables First
-    api_key = os.environ.get("SARVAM_API_KEY") or os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        # Fallback to local config if no env var is found
-        cfg = get_active_api_config()
-        if cfg and cfg.get("api_key"):
-            api_key = cfg.get("api_key")
-        else:
-            return ""
-
-    webhook_url = os.environ.get("LLM_WEBHOOK_URL", "https://api.sarvam.ai/v1/chat/completions")
-    model_name = os.environ.get("LLM_MODEL", "sarvam-1")
-    
     try:
-        body = json.dumps({
-            "model": model_name,
-            "messages": messages,
-            "temperature": 0.4,
-            "max_tokens": 1500,
-        }).encode()
+        import g4f
         
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}"
-        }
-        # Sarvam AI specific header if needed
-        if "sarvam" in webhook_url.lower():
-            headers["api-subscription-key"] = api_key
-            
-        req = urllib.request.Request(webhook_url, data=body, headers=headers, method="POST")
-        resp = json.loads(urllib.request.urlopen(req, timeout=15).read())
-        return _clean_llm_text(resp["choices"][0]["message"]["content"])
+        # Use g4f to automatically cycle through free providers
+        response = g4f.ChatCompletion.create(
+            model=g4f.models.default,
+            messages=messages,
+            timeout=20,
+        )
+        return _clean_llm_text(str(response))
     except Exception as e:
-        print(f"LLM Call Failed: {e}")
+        print(f"LLM Call Failed via g4f: {e}")
         return ""
 
 
@@ -538,10 +516,6 @@ def build_ai_response(query: str, results: list[dict],
         }
 
     # ── WEB / GENERAL ───────────────────────────────────────────────────
-    # Greetings
-    if q_lower in {"hello", "hi", "hey", "namaste", "hii", "hello!", "hi!"}:
-        return {"message": "Hello! I am **Navar**, your agentic AI assistant inside Blend Search 🚀\n\nI can:\n• 🔍 Search the web and all tabs\n• 📍 Show maps & locations\n• 🖼️ Find images & videos\n• 📰 Get latest news\n• 💻 Scan & analyze websites\n• 🔎 Generate Google Dorks\n• 👥 Search social media\n\nWhat would you like to explore?"}
-
     # MarkanM / founder
     if is_markanm_query(q) or ("founder" in q_lower and "blend" in q_lower):
         live = _search("markanm.com site:markanm.com OR site:markanm.in", "general")[:3]
@@ -552,9 +526,17 @@ def build_ai_response(query: str, results: list[dict],
         }
 
     # General — live search + LLM answer
-    live_results = _domain_boosted_search(q, "general")[:6]
-    all_res = live_results or results
-    ranked = sorted(all_res, key=lambda r: _score(q, r), reverse=True)[:3]
+    live_results = _domain_boosted_search(q, "general")[:3]
+    
+    # RAG using Social + Wikipedia sources for deep conversational knowledge
+    rag_query = f"{q} (site:reddit.com OR site:quora.com OR site:wikipedia.org)"
+    rag_results = _search(rag_query, "general")[:3]
+    
+    all_res = live_results + rag_results
+    if not all_res:
+        all_res = results
+        
+    ranked = sorted(all_res, key=lambda r: _score(q, r), reverse=True)[:4]
 
     context = "\n\n".join(
         f"Title: {r.get('title','')}\nURL: {r.get('url','')}\nContent: {r.get('content', r.get('snippet',''))[:250]}"
