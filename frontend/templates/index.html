@@ -300,6 +300,7 @@
 
   function saveRecentSearch(term) {
     if (!getPrivacyConsent()) return;
+    if (localStorage.getItem('blend_tor') === '1') return; // Enforce max privacy if Tor is ON
     try {
       let history = JSON.parse(localStorage.getItem('blend_search_history') || '[]');
       history = history.filter(t => t !== term);

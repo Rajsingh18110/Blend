@@ -13,7 +13,11 @@ The project is designed for people who want a clean search experience without
 ad profiling, invasive tracking, or committing private API configuration into
 source control.
 
+## Acknowledgments
+Blend Engine was originally inspired by and started as a fork of [SearxNG](https://github.com/searxng/searxng). We owe a great debt of gratitude to the SearxNG maintainers and community for their pioneering work in privacy-preserving metasearch. Blend Engine has since evolved into a custom, from-scratch architecture incorporating intelligent extraction (Crawl4AI), advanced privacy modes (Ghost Mode & Tor), and AI intent routing, but its roots in the open web search movement began with SearxNG.
+
 ## What Blend Engine Does
+
 
 Blend Engine provides a full search application, not just a backend library.
 It includes:

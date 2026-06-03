@@ -10,6 +10,8 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 # Activate virtual environment
 if [ -f "venv/bin/activate" ]; then
   source venv/bin/activate
+elif [ -f "../venv/bin/activate" ]; then
+  source ../venv/bin/activate
 elif [ -f "../../blend/venv/bin/activate" ]; then
   source ../../blend/venv/bin/activate
 else

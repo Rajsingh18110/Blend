@@ -194,7 +194,7 @@ SEARCH_CACHE = {}
 CACHE_TTL = 300 # 5 minutes
 
 @app.route("/api/search")
-def api_search():
+async def api_search():
     q = request.args.get("q", "").strip()
     if not q:
         return jsonify({"error": "empty query"}), 400
@@ -214,7 +214,6 @@ def api_search():
         if len(SEARCH_CACHE) > 150:
             SEARCH_CACHE.clear()
 
-
     today = date.today().isoformat()
     SEARCH_STATS["total_searches"] += 1
     SEARCH_STATS["today"][today] = SEARCH_STATS["today"].get(today, 0) + 1
@@ -226,123 +225,79 @@ def api_search():
     query_string["q"] = q
     query_string["format"] = "json"
     query_string["autoredirect"] = "0"
-
-    # Smart Routing: Intent manipulation and Open-Web Engine Routing
-    engines_to_force = request.args.get("engines", "")
     
-    # Deep Music / Video Intent Routing via YouTube
-    if category in ["music", "videos"]:
-        try:
-            from ytdl_downloader import search_youtube
-            search_intent = q
-            if category == "music" and "song" not in q.lower() and "lyrics" not in q.lower() and "music" not in q.lower():
-                search_intent = q + " official audio or music video"
-                
-            yt_results = search_youtube(search_intent, max_results=15)
-            if yt_results:
-                return jsonify({
-                    "query": q,
-                    "number_of_results": len(yt_results),
-                    "results": yt_results,
-                    "answers": [],
-                    "suggestions": []
-                }), 200
-        except Exception as e:
-            print("YouTube search routing failed:", e)
+    blend_mode = request.args.get("mode", "fast")
+    engines_to_force = request.args.get("engines", "")
 
-    # Advanced File Search and Open-Web Routing
-    if category == "files":
-        query_string["categories"] = "general"
-        if not engines_to_force:
-            # Default file search behavior: append filetypes
-            if not any(f in q.lower() for f in ['filetype:', 'ext:', 'pdf']):
-                query_string["q"] = q + " (filetype:pdf OR filetype:txt OR filetype:docx OR filetype:json OR filetype:csv OR site:github.com OR site:archive.org)"
-        else:
-            # If specific engines are requested (e.g. github, readthedocs, reddit)
-            # We map some to site: queries for better reliability if the internal engine fails
-            site_mappings = {
-                "github": "site:github.com",
-                "reddit": "site:reddit.com",
-                "wikipedia": "site:wikipedia.org",
-                "readxhub": "site:readxhub.in",
-                "docs": "(site:readthedocs.io OR site:docs.microsoft.com OR site:developer.mozilla.org)"
-            }
-            if engines_to_force in site_mappings:
-                query_string["q"] = q + " " + site_mappings[engines_to_force]
-                if "engines" in query_string:
-                    del query_string["engines"]
-
-    # Force reliable engines for Images and News to avoid IP Blocks and CPU timeouts on Render
-    if category == "images" and not engines_to_force:
-        query_string["engines"] = "duckduckgo images,qwant images"
-        if "categories" in query_string:
-            del query_string["categories"]
-    if category == "news" and not engines_to_force:
-        query_string["engines"] = "duckduckgo news,yahoo news"
-        if "categories" in query_string:
-            del query_string["categories"]
-
-    with app.test_client() as client:
-        resp = client.get("/search", query_string=query_string)
-
-    if resp.status_code < 500:
-        try:
-            payload = json.loads(resp.data.decode("utf-8"))
-            if payload.get("results"):
-                payload["results"] = _boost_results_by_query(q, payload["results"])
-                
-                # Payload Optimization: Truncate results to save RAM and bandwidth
-                if category == "images":
-                    payload["results"] = payload["results"][:20]
-                elif category == "news":
-                    payload["results"] = payload["results"][:15]
-                else:
-                    payload["results"] = payload["results"][:25]
-                    
-            if payload.get("results") and not payload.get("number_of_results"):
-                payload["number_of_results"] = len(payload["results"])
-            if payload.get("results") or category != "general":
-                final_resp = jsonify(payload), resp.status_code
-                SEARCH_CACHE[cache_key] = (time.time(), final_resp)
-                return final_resp
-        except Exception:
-            # Intercept SearxNG auto-redirect for exact URLs and convert it into a JSON result
-            if resp.status_code in (301, 302, 307) or (b"Redirecting..." in resp.data and b"target URL" in resp.data):
-                import re
-                m = re.search(b'href="([^"]+)"', resp.data)
-                redirect_url = m.group(1).decode("utf-8") if m else (q if q.startswith("http") else "https://" + q)
-                
-                payload = _empty_search_payload(q)
-                payload["results"] = [{
-                    "url": redirect_url,
-                    "title": f"{q} (Direct Link)",
-                    "content": "Exact website match for your query.",
-                    "parsed_url": ["https", urllib.parse.urlparse(redirect_url).netloc or q, "", "", "", ""]
-                }]
-                payload["number_of_results"] = 1
-                final_resp = jsonify(payload), 200
-                SEARCH_CACHE[cache_key] = (time.time(), final_resp)
-                return final_resp
-
-            final_resp = Response(resp.data, status=resp.status_code, mimetype=resp.mimetype)
+    try:
+        if category == "news":
+            payload = _google_news_rss(q)
+            final_resp = jsonify(payload), 200
             SEARCH_CACHE[cache_key] = (time.time(), final_resp)
             return final_resp
 
-    fallback = _fallback_web_search(q, category, int(request.args.get("pageno") or 1))
-    if fallback["results"]:
-        final_resp = jsonify(fallback)
-        SEARCH_CACHE[cache_key] = (time.time(), final_resp)
-        return final_resp
-
-    if resp.status_code < 500:
-        final_resp = Response(resp.data, status=resp.status_code, mimetype=resp.mimetype)
-        SEARCH_CACHE[cache_key] = (time.time(), final_resp)
-        return final_resp
+        from blend_engine.search_router import SearchRouter
+        router = SearchRouter()
+        use_tor = request.headers.get("X-Blend-Tor") == "1"
+        payload = await router.route(q, category=category, mode=blend_mode, engines=engines_to_force, use_tor=use_tor)
         
-    final_resp = jsonify(fallback), 200
-    SEARCH_CACHE[cache_key] = (time.time(), final_resp)
-    return final_resp
+        final_resp = jsonify(payload), 200
+        SEARCH_CACHE[cache_key] = (time.time(), final_resp)
+        return final_resp
+    except Exception as e:
+        from utils.logger import get_logger
+        get_logger("app.api_search").error(f"Blend Engine failed: {e}", exc_info=True)
+        fallback = _fallback_web_search(q, category, int(request.args.get("pageno") or 1))
+        final_resp = jsonify(fallback), 200
+        SEARCH_CACHE[cache_key] = (time.time(), final_resp)
+        return final_resp
 
+def _google_news_rss(q: str):
+    import urllib.request
+    import urllib.parse
+    import xml.etree.ElementTree as ET
+    import email.utils
+
+    try:
+        if q.lower() == "top news":
+            url = "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en"
+        else:
+            url = f"https://news.google.com/rss/search?q={urllib.parse.quote(q)}&hl=en-US&gl=US&ceid=US:en"
+            
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        html = urllib.request.urlopen(req, timeout=10).read()
+        root = ET.fromstring(html)
+        
+        results = []
+        for item in root.findall(".//item"):
+            title = item.findtext("title")
+            link = item.findtext("link")
+            pub_date = item.findtext("pubDate")
+            source = item.findtext("source")
+            
+            try:
+                dt = email.utils.parsedate_to_datetime(pub_date)
+                published = dt.strftime("%b %d, %Y")
+            except Exception:
+                published = pub_date
+
+            results.append({
+                "title": title,
+                "url": link,
+                "content": title,
+                "source": source or "Google News",
+                "publishedDate": published,
+                "parsed_url": ["https", urllib.parse.urlparse(link).netloc, "", "", "", ""]
+            })
+            
+        payload = _empty_search_payload(q)
+        payload["results"] = results
+        payload["number_of_results"] = len(results)
+        return payload
+    except Exception as e:
+        from utils.logger import get_logger
+        get_logger("app.news").error(f"News RSS failed: {e}", exc_info=True)
+        return _empty_search_payload(q)
 
 def _fallback_web_search(q: str, category: str = "general", pageno: int = 1):
     """Small backend fallback so the custom frontend never depends on static data."""
@@ -510,6 +465,31 @@ def api_ai():
         return jsonify(build_ai_response(query, results, shortcuts, mode, current_tab=current_tab, current_url=current_url))
     except Exception as exc:
         return jsonify({"message": f"AI error: {exc}"}), 500
+
+@app.route('/api/smart_download', methods=['GET'])
+def smart_download():
+    """Downloads a video locally using yt-dlp then streams it to the user."""
+    url = request.args.get('url')
+    quality = request.args.get('quality', 'best')
+    
+    if not url:
+        return "No URL provided", 400
+        
+    from ytdl_downloader import download_video
+    try:
+        file_path = download_video(url, quality)
+    except Exception as exc:
+        return f"Download failed: {exc}", 500
+    
+    if not file_path or not os.path.exists(file_path):
+        return "Download failed: yt-dlp did not return a file path.", 500
+        
+    filename = os.path.basename(file_path)
+    # Start a background task to delete the file after 1 hour (clean up)
+    # For now, just send it
+    from flask import send_file
+    return send_file(file_path, as_attachment=True, download_name=filename)
+
 
 @app.route('/api/proxy_download', methods=['GET'])
 def proxy_download():
