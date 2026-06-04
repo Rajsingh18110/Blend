@@ -61,7 +61,7 @@ from blend_core.exceptions import BlendEngineAPIException
 from blend_core.utils import humanize_bytes
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
 
 
 # engine settings
@@ -109,7 +109,7 @@ def request(query: str, params: dict[str, t.Any]) -> dict[str, t.Any]:
     return params
 
 
-def response(resp: "SXNG_Response") -> list[dict[str, t.Any]]:
+def response(resp: "BlendResponse") -> list[dict[str, t.Any]]:
     """Parse the XML response and return a list of results."""
     results = []
     search_results = etree.XML(resp.content)

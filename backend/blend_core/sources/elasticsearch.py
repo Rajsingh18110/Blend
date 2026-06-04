@@ -48,7 +48,7 @@ authentication configured to read from ``my-index`` index.
 from json import loads, dumps
 from blend_core.exceptions import BlendEngineAPIException
 from blend_core.result_types import SourceResults
-from blend_core.extended_types import SXNG_Response
+from blend_core.extended_types import BlendResponse
 
 categories = ['general']
 paging = True
@@ -168,7 +168,7 @@ def _custom_query(query):
     return custom_query
 
 
-def response(resp: SXNG_Response) -> SourceResults:
+def response(resp: BlendResponse) -> SourceResults:
     res = SourceResults()
 
     resp_json = loads(resp.text)

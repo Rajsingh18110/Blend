@@ -16,7 +16,7 @@ if t.TYPE_CHECKING:
 
 
 @t.final
-class SXNGPlugin(Plugin):
+class BlendPlugin(Plugin):
     """Automatically loads the next page when scrolling to bottom of the current page."""
 
     id = "infiniteScroll"

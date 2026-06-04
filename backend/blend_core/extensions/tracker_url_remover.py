@@ -17,7 +17,7 @@ from . import Plugin, PluginInfo
 if t.TYPE_CHECKING:
     import flask
     from blend_core.pipeline import SearchWithPlugins
-    from blend_core.extended_types import SXNG_Request
+    from blend_core.extended_types import BlendRequest
     from blend_core.result_types import Result, LegacyResult  # pyright: ignore[reportPrivateLocalImportUsage]
     from blend_core.extensions import PluginCfg
 
@@ -26,7 +26,7 @@ log = logging.getLogger("blend_core.extensions.tracker_url_remover")
 
 
 @t.final
-class SXNGPlugin(Plugin):
+class BlendPlugin(Plugin):
     """Remove trackers arguments from the returned URL."""
 
     id = "tracker_url_remover"
@@ -45,7 +45,7 @@ class SXNGPlugin(Plugin):
         TRACKER_PATTERNS.init()
         return True
 
-    def on_result(self, request: "SXNG_Request", search: "SearchWithPlugins", result: "Result") -> bool:
+    def on_result(self, request: "BlendRequest", search: "SearchWithPlugins", result: "Result") -> bool:
 
         result.filter_urls(self.filter_url_field)
         return True

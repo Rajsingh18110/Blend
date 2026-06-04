@@ -110,7 +110,7 @@ class AnswerStorage(dict):  # type: ignore
                 continue
 
             if f.is_file() and f.suffix == ".py":
-                self.register_by_fqn(f"blend_core.answerers.{f.stem}.SXNGAnswerer")
+                self.register_by_fqn(f"blend_core.answerers.{f.stem}.BlendAnswerer")
                 continue
 
             # for backward compatibility (if a fork has additional answerers)

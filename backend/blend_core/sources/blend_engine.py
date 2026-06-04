@@ -13,7 +13,7 @@ from blend_core.sources import categories as blend_categories
 # about
 about = {
     "website": 'https://github.com/markanm/markanm',
-    "wikidata_id": 'Q17639196',
+    "wikidata_id": None,
     "official_api_documentation": 'https://docs.markanm.org/dev/search_api.html',
     "use_official_api": True,
     "require_api_key": False,

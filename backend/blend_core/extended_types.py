@@ -6,26 +6,26 @@
 """This module implements the type extensions applied by Markanm.
 
 - :py:obj:`flask.request` is replaced by :py:obj:`blend_request`
-- :py:obj:`flask.Request` is replaced by :py:obj:`SXNG_Request`
-- :py:obj:`httpx.response` is replaced by :py:obj:`SXNG_Response`
+- :py:obj:`flask.Request` is replaced by :py:obj:`BlendRequest`
+- :py:obj:`httpx.response` is replaced by :py:obj:`BlendResponse`
 
 ----
 
 .. py:attribute:: blend_request
-   :type: SXNG_Request
+   :type: BlendRequest
 
-   A replacement for :py:obj:`flask.request` with type cast :py:obj:`SXNG_Request`.
+   A replacement for :py:obj:`flask.request` with type cast :py:obj:`BlendRequest`.
 
-.. autoclass:: SXNG_Request
+.. autoclass:: BlendRequest
    :members:
 
-.. autoclass:: SXNG_Response
+.. autoclass:: BlendResponse
    :members:
 
 """
 # pylint: disable=invalid-name
 
-__all__ = ["SXNG_Request", "blend_request", "SXNG_Response"]
+__all__ = ["BlendRequest", "blend_request", "BlendResponse"]
 
 import typing
 import flask
@@ -37,7 +37,7 @@ if typing.TYPE_CHECKING:
     from blend_core.pipeline.processors import OnlineParamTypes
 
 
-class SXNG_Request(flask.Request):
+class BlendRequest(flask.Request):
     """Markanm extends the class :py:obj:`flask.Request` with properties from
     *this* class definition, see type cast :py:obj:`blend_request`.
     """
@@ -69,18 +69,18 @@ class SXNG_Request(flask.Request):
     remote_addr: str
 
 
-#: A replacement for :py:obj:`flask.request` with type cast :py:`SXNG_Request`.
-blend_request = typing.cast(SXNG_Request, flask.request)
+#: A replacement for :py:obj:`flask.request` with type cast :py:`BlendRequest`.
+blend_request = typing.cast(BlendRequest, flask.request)
 
 
-class SXNG_Response(httpx.Response):
+class BlendResponse(httpx.Response):
     """Markanm extends the class :py:obj:`httpx.Response` with properties from
     *this* class (type cast of :py:obj:`httpx.Response`).
 
     .. code:: python
 
        response = httpx.get("https://example.org")
-       response = typing.cast(SXNG_Response, response)
+       response = typing.cast(BlendResponse, response)
        if response.ok:
           ...
        query_was = search_params["query"]

@@ -216,18 +216,18 @@ def fetch_traits(engine_traits: EngineTraits):
             # print(f"ERROR: lang - no iso code in {lang}")
             continue
         try:
-            sxng_tag = language_tag(babel.Locale.parse(babel_lang, sep="-"))
+            blend_tag = language_tag(babel.Locale.parse(babel_lang, sep="-"))
         except babel.UnknownLocaleError:
             # print(f"ERROR: language tag {babel_lang} is unknown by babel")
             continue
 
         eng_tag = lang["name"]
-        conflict = engine_traits.languages.get(sxng_tag)
+        conflict = engine_traits.languages.get(blend_tag)
         if conflict:
             if conflict != eng_tag:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, eng_tag))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, eng_tag))
             continue
-        engine_traits.languages[sxng_tag] = eng_tag
+        engine_traits.languages[blend_tag] = eng_tag
 
     countrycodes = set()
     for region in country_list:

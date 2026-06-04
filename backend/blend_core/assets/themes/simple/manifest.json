@@ -11,7 +11,7 @@
     ]
   },
   "src/js/index.ts": {
-    "file": "sxng-core.min.js",
+    "file": "blend-core.min.js",
     "name": "core",
     "src": "src/js/index.ts",
     "isEntry": true,
@@ -106,11 +106,11 @@
       "src/js/index.ts"
     ],
     "css": [
-      "sxng-mapview.min.css"
+      "blend-mapview.min.css"
     ]
   },
   "src/less/rss.less": {
-    "file": "sxng-rss.min.css",
+    "file": "blend-rss.min.css",
     "name": "rss",
     "names": [
       "rss.css"
@@ -119,7 +119,7 @@
     "isEntry": true
   },
   "src/less/style-ltr.less": {
-    "file": "sxng-ltr.min.css",
+    "file": "blend-ltr.min.css",
     "name": "ltr",
     "names": [
       "ltr.css"
@@ -128,7 +128,7 @@
     "isEntry": true
   },
   "src/less/style-rtl.less": {
-    "file": "sxng-rtl.min.css",
+    "file": "blend-rtl.min.css",
     "name": "rtl",
     "names": [
       "rtl.css"

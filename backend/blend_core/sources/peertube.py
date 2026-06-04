@@ -169,17 +169,17 @@ def fetch_traits(engine_traits: EngineTraits):
             # 'oc' will be ignored.
             continue
         try:
-            sxng_tag = language_tag(babel.Locale.parse(eng_tag))
+            blend_tag = language_tag(babel.Locale.parse(eng_tag))
         except babel.UnknownLocaleError:
             print("ERROR: %s is unknown by babel" % eng_tag)
             continue
 
-        conflict = engine_traits.languages.get(sxng_tag)
+        conflict = engine_traits.languages.get(blend_tag)
         if conflict:
             if conflict != eng_tag:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, eng_tag))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, eng_tag))
             continue
-        engine_traits.languages[sxng_tag] = eng_tag
+        engine_traits.languages[blend_tag] = eng_tag
 
     engine_traits.languages["zh_Hans"] = "zh"
     engine_traits.languages["zh_Hant"] = "zh"

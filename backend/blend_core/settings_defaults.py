@@ -24,7 +24,7 @@ blend_dir = abspath(dirname(__file__))
 
 logger = logging.getLogger('blend')
 OUTPUT_FORMATS = ['html', 'csv', 'json', 'rss']
-SXNG_LOCALE_TAGS = ['all', 'auto'] + list(l[0] for l in blend_locales)
+BLEND_LOCALE_TAGS = ['all', 'auto'] + list(l[0] for l in blend_locales)
 SIMPLE_STYLE = ('auto', 'light', 'dark', 'black')
 CATEGORIES_AS_TABS: dict[str, dict[str, t.Any]] = {
     'general': {},
@@ -196,8 +196,8 @@ SCHEMA: dict[str, t.Any] = {
         'autocomplete': SettingsValue(str, ''),
         'autocomplete_min': SettingsValue(int, 4),
         'favicon_resolver': SettingsValue(str, ''),
-        'default_lang': SettingsValue(tuple(SXNG_LOCALE_TAGS + ['']), ''),
-        'languages': SettingSublistValue(SXNG_LOCALE_TAGS, SXNG_LOCALE_TAGS),  # type: ignore
+        'default_lang': SettingsValue(tuple(BLEND_LOCALE_TAGS + ['']), ''),
+        'languages': SettingSublistValue(BLEND_LOCALE_TAGS, BLEND_LOCALE_TAGS),  # type: ignore
         'ban_time_on_fail': SettingsValue(numbers.Real, 5),
         'max_ban_time_on_fail': SettingsValue(numbers.Real, 120),
         'suspended_times': {

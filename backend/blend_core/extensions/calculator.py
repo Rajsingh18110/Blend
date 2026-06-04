@@ -16,7 +16,7 @@ if t.TYPE_CHECKING:
 
 
 @t.final
-class SXNGPlugin(Plugin):
+class BlendPlugin(Plugin):
     """Parses and solves mathematical expressions."""
 
     id = "calculator"

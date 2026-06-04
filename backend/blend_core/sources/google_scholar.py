@@ -53,7 +53,7 @@ from blend_core.sources.blend import (
 from blend_core.result_types import SourceResults
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 about = {
@@ -103,7 +103,7 @@ def request(query: str, params: "OnlineParams") -> None:
     params["headers"].update(blend_info["headers"])
 
 
-def response(resp: "SXNG_Response") -> SourceResults:  # pylint: disable=too-many-locals
+def response(resp: "BlendResponse") -> SourceResults:  # pylint: disable=too-many-locals
     """Parse response from blend Scholar"""
 
     if resp.status_code in (301, 302, 303, 307, 308) and "Location" in resp.headers:

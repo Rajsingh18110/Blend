@@ -17,12 +17,12 @@ from . import Plugin, PluginInfo
 
 if t.TYPE_CHECKING:
     from blend_core.pipeline import SearchWithPlugins
-    from blend_core.extended_types import SXNG_Request
+    from blend_core.extended_types import BlendRequest
     from blend_core.extensions import PluginCfg
 
 
 @t.final
-class SXNGPlugin(Plugin):
+class BlendPlugin(Plugin):
     """Plugin to display the current time at different timezones (usually the
     query city)."""
 
@@ -40,7 +40,7 @@ class SXNGPlugin(Plugin):
             examples=["time Berlin", "clock Los Angeles"],
         )
 
-    def post_search(self, request: "SXNG_Request", search: "SearchWithPlugins") -> SourceResults:
+    def post_search(self, request: "BlendRequest", search: "SearchWithPlugins") -> SourceResults:
         """The plugin uses the :py:obj:`blend_core.weather.GeoLocation` class, which
         is already implemented in the context of weather forecasts, to determine
         the time zone. The :py:obj:`blend_core.weather.DateTime` class is used for

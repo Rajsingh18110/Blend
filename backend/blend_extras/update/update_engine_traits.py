@@ -91,8 +91,8 @@ def main():
     load_engines(engines_cfg)
     # traits_map = EngineTraitsMap.from_data()
     traits_map = fetch_traits_map()
-    sxng_tag_list = filter_locales(traits_map)
-    write_languages_file(sxng_tag_list)
+    blend_tag_list = filter_locales(traits_map)
+    write_languages_file(blend_tag_list)
 
 
 def fetch_traits_map():
@@ -135,28 +135,28 @@ def filter_locales(traits_map: EngineTraitsMap):
 
     languages = set(k for k, v in _.items() if v >= min_eng_per_lang)
 
-    sxng_tag_list = set()
-    sxng_tag_list.update(regions)
-    sxng_tag_list.update(lang_from_region)
-    sxng_tag_list.update(languages)
+    blend_tag_list = set()
+    blend_tag_list.update(regions)
+    blend_tag_list.update(lang_from_region)
+    blend_tag_list.update(languages)
 
-    return sxng_tag_list
+    return blend_tag_list
 
 
-def write_languages_file(sxng_tag_list):
+def write_languages_file(blend_tag_list):
 
     language_codes = []
 
-    for sxng_tag in sorted(sxng_tag_list):
-        sxng_locale: babel.Locale = babel.Locale.parse(sxng_tag, sep='-')
+    for blend_tag in sorted(blend_tag_list):
+        blend_locale: babel.Locale = babel.Locale.parse(blend_tag, sep='-')
 
-        flag = get_unicode_flag(sxng_locale) or ''
+        flag = get_unicode_flag(blend_locale) or ''
 
         item = (
-            sxng_tag,
-            sxng_locale.get_language_name().title(),  # type: ignore
-            sxng_locale.get_territory_name() or '',
-            sxng_locale.english_name.split(' (')[0] if sxng_locale.english_name else '',
+            blend_tag,
+            blend_locale.get_language_name().title(),  # type: ignore
+            blend_locale.get_territory_name() or '',
+            blend_locale.english_name.split(' (')[0] if blend_locale.english_name else '',
             UnicodeEscape(flag),
         )
 

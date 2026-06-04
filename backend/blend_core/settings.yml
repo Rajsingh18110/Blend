@@ -228,37 +228,37 @@ outgoing:
 #
 plugins:
 
-  blend_core.extensions.calculator.SXNGPlugin:
+  blend_core.extensions.calculator.BlendPlugin:
     active: true
 
-  blend_core.extensions.infinite_scroll.SXNGPlugin:
+  blend_core.extensions.infinite_scroll.BlendPlugin:
     active: false
 
-  blend_core.extensions.hash_plugin.SXNGPlugin:
+  blend_core.extensions.hash_plugin.BlendPlugin:
     active: true
 
-  blend_core.extensions.self_info.SXNGPlugin:
+  blend_core.extensions.self_info.BlendPlugin:
     active: true
 
-  blend_core.extensions.unit_converter.SXNGPlugin:
+  blend_core.extensions.unit_converter.BlendPlugin:
     active: true
 
-  blend_core.extensions.ahmia_filter.SXNGPlugin:
+  blend_core.extensions.ahmia_filter.BlendPlugin:
     active: true
 
-  blend_core.extensions.hostnames.SXNGPlugin:
+  blend_core.extensions.hostnames.BlendPlugin:
     active: true
 
-  blend_core.extensions.time_zone.SXNGPlugin:
+  blend_core.extensions.time_zone.BlendPlugin:
     active: true
 
-  blend_core.extensions.oa_doi_rewrite.SXNGPlugin:
+  blend_core.extensions.oa_doi_rewrite.BlendPlugin:
     active: false
 
-  blend_core.extensions.tor_check.SXNGPlugin:
+  blend_core.extensions.tor_check.BlendPlugin:
     active: false
 
-  blend_core.extensions.tracker_url_remover.SXNGPlugin:
+  blend_core.extensions.tracker_url_remover.BlendPlugin:
     active: true
 
 
@@ -1964,7 +1964,7 @@ engines:
 
   # - name: blend
   #   engine: blend_engine
-  #   shortcut: se
+  #   shortcut: be
   #   instance_urls :
   #       - http://127.0.0.1:8888/
   #       - ...

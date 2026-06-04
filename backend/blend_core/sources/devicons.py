@@ -10,7 +10,7 @@ import typing as t
 from blend_core.result_types import SourceResults
 
 if t.TYPE_CHECKING:
-    from extended_types import SXNG_Response
+    from extended_types import BlendResponse
     from search.processors.online import OnlineParams
 
 
@@ -32,7 +32,7 @@ def request(query: str, params: "OnlineParams"):
     return params
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
     res = SourceResults()
     query_parts = resp.search_params["query"].lower().split(" ")
 

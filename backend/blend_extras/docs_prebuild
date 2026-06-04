@@ -8,8 +8,8 @@ import os.path
 import time
 from contextlib import contextmanager
 
-from searx import settings, get_setting, locales
-from searx.infopage import InfoPageSet, InfoPage
+from blend_core import settings, get_setting, locales
+from blend_core.infopage import InfoPageSet, InfoPage
 
 _doc_user = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'docs', 'user'))
 
@@ -53,7 +53,7 @@ def _instance_infosetset_ctx(base_url):
     # registered in the Flask app.
 
     settings['server']['secret_key'] = ''
-    from searx.webapp import app  # pylint: disable=import-outside-toplevel
+    from blend_core.webapp import app  # pylint: disable=import-outside-toplevel
 
     # Specify base_url so that url_for() works for base_urls.  If base_url is
     # specified, then these values from are given preference over any Flask's
@@ -62,14 +62,14 @@ def _instance_infosetset_ctx(base_url):
     with app.test_request_context(base_url=base_url):
         yield InfoPageSet()
 
-    # The searx.webapp import from above fires some HTTP requests, that's
+    # The Blend webapp import from above can start HTTP work, that's
     # why we get a RuntimeError::
     #
     #     RuntimeError: The connection pool was closed while 1 HTTP \
     #       requests/responses were still in-flight.
     #
     # Closing network won't help ..
-    #   from searx.network import network
+    #   from blend_core.network import network
     #   network.done()
 
     # waiting some seconds before ending the command line was the only solution I

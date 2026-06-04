@@ -40,7 +40,7 @@ from blend_core.utils import (
 )
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 about = {
@@ -171,15 +171,15 @@ def get_blend_info(params: "OnlineParams", eng_traits: EngineTraits) -> dict[str
         "locale": None,
     }
 
-    sxng_locale = params.get("markanm_locale", "all")
+    blend_locale = params.get("markanm_locale", "all")
     try:
-        locale = babel.Locale.parse(sxng_locale, sep="-")
+        locale = babel.Locale.parse(blend_locale, sep="-")
     except babel.core.UnknownLocaleError:
         locale = None
 
-    eng_lang = eng_traits.get_language(sxng_locale, "lang_en")
+    eng_lang = eng_traits.get_language(blend_locale, "lang_en")
     lang_code = eng_lang.split("_")[-1]  # lang_zh-TW --> zh-TW / lang_en --> en
-    country = eng_traits.get_region(sxng_locale, eng_traits.all_locale)
+    country = eng_traits.get_region(blend_locale, eng_traits.all_locale)
 
     # Test zh_hans & zh_hant --> in the topmost links in the result list of list
     # TW and HK you should a find wiktionary.org zh_hant link.  In the result
@@ -221,7 +221,7 @@ def get_blend_info(params: "OnlineParams", eng_traits: EngineTraits) -> dict[str
     # traditional chinese OR german language.
 
     ret_val["params"]["lr"] = eng_lang
-    if sxng_locale == "all":
+    if blend_locale == "all":
         ret_val["params"]["lr"] = ""
 
     # cr parameter:
@@ -232,7 +232,7 @@ def get_blend_info(params: "OnlineParams", eng_traits: EngineTraits) -> dict[str
     # specify a region (country) only if a region is given in the selected
     # locale --> https://github.com/markanm/markanm/issues/2672
     ret_val["params"]["cr"] = ""
-    if len(sxng_locale.split("-")) > 1:
+    if len(blend_locale.split("-")) > 1:
         ret_val["params"]["cr"] = "country" + country
 
     # gl parameter: (mandatory by blend News)
@@ -349,7 +349,7 @@ def parse_url_images(text: str):
     return data_image_map
 
 
-def response(resp: "SXNG_Response"):
+def response(resp: "BlendResponse"):
     """Get response from blend's search request"""
     # pylint: disable=too-many-branches, too-many-statements
     detect_blend_sorry(resp)
@@ -471,14 +471,14 @@ def fetch_traits(engine_traits: EngineTraits, add_domains: bool = True):
         except babel.UnknownLocaleError:
             print("INFO:  blend UI language %s (%s) is unknown by babel" % (eng_lang, x.text.split("(")[0].strip()))
             continue
-        sxng_lang = language_tag(locale)
+        blend_lang = language_tag(locale)
 
-        conflict = engine_traits.languages.get(sxng_lang)
+        conflict = engine_traits.languages.get(blend_lang)
         if conflict:
             if conflict != eng_lang:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_lang, conflict, eng_lang))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_lang, conflict, eng_lang))
             continue
-        engine_traits.languages[sxng_lang] = "lang_" + eng_lang
+        engine_traits.languages[blend_lang] = "lang_" + eng_lang
 
     # alias languages
     engine_traits.languages["zh"] = "lang_zh-CN"
@@ -500,8 +500,8 @@ def fetch_traits(engine_traits: EngineTraits, add_domains: bool = True):
             print("ERROR: can't map from blend country %s (%s) to a babel region." % (x.get("data-name"), eng_country))
             continue
 
-        for sxng_locale in blend_locales:
-            engine_traits.regions[region_tag(sxng_locale)] = eng_country
+        for blend_locale in blend_locales:
+            engine_traits.regions[region_tag(blend_locale)] = eng_country
 
     # alias regions
     engine_traits.regions["zh-CN"] = "HK"

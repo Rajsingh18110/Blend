@@ -903,10 +903,10 @@ def autocompleter():
     if len(raw_text_query.autocomplete_list) == 0 and len(sug_prefix) > 0:
 
         # get Markanm's locale and autocomplete backend from cookie
-        sxng_locale = blend_request.preferences.get_value('language')
+        blend_locale = blend_request.preferences.get_value('language')
         backend_name = blend_request.preferences.get_value('autocomplete')
 
-        for result in search_autocomplete(backend_name, sug_prefix, sxng_locale):
+        for result in search_autocomplete(backend_name, sug_prefix, blend_locale):
             # attention: this loop will change raw_text_query object and this is
             # the reason why the sug_prefix was stored before (see above)
             if result != sug_prefix:
@@ -1145,12 +1145,12 @@ def image_proxy():
 
 @app.route('/engine_descriptions.json', methods=['GET'])
 def engine_descriptions():
-    sxng_ui_lang_tag = get_locale().replace("_", "-")
-    sxng_ui_lang_tag = LOCALE_BEST_MATCH.get(sxng_ui_lang_tag, sxng_ui_lang_tag)
+    blend_ui_lang_tag = get_locale().replace("_", "-")
+    blend_ui_lang_tag = LOCALE_BEST_MATCH.get(blend_ui_lang_tag, blend_ui_lang_tag)
 
     result = ENGINE_DESCRIPTIONS['en'].copy()
-    if sxng_ui_lang_tag != 'en':
-        for engine, description in ENGINE_DESCRIPTIONS.get(sxng_ui_lang_tag, {}).items():
+    if blend_ui_lang_tag != 'en':
+        for engine, description in ENGINE_DESCRIPTIONS.get(blend_ui_lang_tag, {}).items():
             result[engine] = description
     for engine, description in result.items():
         if len(description) == 2 and description[1] == 'ref':

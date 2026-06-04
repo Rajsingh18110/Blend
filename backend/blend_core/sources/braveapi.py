@@ -37,7 +37,7 @@ from blend_core.exceptions import BlendEngineAPIException
 from blend_core.result_types import SourceResults
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 about = {
@@ -111,7 +111,7 @@ def _extract_published_date(published_date_raw: str):
         return None
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
     """Process the API response and return results."""
     res = SourceResults()
     data = resp.json()

@@ -23,7 +23,7 @@ from blend_core.result_types import SourceResults
 from blend_core.utils import extr, js_obj_str_to_python, html_to_text
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 
@@ -97,7 +97,7 @@ def _remove_keyword_marker(text: str) -> str:
     return html_to_text(KEYWORD_RE.sub("", text))
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
     res = SourceResults()
 
     result: dict[str, str]
@@ -141,9 +141,9 @@ def fetch_traits(engine_traits: EngineTraits):
             except babel.UnknownLocaleError:
                 continue
 
-            sxng_lang = language_tag(locale)
-            if sxng_lang not in engine_traits.languages:
-                engine_traits.languages[sxng_lang] = search_value
+            blend_lang = language_tag(locale)
+            if blend_lang not in engine_traits.languages:
+                engine_traits.languages[blend_lang] = search_value
 
     # "All" is the search value to unset the search language
     engine_traits.all_locale = "All"

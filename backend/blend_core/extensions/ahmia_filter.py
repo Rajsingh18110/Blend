@@ -17,7 +17,7 @@ from blend_core.extensions import Plugin, PluginInfo
 if t.TYPE_CHECKING:
     import flask
     from blend_core.pipeline import SearchWithPlugins
-    from blend_core.extended_types import SXNG_Request
+    from blend_core.extended_types import BlendRequest
     from blend_core.result_types import Result
     from blend_core.extensions import PluginCfg
 
@@ -25,7 +25,7 @@ ahmia_blacklist: list[str] = []
 
 
 @t.final
-class SXNGPlugin(Plugin):
+class BlendPlugin(Plugin):
     """Filter out onion results that appear in Ahmia's blacklist (See https://ahmia.fi/blacklist)."""
 
     id = "ahmia_filter"
@@ -40,7 +40,7 @@ class SXNGPlugin(Plugin):
         )
 
     def on_result(
-        self, request: "SXNG_Request", search: "SearchWithPlugins", result: "Result"
+        self, request: "BlendRequest", search: "SearchWithPlugins", result: "Result"
     ) -> bool:  # pylint: disable=unused-argument
         if not getattr(result, "is_onion", False) or not getattr(result, "parsed_url", False):
             return True

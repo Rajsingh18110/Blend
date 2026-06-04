@@ -24,7 +24,7 @@ import blend_core.extensions
 from blend_core import settings, autocomplete, favicons
 from blend_core.enginelib import Engine
 from blend_core.sources import DEFAULT_CATEGORY
-from blend_core.extended_types import SXNG_Request
+from blend_core.extended_types import BlendRequest
 from blend_core.locales import LOCALE_NAMES
 from blend_core.webutils import VALID_LANGUAGE_CODE
 
@@ -360,7 +360,7 @@ class ClientPref:
         return tag
 
     @classmethod
-    def from_http_request(cls, http_request: SXNG_Request):
+    def from_http_request(cls, http_request: BlendRequest):
         """Build ClientPref object from HTTP request.
 
         - `Accept-Language used for locale setting

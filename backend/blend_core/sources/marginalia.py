@@ -35,7 +35,7 @@ import typing as t
 from urllib.parse import urlencode
 from blend_core.utils import markanm_useragent
 from blend_core.result_types import SourceResults
-from blend_core.extended_types import SXNG_Response
+from blend_core.extended_types import BlendResponse
 
 about = {
     "website": "https://marginalia.nu",
@@ -96,7 +96,7 @@ def request(query: str, params: dict[str, t.Any]):
     params["headers"]["API-Key"] = api_key
 
 
-def response(resp: SXNG_Response):
+def response(resp: BlendResponse):
 
     res = SourceResults()
     resp_json: ApiSearchResults = resp.json()  # type: ignore

@@ -137,13 +137,13 @@ wikipedia_script_variants = {
 }
 
 
-def get_wiki_params(sxng_locale, eng_traits):
+def get_wiki_params(blend_locale, eng_traits):
     """Returns the Wikipedia language tag and the netloc that fits to the
-    ``sxng_locale``.  To support LanguageConverter_ this function rates a locale
+    ``blend_locale``.  To support LanguageConverter_ this function rates a locale
     (region) higher than a language (compare :py:obj:`wiki_lc_locale_variants`).
 
     """
-    eng_tag = eng_traits.get_region(sxng_locale, eng_traits.get_language(sxng_locale, "en"))
+    eng_tag = eng_traits.get_region(blend_locale, eng_traits.get_language(blend_locale, "en"))
     wiki_netloc = eng_traits.custom["wiki_netloc"].get(eng_tag, "en.wikipedia.org")
     return eng_tag, wiki_netloc
 
@@ -276,12 +276,12 @@ def fetch_wikimedia_traits(engine_traits: EngineTraits):
 
     # insert alias to map from a script or region to a wikipedia variant
 
-    for eng_tag, sxng_tag_list in wikipedia_script_variants.items():
-        for sxng_tag in sxng_tag_list:
-            engine_traits.languages[sxng_tag] = eng_tag
-    for eng_tag, sxng_tag_list in wiki_lc_locale_variants.items():
-        for sxng_tag in sxng_tag_list:
-            engine_traits.regions[sxng_tag] = eng_tag
+    for eng_tag, blend_tag_list in wikipedia_script_variants.items():
+        for blend_tag in blend_tag_list:
+            engine_traits.languages[blend_tag] = eng_tag
+    for eng_tag, blend_tag_list in wiki_lc_locale_variants.items():
+        for blend_tag in blend_tag_list:
+            engine_traits.regions[blend_tag] = eng_tag
 
     headers = {"Accept": "*/*", "User-Agent": markanm_useragent()}
     resp = get(list_of_wikipedias, timeout=5, headers=headers)
@@ -303,14 +303,14 @@ def fetch_wikimedia_traits(engine_traits: EngineTraits):
         wiki_url = urllib.parse.urlparse(wiki_url)
 
         try:
-            sxng_tag = locales.language_tag(babel.Locale.parse(lang_map.get(eng_tag, eng_tag), sep="-"))
+            blend_tag = locales.language_tag(babel.Locale.parse(lang_map.get(eng_tag, eng_tag), sep="-"))
         except babel.UnknownLocaleError:
             # print("ERROR: %s [%s] is unknown by babel" % (cols[0], eng_tag))
             continue
         finally:
             engine_traits.custom["WIKIPEDIA_LANGUAGES"].append(eng_tag)
 
-        if sxng_tag not in locales.LOCALE_NAMES:
+        if blend_tag not in locales.LOCALE_NAMES:
             if articles < 10000:
                 # exclude languages with too few articles
                 continue
@@ -320,13 +320,13 @@ def fetch_wikimedia_traits(engine_traits: EngineTraits):
                 # frequently its articles are updated.
                 continue
 
-        conflict = engine_traits.languages.get(sxng_tag)
+        conflict = engine_traits.languages.get(blend_tag)
         if conflict:
             if conflict != eng_tag:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, eng_tag))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, eng_tag))
             continue
 
-        engine_traits.languages[sxng_tag] = eng_tag
+        engine_traits.languages[blend_tag] = eng_tag
         engine_traits.custom["wiki_netloc"][eng_tag] = wiki_url.netloc
 
     engine_traits.custom["WIKIPEDIA_LANGUAGES"].sort()

@@ -454,22 +454,22 @@ def fetch_traits(engine_traits: EngineTraits):
         if "-" in babel_region_tag:  # pyright: ignore[reportOperatorIssue]
             l, r = babel_region_tag.split("-")
             r = r.split("_")[-1]
-            sxng_tag = region_tag(babel.Locale.parse(l + "_" + r, sep="_"))
+            blend_tag = region_tag(babel.Locale.parse(l + "_" + r, sep="_"))
 
         else:
             try:
-                sxng_tag = region_tag(babel.Locale.parse(babel_region_tag, sep="_"))
+                blend_tag = region_tag(babel.Locale.parse(babel_region_tag, sep="_"))
 
             except babel.UnknownLocaleError:
                 print("IGNORE: can't determine babel locale of startpage's locale %s" % eng_tag)
                 continue
 
-        conflict = engine_traits.regions.get(sxng_tag)
+        conflict = engine_traits.regions.get(blend_tag)
         if conflict:
             if conflict != eng_tag:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, eng_tag))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, eng_tag))
             continue
-        engine_traits.regions[sxng_tag] = eng_tag
+        engine_traits.regions[blend_tag] = eng_tag
 
     # languages
 
@@ -522,16 +522,16 @@ def fetch_traits(engine_traits: EngineTraits):
             continue
         name = extract_text(option).lower()  # type: ignore
 
-        sxng_tag = catalog_engine2code.get(eng_tag)
-        if sxng_tag is None:
-            sxng_tag = catalog_engine2code.get(name)
-        if sxng_tag is None:
+        blend_tag = catalog_engine2code.get(eng_tag)
+        if blend_tag is None:
+            blend_tag = catalog_engine2code.get(name)
+        if blend_tag is None:
             # silently ignore unknown languages
             continue
 
-        conflict = engine_traits.languages.get(sxng_tag)
+        conflict = engine_traits.languages.get(blend_tag)
         if conflict:
             if conflict != eng_tag:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, eng_tag))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, eng_tag))
             continue
-        engine_traits.languages[sxng_tag] = eng_tag
+        engine_traits.languages[blend_tag] = eng_tag

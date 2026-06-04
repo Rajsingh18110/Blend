@@ -36,7 +36,7 @@ from blend_core.network import post as http_post
 from blend_core.result_types import SourceResults
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 engine_type = "online"
@@ -99,7 +99,7 @@ def authenticate(t_id: str, c_id: str, c_secret: str) -> str:
         "scope": "https://management.azure.com/.default",
     }
 
-    resp: SXNG_Response = http_post(url, body, timeout=5)
+    resp: BlendResponse = http_post(url, body, timeout=5)
     if resp.status_code != 200:
         raise RuntimeError(f"Azure authentication failed (status {resp.status_code}): {resp.text}")
     return resp.json()["access_token"]
@@ -158,7 +158,7 @@ def request(query: str, params: "OnlineParams") -> None:
     }
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
     res = SourceResults()
     json_data = resp.json()
 

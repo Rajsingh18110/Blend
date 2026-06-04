@@ -48,7 +48,7 @@ class ResultProcessor:
             "source": source,
             "metadata": metadata,
             "trust_score": 0.0,
-            "parsed_url": ["https", domain, "", "", "", ""] # Required by SearxNG UI contract
+            "parsed_url": ["https", domain, "", "", "", ""] # Frontend URL tuple contract
         }
 
     @staticmethod

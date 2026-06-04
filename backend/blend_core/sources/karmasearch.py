@@ -25,7 +25,7 @@ from blend_core.result_types._base import LegacyResult
 
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 about = {
@@ -126,7 +126,7 @@ def _parse_images(result: dict[str, t.Any]) -> LegacyResult:
     )
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
     res = SourceResults()
 
     json_resp: dict[str, t.Any] = resp.json()
@@ -192,15 +192,15 @@ def fetch_traits(engine_traits: EngineTraits):
     for option in dom.xpath("//select[@name='country']/option"):
         country_tag: str = option.get("value", "")
         try:
-            sxng_tag = region_tag(babel.Locale.parse(country_tag, sep="-"))
+            blend_tag = region_tag(babel.Locale.parse(country_tag, sep="-"))
         except babel.UnknownLocaleError:
             # silently ignore unknown languages
             continue
-        # print("%-20s: %s <-- %s" % (extract_text(option), country_tag, sxng_tag))
+        # print("%-20s: %s <-- %s" % (extract_text(option), country_tag, blend_tag))
 
-        conflict = engine_traits.regions.get(sxng_tag)
+        conflict = engine_traits.regions.get(blend_tag)
         if conflict:
             if conflict != country_tag:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, country_tag))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, country_tag))
             continue
-        engine_traits.regions[sxng_tag] = country_tag
+        engine_traits.regions[blend_tag] = country_tag

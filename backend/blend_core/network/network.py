@@ -21,7 +21,7 @@ from itertools import cycle
 import httpx
 
 from blend_core import logger, blend_debug
-from blend_core.extended_types import SXNG_Response
+from blend_core.extended_types import BlendResponse
 from .client import new_client, get_loop, AsyncHTTPTransportNoHttp
 from .raise_for_httperror import raise_for_httperror
 
@@ -248,9 +248,9 @@ class Network:
             del kwargs['raise_for_httperror']
         return do_raise_for_httperror
 
-    def patch_response(self, response: httpx.Response, do_raise_for_httperror: bool) -> SXNG_Response:
+    def patch_response(self, response: httpx.Response, do_raise_for_httperror: bool) -> BlendResponse:
         if isinstance(response, httpx.Response):
-            response = t.cast(SXNG_Response, response)
+            response = t.cast(BlendResponse, response)
             # requests compatibility (response is not streamed)
             # see also https://www.python-httpx.org/compatibility/#checking-for-4xx5xx-responses
             response.ok = not response.is_error
@@ -274,7 +274,7 @@ class Network:
             return False
         return True
 
-    async def call_client(self, stream: bool, method: str, url: str, **kwargs: t.Any) -> SXNG_Response:
+    async def call_client(self, stream: bool, method: str, url: str, **kwargs: t.Any) -> BlendResponse:
         retries = self.retries
         was_disconnected = False
         do_raise_for_httperror = Network.extract_do_raise_for_httperror(kwargs)
@@ -305,7 +305,7 @@ class Network:
                     raise e
             retries -= 1
 
-    async def request(self, method: str, url: str, **kwargs: t.Any) -> SXNG_Response:
+    async def request(self, method: str, url: str, **kwargs: t.Any) -> BlendResponse:
         return await self.call_client(False, method, url, **kwargs)
 
     async def stream(self, method: str, url: str, **kwargs):

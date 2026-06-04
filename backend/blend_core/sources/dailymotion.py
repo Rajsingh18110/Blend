@@ -224,17 +224,17 @@ def fetch_traits(engine_traits: EngineTraits):
         if eng_tag in ("en_EN", "ar_AA"):
             continue
         try:
-            sxng_tag = region_tag(babel.Locale.parse(eng_tag))
+            blend_tag = region_tag(babel.Locale.parse(eng_tag))
         except babel.UnknownLocaleError:
             print("ERROR: item unknown --> %s" % item)
             continue
 
-        conflict = engine_traits.regions.get(sxng_tag)
+        conflict = engine_traits.regions.get(blend_tag)
         if conflict:
             if conflict != eng_tag:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, eng_tag))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, eng_tag))
             continue
-        engine_traits.regions[sxng_tag] = eng_tag
+        engine_traits.regions[blend_tag] = eng_tag
 
     locale_lang_list = [x.split("_")[0] for x in engine_traits.regions.values()]
 
@@ -245,5 +245,5 @@ def fetch_traits(engine_traits: EngineTraits):
     for item in resp.json()["list"]:  # type: ignore
         eng_tag = item["code"]
         if eng_tag in locale_lang_list:
-            sxng_tag = language_tag(babel.Locale.parse(eng_tag))
-            engine_traits.languages[sxng_tag] = eng_tag
+            blend_tag = language_tag(babel.Locale.parse(eng_tag))
+            engine_traits.languages[blend_tag] = eng_tag

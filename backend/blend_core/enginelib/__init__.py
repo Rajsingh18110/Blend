@@ -41,7 +41,7 @@ from ..cache import ExpireCacheSQLite, ExpireCacheCfg
 if t.TYPE_CHECKING:
     from blend_core.enginelib import traits
     from blend_core.enginelib.traits import EngineTraits
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.result_types import SourceResults
     from blend_core.pipeline.processors import OfflineParamTypes, OnlineParamTypes
 
@@ -357,5 +357,5 @@ class Engine(abc.ABC):  # pylint: disable=too-few-public-methods
         engine."""
 
     @abc.abstractmethod
-    def response(self, resp: "SXNG_Response") -> "SourceResults":
+    def response(self, resp: "BlendResponse") -> "SourceResults":
         """Method to parse the response of an ``online`` engine."""

@@ -354,14 +354,14 @@ def fetch_traits(engine_traits: EngineTraits):
 
     for eng_tag in eng_tag_list:
         try:
-            sxng_tag = region_tag(babel.Locale.parse(eng_tag, sep="_"))
+            blend_tag = region_tag(babel.Locale.parse(eng_tag, sep="_"))
         except babel.UnknownLocaleError:
             print("ERROR: can't determine babel locale of quant's locale %s" % eng_tag)
             continue
 
-        conflict = engine_traits.regions.get(sxng_tag)
+        conflict = engine_traits.regions.get(blend_tag)
         if conflict:
             if conflict != eng_tag:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, eng_tag))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, eng_tag))
             continue
-        engine_traits.regions[sxng_tag] = eng_tag
+        engine_traits.regions[blend_tag] = eng_tag
