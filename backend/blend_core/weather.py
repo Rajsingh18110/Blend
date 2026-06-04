@@ -63,8 +63,8 @@ def get_WEATHER_DATA_CACHE():
     return WEATHER_DATA_CACHE
 
 
-def _get_sxng_locale_tag() -> str:
-    # The function should return a locale (the sxng-tag: de-DE.en-US, ..) that
+def _get_blend_locale_tag() -> str:
+    # The function should return a locale (the Blend locale tag: de-DE.en-US, ..) that
     # can later be used to format and convert measured values for the output of
     # weather data to the user.
     #
@@ -155,9 +155,9 @@ class GeoLocation(msgspec.Struct, kw_only=True):
     def locale(self) -> babel.Locale:
 
         # by region of the search language
-        sxng_tag = _get_sxng_locale_tag()
-        if "-" in sxng_tag:
-            locale = babel.Locale.parse(_get_sxng_locale_tag(), sep='-')
+        blend_tag = _get_blend_locale_tag()
+        if "-" in blend_tag:
+            locale = babel.Locale.parse(_get_blend_locale_tag(), sep='-')
             return locale
 
         # by most popular language in the region (country code)
@@ -240,7 +240,7 @@ class DateTime(msgspec.Struct):
         elif isinstance(locale, GeoLocation):
             locale = locale.locale()
         elif locale is None:
-            locale = babel.Locale.parse(_get_sxng_locale_tag(), sep='-')
+            locale = babel.Locale.parse(_get_blend_locale_tag(), sep='-')
         return babel.dates.format_datetime(self.datetime, format=fmt, locale=locale)
 
     def l10n_date(
@@ -255,7 +255,7 @@ class DateTime(msgspec.Struct):
         elif isinstance(locale, GeoLocation):
             locale = locale.locale()
         elif locale is None:
-            locale = babel.Locale.parse(_get_sxng_locale_tag(), sep='-')
+            locale = babel.Locale.parse(_get_blend_locale_tag(), sep='-')
         return babel.dates.format_date(self.datetime, format=fmt, locale=locale)
 
 
@@ -317,7 +317,7 @@ class Temperature(msgspec.Struct, kw_only=True):
         if isinstance(locale, GeoLocation):
             locale = locale.locale()
         elif locale is None:
-            locale = babel.Locale.parse(_get_sxng_locale_tag(), sep='-')
+            locale = babel.Locale.parse(_get_blend_locale_tag(), sep='-')
 
         if unit is None:  # unit by territory
             unit = "°C"
@@ -364,7 +364,7 @@ class Pressure(msgspec.Struct, kw_only=True):
         if isinstance(locale, GeoLocation):
             locale = locale.locale()
         elif locale is None:
-            locale = babel.Locale.parse(_get_sxng_locale_tag(), sep='-')
+            locale = babel.Locale.parse(_get_blend_locale_tag(), sep='-')
 
         if unit is None:  # unit by territory?
             unit = "hPa"
@@ -417,7 +417,7 @@ class WindSpeed(msgspec.Struct, kw_only=True):
         if isinstance(locale, GeoLocation):
             locale = locale.locale()
         elif locale is None:
-            locale = babel.Locale.parse(_get_sxng_locale_tag(), sep='-')
+            locale = babel.Locale.parse(_get_blend_locale_tag(), sep='-')
 
         if unit is None:  # unit by territory?
             unit = "m/s"
@@ -458,7 +458,7 @@ class RelativeHumidity(msgspec.Struct):
         if isinstance(locale, GeoLocation):
             locale = locale.locale()
         elif locale is None:
-            locale = babel.Locale.parse(_get_sxng_locale_tag(), sep='-')
+            locale = babel.Locale.parse(_get_blend_locale_tag(), sep='-')
 
         unit = "%"
         val_str = babel.numbers.format_decimal(self.value(), locale=locale, format=num_pattern)
@@ -530,7 +530,7 @@ class Compass(msgspec.Struct):
         if isinstance(locale, GeoLocation):
             locale = locale.locale()
         elif locale is None:
-            locale = babel.Locale.parse(_get_sxng_locale_tag(), sep='-')
+            locale = babel.Locale.parse(_get_blend_locale_tag(), sep='-')
 
         if unit == "Point":
             val_str = self.value(unit)

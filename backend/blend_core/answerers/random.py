@@ -51,7 +51,7 @@ def random_color():
     return f"#{color.upper()}"
 
 
-class SXNGAnswerer(Answerer):
+class BlendAnswerer(Answerer):
     """Random value generator"""
 
     keywords = ["random"]

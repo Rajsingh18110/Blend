@@ -18,7 +18,7 @@ from ._core import log
 
 if typing.TYPE_CHECKING:
     from blend_core.pipeline import SearchWithPlugins
-    from blend_core.extended_types import SXNG_Request
+    from blend_core.extended_types import BlendRequest
     from blend_core.result_types import Result, LegacyResult
     from blend_core.extensions import PluginCfg
 
@@ -46,7 +46,7 @@ def filter_url_field(result: "Result|LegacyResult", field_name: str, url_src: st
     return True  # use it unchanged
 
 
-class SXNGPlugin(Plugin):
+class BlendPlugin(Plugin):
     """Avoid paywalls by redirecting to open-access."""
 
     id = "oa_doi_rewrite"
@@ -62,7 +62,7 @@ class SXNGPlugin(Plugin):
 
     def on_result(
         self,
-        request: "SXNG_Request",
+        request: "BlendRequest",
         search: "SearchWithPlugins",
         result: "Result",
     ) -> bool:  # pylint: disable=unused-argument

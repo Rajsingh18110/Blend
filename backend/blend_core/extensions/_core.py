@@ -18,7 +18,7 @@ from collections.abc import Generator
 
 from dataclasses import dataclass, field
 
-from blend_core.extended_types import SXNG_Request
+from blend_core.extended_types import BlendRequest
 
 if t.TYPE_CHECKING:
     from blend_core.pipeline import SearchWithPlugins
@@ -142,7 +142,7 @@ class Plugin(abc.ABC):
         return True
 
     # pylint: disable=unused-argument
-    def pre_search(self, request: SXNG_Request, search: "SearchWithPlugins") -> bool:
+    def pre_search(self, request: BlendRequest, search: "SearchWithPlugins") -> bool:
         """Runs BEFORE the search request and returns a boolean:
 
         - ``True`` to continue the search
@@ -150,7 +150,7 @@ class Plugin(abc.ABC):
         """
         return True
 
-    def on_result(self, request: SXNG_Request, search: "SearchWithPlugins", result: "Result") -> bool:
+    def on_result(self, request: BlendRequest, search: "SearchWithPlugins", result: "Result") -> bool:
         """Runs for each result of each engine and returns a boolean:
 
         - ``True`` to keep the result
@@ -171,7 +171,7 @@ class Plugin(abc.ABC):
         return True
 
     def post_search(
-        self, request: SXNG_Request, search: "SearchWithPlugins"
+        self, request: BlendRequest, search: "SearchWithPlugins"
     ) -> "None | list[Result | LegacyResult] | SourceResults":
         """Runs AFTER the search request.  Can return a list of
         :py:obj:`Result <blend_core.result_types._base.Result>` objects to be added to the
@@ -254,7 +254,7 @@ class PluginStorage:
             if not plg.init(app):
                 self.plugin_list.remove(plg)
 
-    def pre_search(self, request: SXNG_Request, search: "SearchWithPlugins") -> bool:
+    def pre_search(self, request: BlendRequest, search: "SearchWithPlugins") -> bool:
 
         ret = True
         for plugin in [p for p in self.plugin_list if p.id in search.user_plugins]:
@@ -268,7 +268,7 @@ class PluginStorage:
                 break
         return ret
 
-    def on_result(self, request: SXNG_Request, search: "SearchWithPlugins", result: "Result") -> bool:
+    def on_result(self, request: BlendRequest, search: "SearchWithPlugins", result: "Result") -> bool:
 
         ret = True
         for plugin in [p for p in self.plugin_list if p.id in search.user_plugins]:
@@ -283,7 +283,7 @@ class PluginStorage:
 
         return ret
 
-    def post_search(self, request: SXNG_Request, search: "SearchWithPlugins") -> None:
+    def post_search(self, request: BlendRequest, search: "SearchWithPlugins") -> None:
         """Extend :py:obj:`search.result_pool
         <blend_core.results.BlendResults`> with result items from plugins listed
         in :py:obj:`search.user_plugins <SearchWithPlugins.user_plugins>`.

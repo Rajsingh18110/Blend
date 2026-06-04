@@ -30,7 +30,7 @@ from blend_core.locales import region_tag
 from blend_core.utils import eval_xpath, eval_xpath_getindex, eval_xpath_list, extract_text
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 about: dict[str, t.Any] = {
@@ -123,7 +123,7 @@ def request(query: str, params: "OnlineParams") -> "OnlineParams":
     return params
 
 
-def response(resp: "SXNG_Response") -> list[dict[str, t.Any]]:
+def response(resp: "BlendResponse") -> list[dict[str, t.Any]]:
     """Get response from Bing-Web"""
 
     results: list[dict[str, t.Any]] = []
@@ -213,15 +213,15 @@ def fetch_traits(engine_traits: EngineTraits) -> None:
             market_code = map_market_codes.get(market_code, market_code)
 
             try:
-                sxng_tag = region_tag(babel.Locale.parse("%s_%s" % (lang_tag, cc_tag.upper())))
+                blend_tag = region_tag(babel.Locale.parse("%s_%s" % (lang_tag, cc_tag.upper())))
             except babel.UnknownLocaleError:
                 # silently ignore unknown languages
                 continue
 
-            conflict = engine_traits.regions.get(sxng_tag)
+            conflict = engine_traits.regions.get(blend_tag)
             if conflict:
                 if conflict != market_code:
-                    print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, market_code))
+                    print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, market_code))
                 continue
 
-            engine_traits.regions[sxng_tag] = market_code
+            engine_traits.regions[blend_tag] = market_code

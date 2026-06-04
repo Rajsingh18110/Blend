@@ -43,14 +43,14 @@ main_wiki = "wiki.archlinux.org"
 
 def request(query, params):
 
-    sxng_lang = params["markanm_locale"].split("-")[0]
-    netloc: str = traits.custom["wiki_netloc"].get(sxng_lang, main_wiki)  # type: ignore
-    title: str = traits.custom["title"].get(sxng_lang, "Special:Search")  # type: ignore
+    blend_lang = params["markanm_locale"].split("-")[0]
+    netloc: str = traits.custom["wiki_netloc"].get(blend_lang, main_wiki)  # type: ignore
+    title: str = traits.custom["title"].get(blend_lang, "Special:Search")  # type: ignore
     base_url = "https://" + netloc + "/index.php?"
     offset = (params["pageno"] - 1) * 20
 
     if netloc == main_wiki:
-        eng_lang: str = traits.get_language(sxng_lang, "English")  # type: ignore
+        eng_lang: str = traits.get_language(blend_lang, "English")  # type: ignore
         query += " (" + eng_lang + ")"
         # wiki.archlinux.org is protected by anubis
         # - https://github.com/markanm/markanm/issues/4646#issuecomment-2817848019
@@ -76,8 +76,8 @@ def response(resp):
     dom = lxml.html.fromstring(resp.text)  # type: ignore
 
     # get the base URL for the language in which request was made
-    sxng_lang = resp.search_params["markanm_locale"].split("-")[0]
-    netloc: str = traits.custom["wiki_netloc"].get(sxng_lang, main_wiki)  # type: ignore
+    blend_lang = resp.search_params["markanm_locale"].split("-")[0]
+    netloc: str = traits.custom["wiki_netloc"].get(blend_lang, main_wiki)  # type: ignore
     base_url = "https://" + netloc + "/index.php?"
 
     for result in eval_xpath_list(dom, '//ul[@class="mw-search-results"]/li'):
@@ -136,20 +136,20 @@ def fetch_traits(engine_traits: EngineTraits):
 
     dom = lxml.html.fromstring(resp.text)  # type: ignore
     for a in eval_xpath_list(dom, "//a[@class='interlanguage-link-target']"):
-        sxng_tag = language_tag(babel.Locale.parse(a.get("lang"), sep="-"))
+        blend_tag = language_tag(babel.Locale.parse(a.get("lang"), sep="-"))
         # zh_Hans --> zh
-        sxng_tag = sxng_tag.split("_")[0]
+        blend_tag = blend_tag.split("_")[0]
 
         netloc = urlparse(a.get("href")).netloc
         if netloc != "wiki.archlinux.org":
-            title = title_map.get(sxng_tag)
+            title = title_map.get(blend_tag)
             if not title:
-                print("ERROR: title tag from %s (%s) is unknown" % (netloc, sxng_tag))
+                print("ERROR: title tag from %s (%s) is unknown" % (netloc, blend_tag))
                 continue
-            engine_traits.custom["wiki_netloc"][sxng_tag] = netloc
-            engine_traits.custom["title"][sxng_tag] = title  # type: ignore
+            engine_traits.custom["wiki_netloc"][blend_tag] = netloc
+            engine_traits.custom["title"][blend_tag] = title  # type: ignore
 
         eng_tag = extract_text(eval_xpath_list(a, ".//span"))
-        engine_traits.languages[sxng_tag] = eng_tag  # type: ignore
+        engine_traits.languages[blend_tag] = eng_tag  # type: ignore
 
     engine_traits.languages["en"] = "English"

@@ -101,7 +101,7 @@ from ._core import log
 if t.TYPE_CHECKING:
     import flask
     from blend_core.pipeline import SearchWithPlugins
-    from blend_core.extended_types import SXNG_Request
+    from blend_core.extended_types import BlendRequest
     from blend_core.result_types import Result
     from blend_core.extensions import PluginCfg
 
@@ -111,7 +111,7 @@ HIGH: set = set()
 LOW: set = set()
 
 
-class SXNGPlugin(Plugin):
+class BlendPlugin(Plugin):
     """Rewrite hostnames, remove results or prioritize them."""
 
     id = "hostnames"
@@ -125,7 +125,7 @@ class SXNGPlugin(Plugin):
             preference_section="general",
         )
 
-    def on_result(self, request: "SXNG_Request", search: "SearchWithPlugins", result: "Result") -> bool:
+    def on_result(self, request: "BlendRequest", search: "SearchWithPlugins", result: "Result") -> bool:
 
         for pattern in REMOVE:
             if result.parsed_url and pattern.search(result.parsed_url.netloc):

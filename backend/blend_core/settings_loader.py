@@ -71,15 +71,15 @@ def get_user_cfg_folder() -> Path | None:
     """Returns folder where the local configurations are located.
 
     1. If the ``MARKANM_SETTINGS_PATH`` environment is set and points to a
-       folder (e.g. ``/etc/mysxng/``), all local configurations are expected in
+       folder (e.g. ``/etc/markanm/``), all local configurations are expected in
        this folder.  The settings of the :ref:`Markanm appl <markanm
        blend_config.yml>` then expected in ``blend_config.yml``
-       (e.g. ``/etc/mysxng/blend_config.yml``).
+       (e.g. ``/etc/markanm/blend_config.yml``).
 
     2. If the ``MARKANM_SETTINGS_PATH`` environment is set and points to a file
-       (e.g. ``/etc/mysxng/myinstance.yml``), this file contains the settings of
+       (e.g. ``/etc/markanm/myinstance.yml``), this file contains the settings of
        the :ref:`Markanm appl <markanm blend_config.yml>` and the folder
-       (e.g. ``/etc/mysxng/``) is used for all other configurations.
+       (e.g. ``/etc/markanm/``) is used for all other configurations.
 
        This type (``MARKANM_SETTINGS_PATH`` points to a file) is suitable for
        use cases in which different profiles of the :ref:`Markanm appl <markanm

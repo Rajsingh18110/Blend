@@ -16,7 +16,7 @@
 # krishna_medapati <krishna_medapati@noreply.codeberg.org>, 2025.
 msgid ""
 msgstr ""
-"Project-Id-Version:  searx\n"
+"Project-Id-Version:  search\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-03-24 18:43+0000\n"
 "PO-Revision-Date: 2025-11-04 03:40+0000\n"
@@ -32,651 +32,651 @@ msgstr ""
 "Generated-By: Babel 2.18.0\n"
 
 #. CONSTANT_NAMES['NO_SUBGROUPING']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "without further subgrouping"
 msgstr "తదుపరి ఉపసమితి లేకుండా"
 
 #. CONSTANT_NAMES['DEFAULT_CATEGORY']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "other"
 msgstr "ఇతర"
 
 #. CATEGORY_NAMES['FILES']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "files"
 msgstr "ఫైళ్ళు"
 
 #. CATEGORY_NAMES['GENERAL']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "general"
 msgstr "సాధారణ"
 
 #. CATEGORY_NAMES['MUSIC']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "music"
 msgstr "సంగీతం"
 
 #. CATEGORY_NAMES['SOCIAL_MEDIA']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "social media"
 msgstr "సోషల్ మీడియా"
 
 #. CATEGORY_NAMES['IMAGES']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "images"
 msgstr "చిత్రాలు"
 
 #. CATEGORY_NAMES['VIDEOS']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "videos"
 msgstr "వీడియోలు"
 
 #. CATEGORY_NAMES['RADIO']
-#: searx/engines/radio_browser.py:146 searx/blend.msg
+#: search/engines/radio_browser.py:146 search/blend.msg
 msgid "radio"
 msgstr "రేడియో"
 
 #. CATEGORY_NAMES['TV']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "tv"
 msgstr "టీవీ"
 
 #. CATEGORY_NAMES['IT']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "it"
 msgstr "ఐటి"
 
 #. CATEGORY_NAMES['NEWS']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "news"
 msgstr "వార్తలు"
 
 #. CATEGORY_NAMES['MAP']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "map"
 msgstr "పటము"
 
 #. CATEGORY_NAMES['ONIONS']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "onions"
 msgstr "ఉల్లిపాయ"
 
 #. CATEGORY_NAMES['SCIENCE']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "science"
 msgstr "విజ్ఞానశాస్త్రం"
 
 #. CATEGORY_GROUPS['APPS']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "apps"
 msgstr "యాప్‌లు"
 
 #. CATEGORY_GROUPS['DICTIONARIES']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "dictionaries"
 msgstr "నిఘంటువులు"
 
 #. CATEGORY_GROUPS['LYRICS']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "lyrics"
 msgstr "సాహిత్యం"
 
 #. CATEGORY_GROUPS['PACKAGES']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "packages"
 msgstr "ప్యాకేజీలు"
 
 #. CATEGORY_GROUPS['Q_A']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "q&a"
 msgstr "ప్రశ్నలు మరియు సమాధానాలు"
 
 #. CATEGORY_GROUPS['REPOS']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "repos"
 msgstr "రెపోలు"
 
 #. CATEGORY_GROUPS['SOFTWARE_WIKIS']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "software wikis"
 msgstr "సాఫ్ట్‌వేర్ వికీ"
 
 #. CATEGORY_GROUPS['WEB']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "web"
 msgstr "వెబ్"
 
 #. CATEGORY_GROUPS['SCIENTIFIC PUBLICATIONS']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "scientific publications"
 msgstr "శాస్త్రీయ ప్రచురణలు"
 
 #. STYLE_NAMES['AUTO']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "auto"
 msgstr "ఆటో"
 
 #. STYLE_NAMES['LIGHT']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "light"
 msgstr "వెలుగు"
 
 #. STYLE_NAMES['DARK']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "dark"
 msgstr "చీకటి"
 
 #. STYLE_NAMES['BLACK']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "black"
 msgstr "నలుపు"
 
 #. BRAND_CUSTOM_LINKS['UPTIME']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Uptime"
 msgstr "సేవ లభ్యత సమయం"
 
 #. BRAND_CUSTOM_LINKS['ABOUT']
-#: searx/blend.msg searx/templates/simple/base.html:46
+#: search/blend.msg search/templates/simple/base.html:46
 msgid "About"
 msgstr "గురించి"
 
 #. WEATHER_TERMS['AVERAGE TEMP.']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Average temp."
 msgstr "సగటు ఉష్ణోగ్రత"
 
 #. WEATHER_TERMS['CLOUD COVER']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Cloud cover"
 msgstr "మేఘం కమ్మటం"
 
 #. WEATHER_TERMS['CONDITION']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Condition"
 msgstr "పరిస్థితి"
 
 #. WEATHER_TERMS['CURRENT CONDITION']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Current condition"
 msgstr "ప్రస్తుత పరిస్థితి"
 
 #. WEATHER_TERMS['EVENING']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Evening"
 msgstr "సాయంత్రం"
 
 #. WEATHER_TERMS['FEELS LIKE']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Feels like"
 msgstr "అనిపిస్తుంది"
 
 #. WEATHER_TERMS['HUMIDITY']
-#: searx/blend.msg searx/templates/simple/answer/weather.html:29
+#: search/blend.msg search/templates/simple/answer/weather.html:29
 msgid "Humidity"
 msgstr "తేమ"
 
 #. WEATHER_TERMS['MAX TEMP.']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Max temp."
 msgstr "గరిష్ట ఉష్ణోగ్రత."
 
 #. WEATHER_TERMS['MIN TEMP.']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Min temp."
 msgstr "కనిష్ట ఉష్ణోగ్రత."
 
 #. WEATHER_TERMS['MORNING']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Morning"
 msgstr "ఉదయం"
 
 #. WEATHER_TERMS['NIGHT']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Night"
 msgstr "రాత్రి"
 
 #. WEATHER_TERMS['NOON']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Noon"
 msgstr "మధ్యాహ్నం"
 
 #. WEATHER_TERMS['PRESSURE']
-#: searx/blend.msg searx/templates/simple/answer/weather.html:25
+#: search/blend.msg search/templates/simple/answer/weather.html:25
 msgid "Pressure"
 msgstr "వాతావరణ పీడనం"
 
 #. WEATHER_TERMS['SUNRISE']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Sunrise"
 msgstr "సూర్యోదయం"
 
 #. WEATHER_TERMS['SUNSET']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Sunset"
 msgstr "సూర్యాస్తమయం"
 
 #. WEATHER_TERMS['TEMPERATURE']
-#: searx/blend.msg searx/templates/simple/answer/weather.html:17
+#: search/blend.msg search/templates/simple/answer/weather.html:17
 msgid "Temperature"
 msgstr "ఉష్ణోగ్రత"
 
 #. WEATHER_TERMS['UV INDEX']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "UV index"
 msgstr "UV సూచిక"
 
 #. WEATHER_TERMS['VISIBILITY']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Visibility"
 msgstr "విసిబిలిటీ"
 
 #. WEATHER_TERMS['WIND']
-#: searx/blend.msg searx/templates/simple/answer/weather.html:23
+#: search/blend.msg search/templates/simple/answer/weather.html:23
 msgid "Wind"
 msgstr "గాలి"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Clear sky"
 msgstr "స్వచ్ఛమైన ఆకాశం"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Partly cloudy"
 msgstr "కొద్దిగా మేఘావృతమై"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Cloudy"
 msgstr "మేఘావృతమైన"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Fair"
 msgstr "స్వచ్ఛమైన"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Fog"
 msgstr "పొగ మంచు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light rain and thunder"
 msgstr "తేలికపాటి వర్షం మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light rain showers and thunder"
 msgstr "తేలికపాటి వర్షపుజల్లు మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light rain showers"
 msgstr "తేలికపాటి వర్షపుజల్లు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light rain"
 msgstr "తేలికపాటి వర్షం"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Rain and thunder"
 msgstr "వర్షం మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Rain showers and thunder"
 msgstr "వర్షపుజల్లు మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Rain showers"
 msgstr "వర్షపుజల్లు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Rain"
 msgstr "వర్షం"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy rain and thunder"
 msgstr "తీవ్రమైన వర్షం మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy rain showers and thunder"
 msgstr "తీవ్రమైన వర్షపుజల్లు మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy rain showers"
 msgstr "తీవ్రమైన వర్షపుజల్లు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy rain"
 msgstr "తీవ్రమైన వర్షం"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light sleet and thunder"
 msgstr "తేలికపాటి వడగళ్ళు మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light sleet showers and thunder"
 msgstr "తేలికపాటి వడగళ్ళ వర్షాలు మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light sleet showers"
 msgstr ""
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light sleet"
 msgstr ""
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Sleet and thunder"
 msgstr ""
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Sleet showers and thunder"
 msgstr ""
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Sleet showers"
 msgstr ""
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Sleet"
 msgstr ""
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy sleet and thunder"
 msgstr ""
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy sleet showers and thunder"
 msgstr ""
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy sleet showers"
 msgstr ""
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy sleet"
 msgstr ""
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light snow and thunder"
 msgstr "తేలికపాటి మంచు మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light snow showers and thunder"
 msgstr "తేలికపాటి మంచుజల్లు మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light snow showers"
 msgstr "తేలికపాటి మంచుజల్లు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Light snow"
 msgstr "తేలికపాటి మంచు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Snow and thunder"
 msgstr "మంచు మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Snow showers and thunder"
 msgstr "మంచుజల్లు మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Snow showers"
 msgstr "మంచుజల్లు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Snow"
 msgstr "మంచు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy snow and thunder"
 msgstr "తీవ్రమైన మంచు మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy snow showers and thunder"
 msgstr "తీవ్రమైన మంచుజల్లు మరియు ఉరుములు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy snow showers"
 msgstr "తీవ్రమైన మంచుజల్లు"
 
 #. WEATHER_CONDITIONS
-#: searx/blend.msg
+#: search/blend.msg
 msgid "Heavy snow"
 msgstr "తీవ్రమైన మంచు"
 
 #. SOCIAL_MEDIA_TERMS['SUBSCRIBERS']
-#: searx/engines/lemmy.py:85 searx/blend.msg
+#: search/engines/lemmy.py:85 search/blend.msg
 msgid "subscribers"
 msgstr "చందాదారులు"
 
 #. SOCIAL_MEDIA_TERMS['POSTS']
-#: searx/engines/lemmy.py:86 searx/blend.msg
+#: search/engines/lemmy.py:86 search/blend.msg
 msgid "posts"
 msgstr "పోస్ట్ లు"
 
 #. SOCIAL_MEDIA_TERMS['ACTIVE USERS']
-#: searx/engines/lemmy.py:87 searx/blend.msg
+#: search/engines/lemmy.py:87 search/blend.msg
 msgid "active users"
 msgstr "ఆక్టివ్ యూసర్ లు"
 
 #. SOCIAL_MEDIA_TERMS['COMMENTS']
-#: searx/engines/discourse.py:157 searx/engines/hackernews.py:83
-#: searx/engines/lemmy.py:130 searx/blend.msg
+#: search/engines/discourse.py:157 search/engines/hackernews.py:83
+#: search/engines/lemmy.py:130 search/blend.msg
 msgid "comments"
 msgstr "కామెంట్ లు"
 
 #. SOCIAL_MEDIA_TERMS['USER']
-#: searx/engines/lemmy.py:129 searx/engines/lemmy.py:164 searx/blend.msg
+#: search/engines/lemmy.py:129 search/engines/lemmy.py:164 search/blend.msg
 msgid "user"
 msgstr "యూసర్"
 
 #. SOCIAL_MEDIA_TERMS['COMMUNITY']
-#: searx/engines/lemmy.py:131 searx/engines/lemmy.py:165 searx/blend.msg
+#: search/engines/lemmy.py:131 search/engines/lemmy.py:165 search/blend.msg
 msgid "community"
 msgstr "కమ్యూనిటీ"
 
 #. SOCIAL_MEDIA_TERMS['POINTS']
-#: searx/engines/hackernews.py:83 searx/blend.msg
+#: search/engines/hackernews.py:83 search/blend.msg
 msgid "points"
 msgstr "పాయింట్ లు"
 
 #. SOCIAL_MEDIA_TERMS['TITLE']
-#: searx/blend.msg
+#: search/blend.msg
 msgid "title"
 msgstr "టైటిల్"
 
 #. SOCIAL_MEDIA_TERMS['AUTHOR']
-#: searx/engines/hackernews.py:86 searx/blend.msg
+#: search/engines/hackernews.py:86 search/blend.msg
 msgid "author"
 msgstr "రచయిత"
 
 #. SOCIAL_MEDIA_TERMS['THREAD OPEN']
-#: searx/engines/discourse.py:149 searx/blend.msg
+#: search/engines/discourse.py:149 search/blend.msg
 msgid "open"
 msgstr "ఓపెన్"
 
 #. SOCIAL_MEDIA_TERMS['THREAD CLOSED']
-#: searx/engines/discourse.py:149 searx/blend.msg
+#: search/engines/discourse.py:149 search/blend.msg
 msgid "closed"
 msgstr "క్లోస్డ్"
 
 #. SOCIAL_MEDIA_TERMS['THREAD ANSWERED']
-#: searx/engines/discourse.py:160 searx/blend.msg
+#: search/engines/discourse.py:160 search/blend.msg
 msgid "answered"
 msgstr "సమాధానమిచ్చారు"
 
-#: searx/webapp.py:327
+#: search/webapp.py:327
 msgid "No item found"
 msgstr "ఏమీ దొరకలేదు"
 
-#: searx/engines/qwant.py:291
-#: searx/templates/simple/result_templates/images.html:23 searx/webapp.py:329
+#: search/engines/qwant.py:291
+#: search/templates/simple/result_templates/images.html:23 search/webapp.py:329
 msgid "Source"
 msgstr "మూలం"
 
-#: searx/webapp.py:331
+#: search/webapp.py:331
 msgid "Error loading the next page"
 msgstr "తదుపరి పేజీని లోడ్ చేయడంలో లోపం"
 
-#: searx/webapp.py:480 searx/webapp.py:881
+#: search/webapp.py:480 search/webapp.py:881
 msgid "Invalid settings, please edit your preferences"
 msgstr "చెల్లని సెట్టింగ్‌లు, దయచేసి మీ ప్రాధాన్యతలను సవరించండి"
 
-#: searx/webapp.py:496
+#: search/webapp.py:496
 msgid "Invalid settings"
 msgstr "చెల్లని అమరికలు"
 
-#: searx/webapp.py:573 searx/webapp.py:663
+#: search/webapp.py:573 search/webapp.py:663
 msgid "search error"
 msgstr "శోధనలో లోపము"
 
-#: searx/webutils.py:36
+#: search/webutils.py:36
 msgid "timeout"
 msgstr "సమయం ముగిసినది"
 
-#: searx/webutils.py:37
+#: search/webutils.py:37
 msgid "parsing error"
 msgstr "పార్సింగ్ లోపం"
 
-#: searx/webutils.py:38
+#: search/webutils.py:38
 msgid "HTTP protocol error"
 msgstr "HTTP నియమాలలో లోపం"
 
-#: searx/webutils.py:39
+#: search/webutils.py:39
 msgid "network error"
 msgstr "నెట్వర్క్ లోపం"
 
-#: searx/webutils.py:40
+#: search/webutils.py:40
 msgid "SSL error: certificate validation has failed"
 msgstr "SSL లోపం: సర్టిఫికేట్ ధ్రువీకరణ విఫలమైంది"
 
-#: searx/webutils.py:42
+#: search/webutils.py:42
 msgid "unexpected crash"
 msgstr "ఊహించని లోపం"
 
-#: searx/webutils.py:49
+#: search/webutils.py:49
 msgid "HTTP error"
 msgstr "HTTP లోపం"
 
-#: searx/webutils.py:50
+#: search/webutils.py:50
 msgid "HTTP connection error"
 msgstr "HTTP కనెక్షన్ లోపం"
 
-#: searx/webutils.py:56
+#: search/webutils.py:56
 msgid "proxy error"
 msgstr "ప్రాక్సీ లోపం"
 
-#: searx/webutils.py:57
+#: search/webutils.py:57
 msgid "CAPTCHA"
 msgstr "క్యాప్చా"
 
-#: searx/webutils.py:58
+#: search/webutils.py:58
 msgid "too many requests"
 msgstr "చాలా అభ్యర్థనలు"
 
-#: searx/webutils.py:59
+#: search/webutils.py:59
 msgid "access denied"
 msgstr "అనుమతి లేదు"
 
-#: searx/webutils.py:60
+#: search/webutils.py:60
 msgid "server API error"
 msgstr "సర్వర్ API లోపం"
 
-#: searx/webutils.py:79
+#: search/webutils.py:79
 msgid "Suspended"
 msgstr "రద్ధు చెయ్యబడింది"
 
-#: searx/webutils.py:308
+#: search/webutils.py:308
 #, python-brace-format
 msgid "{minutes} minute(s) ago"
 msgstr "{minutes} నిమిషము(ల) క్రిందట"
 
-#: searx/webutils.py:309
+#: search/webutils.py:309
 #, python-brace-format
 msgid "{hours} hour(s), {minutes} minute(s) ago"
 msgstr "{hours} గంట(లు), {minutes} నిమిషం(లు) క్రితం"
 
-#: searx/answerers/random.py:68
+#: search/answerers/random.py:68
 msgid "Generate different random values"
 msgstr "విభిన్న యాదృచ్ఛిక విలువలను రూపొందించండి"
 
-#: searx/answerers/statistics.py:37
+#: search/answerers/statistics.py:37
 #, python-brace-format
 msgid "Compute {func} of the arguments"
 msgstr ""
 
-#: searx/engines/boardreader.py:107
+#: search/engines/boardreader.py:107
 #, python-brace-format
 msgid "Posted by {author}"
 msgstr ""
 
-#: searx/engines/openstreetmap.py:155
+#: search/engines/openstreetmap.py:155
 msgid "Show route in map .."
 msgstr ""
 
-#: searx/engines/pdbe.py:96
+#: search/engines/pdbe.py:96
 #, python-brace-format
 msgid "{title} (OBSOLETE)"
 msgstr "{title} (వాడుకలో లేదు)"
 
-#: searx/engines/pdbe.py:103
+#: search/engines/pdbe.py:103
 msgid "This entry has been superseded by"
 msgstr "దీని ద్వారా ఈ ఎంట్రీ భర్తీ చేయబడింది"
 
-#: searx/engines/qwant.py:293
+#: search/engines/qwant.py:293
 msgid "Channel"
 msgstr "ఛానెల్"
 
-#: searx/engines/radio_browser.py:148
+#: search/engines/radio_browser.py:148
 msgid "bitrate"
 msgstr "బిట్రేట్"
 
-#: searx/engines/radio_browser.py:149
+#: search/engines/radio_browser.py:149
 msgid "votes"
 msgstr "ఓట్లు"
 
-#: searx/engines/radio_browser.py:150
+#: search/engines/radio_browser.py:150
 msgid "clicks"
 msgstr "క్లిక్‌లు"
 
-#: searx/engines/semantic_scholar.py:141
+#: search/engines/semantic_scholar.py:141
 #, python-brace-format
 msgid ""
 "{numCitations} citations from the year {firstCitationVelocityYear} to "
@@ -685,7 +685,7 @@ msgstr ""
 "{firstCitationVelocityYear} సంవత్సరం నుండి {lastCitationVelocityYear} "
 "వరకు {numCitations}"
 
-#: searx/engines/tineye.py:42
+#: search/engines/tineye.py:42
 msgid ""
 "Could not read that image url. This may be due to an unsupported file "
 "format. TinEye only supports images that are JPEG, PNG, GIF, BMP, TIFF or"
@@ -695,7 +695,7 @@ msgstr ""
 "ఉండవచ్చు. TinEye JPEG, PNG, GIF, BMP, TIFF లేదా WebP చిత్రాలకు మాత్రమే "
 "సపోర్ట్ ఇస్తుంది."
 
-#: searx/engines/tineye.py:48
+#: search/engines/tineye.py:48
 msgid ""
 "The image is too simple to find matches. TinEye requires a basic level of"
 " visual detail to successfully identify matches."
@@ -703,75 +703,75 @@ msgstr ""
 "చిత్రం సరిపోలికలను కనుగొనడానికి చాలా సాధారణంగా ఉంది. మ్యాచ్‌లను సక్రమంగా "
 "గుర్తించడానికి TinEyeకి ప్రాథమిక స్థాయి దృశ్య వివరాలు అవసరం."
 
-#: searx/engines/tineye.py:53
+#: search/engines/tineye.py:53
 msgid "The image could not be downloaded."
 msgstr "చిత్రాన్ని డౌన్‌లోడ్ చేయడం సాధ్యపడలేదు."
 
-#: searx/engines/zlibrary.py:79
+#: search/engines/zlibrary.py:79
 msgid "Language"
 msgstr "భాష"
 
-#: searx/engines/zlibrary.py:80
+#: search/engines/zlibrary.py:80
 msgid "Book rating"
 msgstr "పుస్తకం రేటింగు"
 
-#: searx/engines/zlibrary.py:81
+#: search/engines/zlibrary.py:81
 msgid "File quality"
 msgstr "ఫైలు క్వాలిటీ"
 
-#: searx/plugins/ahmia_filter.py:33
+#: search/plugins/ahmia_filter.py:33
 msgid "Ahmia blacklist"
 msgstr ""
 
-#: searx/plugins/ahmia_filter.py:34
+#: search/plugins/ahmia_filter.py:34
 msgid "Filter out onion results that appear in Ahmia's blacklist."
 msgstr ""
 
-#: searx/plugins/calculator.py:25
+#: search/plugins/calculator.py:25
 msgid "Calculator"
 msgstr ""
 
-#: searx/plugins/calculator.py:26
+#: search/plugins/calculator.py:26
 msgid "Parses and solves mathematical expressions."
 msgstr ""
 
-#: searx/plugins/hash_plugin.py:33
+#: search/plugins/hash_plugin.py:33
 msgid "Hash plugin"
 msgstr ""
 
-#: searx/plugins/hash_plugin.py:35
+#: search/plugins/hash_plugin.py:35
 msgid ""
 "Converts strings to different hash digests. Available functions: md5, "
 "sha1, sha224, sha256, sha384, sha512."
 msgstr ""
 
-#: searx/plugins/hash_plugin.py:63
+#: search/plugins/hash_plugin.py:63
 msgid "hash digest"
 msgstr "హాష్ డైజెస్ట్"
 
-#: searx/plugins/hostnames.py:119
+#: search/plugins/hostnames.py:119
 msgid "Hostnames plugin"
 msgstr "హోస్ట్ పేర్ల ప్లగిన్"
 
-#: searx/plugins/hostnames.py:120
+#: search/plugins/hostnames.py:120
 msgid "Rewrite hostnames and remove or prioritize results based on the hostname"
 msgstr ""
 
-#: searx/plugins/infinite_scroll.py:25
+#: search/plugins/infinite_scroll.py:25
 msgid "Infinite scroll"
 msgstr "అనంతమైన స్క్రోల్"
 
-#: searx/plugins/infinite_scroll.py:26
+#: search/plugins/infinite_scroll.py:26
 msgid ""
 "Automatically loads the next page when scrolling to bottom of the current"
 " page"
 msgstr ""
 
-#: searx/plugins/oa_doi_rewrite.py:54
+#: search/plugins/oa_doi_rewrite.py:54
 msgid "Open Access DOI rewrite"
 msgstr "ఓపెన్ యాక్సెస్ DOI రీరైట్"
 
-#: searx/plugins/oa_doi_rewrite.py:55
+#: search/plugins/oa_doi_rewrite.py:55
 msgid ""
 "Avoid paywalls by redirecting to open-access versions of publications "
 "when available"
@@ -779,37 +779,37 @@ msgstr ""
 "అందుబాటులో ఉన్నప్పుడు ప్రచురణల యొక్క ఓపెన్-యాక్సెస్ వెర్షన్‌లకు దారి "
 "మళ్లించడం ద్వారా పేవాల్‌లను నివారించండి"
 
-#: searx/plugins/self_info.py:37
+#: search/plugins/self_info.py:37
 msgid "Self Information"
 msgstr "స్వీయ సమాచారం"
 
-#: searx/plugins/self_info.py:39
+#: search/plugins/self_info.py:39
 msgid ""
 "Displays your IP if the query is \"ip\" and your user agent if the query "
 "is \"user-agent\"."
 msgstr ""
 
-#: searx/plugins/self_info.py:53
+#: search/plugins/self_info.py:53
 msgid "Your IP is: "
 msgstr "మీ ఐపీ: "
 
-#: searx/plugins/self_info.py:57
+#: search/plugins/self_info.py:57
 msgid "Your user-agent is: "
 msgstr "మీ యూజర్-ఏజెంట్: "
 
-#: searx/plugins/time_zone.py:33
+#: search/plugins/time_zone.py:33
 msgid "Timezones plugin"
 msgstr ""
 
-#: searx/plugins/time_zone.py:34
+#: search/plugins/time_zone.py:34
 msgid "Display the current time on different time zones."
 msgstr ""
 
-#: searx/plugins/tor_check.py:41
+#: search/plugins/tor_check.py:41
 msgid "Tor check plugin"
 msgstr "టోర్ చెక్ ప్లగిన్"
 
-#: searx/plugins/tor_check.py:43
+#: search/plugins/tor_check.py:43
 msgid ""
 "This plugin checks if the address of the request is a Tor exit-node, and "
 "informs the user if it is; like check.torproject.org, but from blend."
@@ -818,524 +818,524 @@ msgstr ""
 "చేస్తుంది మరియు అది check.torproject.org లాగా, కానీ blend నుండి "
 "వినియోగదారుకు తెలియజేస్తుంది."
 
-#: searx/plugins/tor_check.py:64
+#: search/plugins/tor_check.py:64
 msgid "Could not download the list of Tor exit-nodes from"
 msgstr ""
 
-#: searx/plugins/tor_check.py:71
+#: search/plugins/tor_check.py:71
 msgid "You are using Tor and it looks like you have the external IP address"
 msgstr ""
 
-#: searx/plugins/tor_check.py:75
+#: search/plugins/tor_check.py:75
 msgid "You are not using Tor and you have the external IP address"
 msgstr ""
 
-#: searx/plugins/tracker_url_remover.py:35
+#: search/plugins/tracker_url_remover.py:35
 msgid "Tracker URL remover"
 msgstr "ట్రాకర్ URL రిమూవర్"
 
-#: searx/plugins/tracker_url_remover.py:36
+#: search/plugins/tracker_url_remover.py:36
 msgid "Remove trackers arguments from the returned URL"
 msgstr "తిరిగి వచ్చిన URL నుండి ట్రాకర్స్ ఆర్గ్యుమెంట్‌లను తీసివేయండి"
 
-#: searx/plugins/unit_converter.py:42
+#: search/plugins/unit_converter.py:42
 msgid "Unit converter plugin"
 msgstr ""
 
-#: searx/plugins/unit_converter.py:43
+#: search/plugins/unit_converter.py:43
 msgid "Convert between units"
 msgstr "యూనిట్లను మార్చండి"
 
-#: searx/result_types/answer.py:223
+#: search/result_types/answer.py:223
 #, python-brace-format
 msgid "{location}: {temperature}, {condition}"
 msgstr "{location}: {temperature}, {condition}"
 
-#: searx/templates/simple/404.html:4
+#: search/templates/simple/404.html:4
 msgid "Page not found"
 msgstr "పుట దొరకలేదు"
 
-#: searx/templates/simple/404.html:6
+#: search/templates/simple/404.html:6
 #, python-format
 msgid "Go to %(search_page)s."
 msgstr "%(search_page)sకు వెళ్ళు"
 
-#: searx/templates/simple/404.html:6
+#: search/templates/simple/404.html:6
 msgid "search page"
 msgstr "శోధన పుట"
 
-#: searx/templates/simple/base.html:50
+#: search/templates/simple/base.html:50
 msgid "Donate"
 msgstr "దానం చేయండి"
 
-#: searx/templates/simple/base.html:55 searx/templates/simple/base.html:57
-#: searx/templates/simple/preferences.html:152
+#: search/templates/simple/base.html:55 search/templates/simple/base.html:57
+#: search/templates/simple/preferences.html:152
 msgid "Preferences"
 msgstr "అభిరుచులు"
 
-#: searx/templates/simple/base.html:68
+#: search/templates/simple/base.html:68
 msgid "Powered by"
 msgstr "ద్వారా ఆధారితం"
 
-#: searx/templates/simple/base.html:68
+#: search/templates/simple/base.html:68
 msgid "a privacy-respecting, open metasearch engine"
 msgstr "గోప్యతను గౌరవించే, ఓపెన్ మెటా సెర్చ్ ఇంజిన్"
 
-#: searx/templates/simple/base.html:69
-#: searx/templates/simple/result_templates/packages.html:59
+#: search/templates/simple/base.html:69
+#: search/templates/simple/result_templates/packages.html:59
 msgid "Source code"
 msgstr "సోర్స్ కోడ్"
 
-#: searx/templates/simple/base.html:70
+#: search/templates/simple/base.html:70
 msgid "Issue tracker"
 msgstr "ఇష్యూ ట్రాకర్"
 
-#: searx/templates/simple/base.html:71 searx/templates/simple/stats.html:17
+#: search/templates/simple/base.html:71 search/templates/simple/stats.html:17
 msgid "Engine stats"
 msgstr "ఇంజిన్ గణాంకాలు"
 
-#: searx/templates/simple/base.html:73
+#: search/templates/simple/base.html:73
 msgid "Public instances"
 msgstr "పబ్లిక్ ఇన్స్తంచెస్"
 
-#: searx/templates/simple/base.html:76
+#: search/templates/simple/base.html:76
 msgid "Privacy policy"
 msgstr "గోప్యతా విధానం"
 
-#: searx/templates/simple/base.html:79
+#: search/templates/simple/base.html:79
 msgid "Contact instance maintainer"
 msgstr "నిర్వహించేవాడిని సంప్రదించండి"
 
-#: searx/templates/simple/categories.html:30
+#: search/templates/simple/categories.html:30
 msgid "Click on the magnifier to perform search"
 msgstr "శోధనను నిర్వహించడానికి మాగ్నిఫైయర్‌పై క్లిక్ చేయండి"
 
-#: searx/templates/simple/macros.html:41
+#: search/templates/simple/macros.html:41
 msgid "Length"
 msgstr "పొడవు"
 
-#: searx/templates/simple/macros.html:42
-#: searx/templates/simple/result_templates/paper.html:74
+#: search/templates/simple/macros.html:42
+#: search/templates/simple/result_templates/paper.html:74
 msgid "Views"
 msgstr "వ్యూస్"
 
-#: searx/templates/simple/macros.html:43
-#: searx/templates/simple/result_templates/file.html:18
-#: searx/templates/simple/result_templates/images.html:19
-#: searx/templates/simple/result_templates/paper.html:14
+#: search/templates/simple/macros.html:43
+#: search/templates/simple/result_templates/file.html:18
+#: search/templates/simple/result_templates/images.html:19
+#: search/templates/simple/result_templates/paper.html:14
 msgid "Author"
 msgstr "రచయిత"
 
-#: searx/templates/simple/macros.html:51
+#: search/templates/simple/macros.html:51
 msgid "cached"
 msgstr "కాష్ చేయబడింది"
 
-#: searx/templates/simple/preferences.html:65
+#: search/templates/simple/preferences.html:65
 msgid "No HTTPS"
 msgstr "HTTPS లేదు"
 
-#: searx/templates/simple/elements/engines_msg.html:14
-#: searx/templates/simple/preferences.html:69
-#: searx/templates/simple/preferences.html:70
+#: search/templates/simple/elements/engines_msg.html:14
+#: search/templates/simple/preferences.html:69
+#: search/templates/simple/preferences.html:70
 msgid "View error logs and submit a bug report"
 msgstr "ఎర్రర్ లాగ్‌లను వీక్షించండి మరియు బగ్ నివేదికను సమర్పించండి"
 
-#: searx/templates/simple/preferences.html:74
+#: search/templates/simple/preferences.html:74
 msgid "!bang for this engine"
 msgstr "ఈ ఇంజిన్ కి !bang"
 
-#: searx/templates/simple/preferences.html:80
+#: search/templates/simple/preferences.html:80
 msgid "!bang for its categories"
 msgstr "దాని వర్గాలకు !bang"
 
-#: searx/templates/simple/preferences.html:102
-#: searx/templates/simple/stats.html:63
+#: search/templates/simple/preferences.html:102
+#: search/templates/simple/stats.html:63
 msgid "Median"
 msgstr "మధ్యస్థ"
 
-#: searx/templates/simple/preferences.html:103
-#: searx/templates/simple/stats.html:69
+#: search/templates/simple/preferences.html:103
+#: search/templates/simple/stats.html:69
 msgid "P80"
 msgstr "P80"
 
-#: searx/templates/simple/preferences.html:104
-#: searx/templates/simple/stats.html:75
+#: search/templates/simple/preferences.html:104
+#: search/templates/simple/stats.html:75
 msgid "P95"
 msgstr "P95"
 
-#: searx/templates/simple/preferences.html:134
+#: search/templates/simple/preferences.html:134
 msgid "Errors:"
 msgstr "లోపాలు:"
 
-#: searx/templates/simple/preferences.html:156
+#: search/templates/simple/preferences.html:156
 msgid ""
 "This is a preview of the settings used by the 'Search URL' you used to "
 "get here."
 msgstr ""
 
-#: searx/templates/simple/preferences.html:158
+#: search/templates/simple/preferences.html:158
 msgid "Press save to copy these preferences to your browser."
 msgstr ""
 
-#: searx/templates/simple/preferences.html:159
+#: search/templates/simple/preferences.html:159
 msgid "Click here to view your browser preferences instead:"
 msgstr ""
 
-#: searx/templates/simple/preferences.html:169
+#: search/templates/simple/preferences.html:169
 msgid "General"
 msgstr "సాధారణ"
 
-#: searx/templates/simple/preferences.html:172
+#: search/templates/simple/preferences.html:172
 msgid "Default categories"
 msgstr "నిష్క్రియ వర్గాలు"
 
-#: searx/templates/simple/preferences.html:200
+#: search/templates/simple/preferences.html:200
 msgid "User interface"
 msgstr "వినియోగ మార్గము"
 
-#: searx/templates/simple/preferences.html:220
+#: search/templates/simple/preferences.html:220
 msgid "Privacy"
 msgstr "ఆంతరంగికత"
 
-#: searx/templates/simple/preferences.html:235
+#: search/templates/simple/preferences.html:235
 msgid "Engines"
 msgstr "యంత్రాలు"
 
-#: searx/templates/simple/preferences.html:237
+#: search/templates/simple/preferences.html:237
 msgid "Currently used search engines"
 msgstr "ప్రస్తుతం ఉపయోగించబడుతున్న శోధన యంత్రాలు"
 
-#: searx/templates/simple/preferences.html:246
+#: search/templates/simple/preferences.html:246
 msgid "Special Queries"
 msgstr "ప్రత్యేక ప్రశ్నలు"
 
-#: searx/templates/simple/preferences.html:254
+#: search/templates/simple/preferences.html:254
 msgid "Cookies"
 msgstr "కుకీలు"
 
-#: searx/templates/simple/results.html:30
+#: search/templates/simple/results.html:30
 msgid "Number of results"
 msgstr "ఫలితముల సంఖ్య"
 
-#: searx/templates/simple/results.html:36
+#: search/templates/simple/results.html:36
 msgid "Info"
 msgstr "సమాచారం"
 
-#: searx/templates/simple/results.html:77
+#: search/templates/simple/results.html:77
 msgid "Back to top"
 msgstr "తిరిగి పైకి"
 
-#: searx/templates/simple/results.html:95
+#: search/templates/simple/results.html:95
 msgid "Previous page"
 msgstr "ముందు పేజి"
 
-#: searx/templates/simple/results.html:113
+#: search/templates/simple/results.html:113
 msgid "Next page"
 msgstr "తరువాతి పేజీ"
 
-#: searx/templates/simple/search.html:3
+#: search/templates/simple/search.html:3
 msgid "Display the front page"
 msgstr "మొదటి పేజీని ప్రదర్శించండి"
 
-#: searx/templates/simple/search.html:9
-#: searx/templates/simple/simple_search.html:5
+#: search/templates/simple/search.html:9
+#: search/templates/simple/simple_search.html:5
 msgid "Search for..."
 msgstr "శోధించు..."
 
-#: searx/templates/simple/search.html:10
-#: searx/templates/simple/simple_search.html:6
+#: search/templates/simple/search.html:10
+#: search/templates/simple/simple_search.html:6
 msgid "clear"
 msgstr "తొలగించండి"
 
-#: searx/templates/simple/search.html:11
-#: searx/templates/simple/simple_search.html:7
+#: search/templates/simple/search.html:11
+#: search/templates/simple/simple_search.html:7
 msgid "search"
 msgstr "వెతకండి"
 
-#: searx/templates/simple/stats.html:20
+#: search/templates/simple/stats.html:20
 msgid "There is currently no data available. "
 msgstr "ప్రస్తుతం డేటా అందుబాటులో లేదు."
 
-#: searx/templates/simple/preferences/engines.html:24
-#: searx/templates/simple/stats.html:24
+#: search/templates/simple/preferences/engines.html:24
+#: search/templates/simple/stats.html:24
 msgid "Engine name"
 msgstr "యంత్రం పేరు"
 
-#: searx/templates/simple/stats.html:25
+#: search/templates/simple/stats.html:25
 msgid "Scores"
 msgstr "స్కోర్లు"
 
-#: searx/templates/simple/stats.html:26
+#: search/templates/simple/stats.html:26
 msgid "Result count"
 msgstr "ఫలితాల గణన"
 
-#: searx/templates/simple/elements/engines_msg.html:7
-#: searx/templates/simple/preferences/engines.html:31
-#: searx/templates/simple/stats.html:27
+#: search/templates/simple/elements/engines_msg.html:7
+#: search/templates/simple/preferences/engines.html:31
+#: search/templates/simple/stats.html:27
 msgid "Response time"
 msgstr "ప్రతిస్పందన సమయం"
 
-#: searx/templates/simple/preferences/engines.html:35
-#: searx/templates/simple/stats.html:28
+#: search/templates/simple/preferences/engines.html:35
+#: search/templates/simple/stats.html:28
 msgid "Reliability"
 msgstr "విశ్వసనీయత"
 
-#: searx/templates/simple/stats.html:58
+#: search/templates/simple/stats.html:58
 msgid "Total"
 msgstr "మొత్తం"
 
-#: searx/templates/simple/stats.html:59
+#: search/templates/simple/stats.html:59
 msgid "HTTP"
 msgstr "HTTP"
 
-#: searx/templates/simple/stats.html:60
+#: search/templates/simple/stats.html:60
 msgid "Processing"
 msgstr "ప్రాసెసింగ్"
 
-#: searx/templates/simple/stats.html:98
+#: search/templates/simple/stats.html:98
 msgid "Warnings"
 msgstr "హెచ్చరికలు"
 
-#: searx/templates/simple/stats.html:98
+#: search/templates/simple/stats.html:98
 msgid "Errors and exceptions"
 msgstr "లోపాలు మరియు మినహాయింపులు"
 
-#: searx/templates/simple/stats.html:104
+#: search/templates/simple/stats.html:104
 msgid "Exception"
 msgstr "మినహాయింపు"
 
-#: searx/templates/simple/stats.html:106
+#: search/templates/simple/stats.html:106
 msgid "Message"
 msgstr "సందేశం"
 
-#: searx/templates/simple/stats.html:108
+#: search/templates/simple/stats.html:108
 msgid "Percentage"
 msgstr "శాతం"
 
-#: searx/templates/simple/stats.html:110
+#: search/templates/simple/stats.html:110
 msgid "Parameter"
 msgstr "పరిమితి"
 
-#: searx/templates/simple/result_templates/code.html:29
-#: searx/templates/simple/result_templates/file.html:24
-#: searx/templates/simple/stats.html:118
+#: search/templates/simple/result_templates/code.html:29
+#: search/templates/simple/result_templates/file.html:24
+#: search/templates/simple/stats.html:118
 msgid "Filename"
 msgstr "ఫైల్ పేరు"
 
-#: searx/templates/simple/stats.html:119
+#: search/templates/simple/stats.html:119
 msgid "Function"
 msgstr "ఫంక్షన్"
 
-#: searx/templates/simple/stats.html:120
+#: search/templates/simple/stats.html:120
 msgid "Code"
 msgstr "కోడ్"
 
-#: searx/templates/simple/answer/translations.html:12
-#: searx/templates/simple/preferences/answerers.html:8
+#: search/templates/simple/answer/translations.html:12
+#: search/templates/simple/preferences/answerers.html:8
 msgid "Examples"
 msgstr "ఉదాహరణలు"
 
-#: searx/templates/simple/answer/translations.html:21
+#: search/templates/simple/answer/translations.html:21
 msgid "Definitions"
 msgstr ""
 
-#: searx/templates/simple/answer/translations.html:30
+#: search/templates/simple/answer/translations.html:30
 msgid "Synonyms"
 msgstr "పర్యాయపదాలు"
 
-#: searx/templates/simple/answer/weather.html:19
+#: search/templates/simple/answer/weather.html:19
 msgid "Feels Like"
 msgstr ""
 
-#: searx/templates/simple/elements/answers.html:2
+#: search/templates/simple/elements/answers.html:2
 msgid "Answers"
 msgstr "జవాబులు"
 
-#: searx/templates/simple/elements/apis.html:3
+#: search/templates/simple/elements/apis.html:3
 msgid "Download results"
 msgstr "ఫలితాలను దింపుకోండి"
 
-#: searx/templates/simple/elements/corrections.html:2
+#: search/templates/simple/elements/corrections.html:2
 msgid "Try searching for:"
 msgstr "దీనికొరకు శోధించండి:"
 
-#: searx/templates/simple/elements/engines_msg.html:4
+#: search/templates/simple/elements/engines_msg.html:4
 msgid "Messages from the search engines"
 msgstr "శోధన ఇంజిన్ల నుండి సందేశాలు"
 
-#: searx/templates/simple/elements/engines_msg.html:7
+#: search/templates/simple/elements/engines_msg.html:7
 msgid "seconds"
 msgstr "క్షణాలు"
 
-#: searx/templates/simple/elements/search_url.html:3
+#: search/templates/simple/elements/search_url.html:3
 msgid "Search URL"
 msgstr "శోధన URL"
 
-#: searx/templates/simple/elements/search_url.html:4
-#: searx/templates/simple/preferences/cookies.html:54
+#: search/templates/simple/elements/search_url.html:4
+#: search/templates/simple/preferences/cookies.html:54
 msgid "Copied"
 msgstr "కాపీ చేయబడింది"
 
-#: searx/templates/simple/elements/search_url.html:4
-#: searx/templates/simple/preferences/cookies.html:54
+#: search/templates/simple/elements/search_url.html:4
+#: search/templates/simple/preferences/cookies.html:54
 msgid "Copy"
 msgstr "కాపీ"
 
-#: searx/templates/simple/elements/suggestions.html:3
+#: search/templates/simple/elements/suggestions.html:3
 msgid "Suggestions"
 msgstr "సూచనలు"
 
-#: searx/templates/simple/filters/languages.html:1
-#: searx/templates/simple/preferences/language.html:2
+#: search/templates/simple/filters/languages.html:1
+#: search/templates/simple/preferences/language.html:2
 msgid "Search language"
 msgstr "శోధన భాష"
 
-#: searx/templates/simple/filters/languages.html:4
-#: searx/templates/simple/preferences/language.html:7
+#: search/templates/simple/filters/languages.html:4
+#: search/templates/simple/preferences/language.html:7
 msgid "Default language"
 msgstr "నిష్క్రియ భాష"
 
-#: searx/templates/simple/filters/languages.html:8
-#: searx/templates/simple/preferences/language.html:11
+#: search/templates/simple/filters/languages.html:8
+#: search/templates/simple/preferences/language.html:11
 msgid "Auto-detect"
 msgstr "ఆటో-డిటెక్ట్"
 
-#: searx/templates/simple/filters/safesearch.html:1
-#: searx/templates/simple/filters/safesearch.html:2
-#: searx/templates/simple/filters/safesearch.html:3
-#: searx/templates/simple/filters/safesearch.html:4
-#: searx/templates/simple/preferences/engines.html:27
-#: searx/templates/simple/preferences/safesearch.html:2
+#: search/templates/simple/filters/safesearch.html:1
+#: search/templates/simple/filters/safesearch.html:2
+#: search/templates/simple/filters/safesearch.html:3
+#: search/templates/simple/filters/safesearch.html:4
+#: search/templates/simple/preferences/engines.html:27
+#: search/templates/simple/preferences/safesearch.html:2
 msgid "SafeSearch"
 msgstr "సురక్షితశోధన"
 
-#: searx/templates/simple/filters/safesearch.html:2
-#: searx/templates/simple/preferences/safesearch.html:7
+#: search/templates/simple/filters/safesearch.html:2
+#: search/templates/simple/preferences/safesearch.html:7
 msgid "Strict"
 msgstr "కఠినమైన"
 
-#: searx/templates/simple/filters/safesearch.html:3
-#: searx/templates/simple/preferences/safesearch.html:11
+#: search/templates/simple/filters/safesearch.html:3
+#: search/templates/simple/preferences/safesearch.html:11
 msgid "Moderate"
 msgstr "మితమైన"
 
-#: searx/templates/simple/filters/safesearch.html:4
-#: searx/templates/simple/preferences/safesearch.html:15
+#: search/templates/simple/filters/safesearch.html:4
+#: search/templates/simple/preferences/safesearch.html:15
 msgid "None"
 msgstr "ఏమీ లేదు"
 
-#: searx/templates/simple/filters/time_range.html:1
-#: searx/templates/simple/preferences/engines.html:28
+#: search/templates/simple/filters/time_range.html:1
+#: search/templates/simple/preferences/engines.html:28
 msgid "Time range"
 msgstr "కాల శ్రేణి"
 
-#: searx/templates/simple/filters/time_range.html:3
+#: search/templates/simple/filters/time_range.html:3
 msgid "Anytime"
 msgstr "ఎప్పుడైనా"
 
-#: searx/templates/simple/filters/time_range.html:6
+#: search/templates/simple/filters/time_range.html:6
 msgid "Last day"
 msgstr "క్రిందటి రోజు"
 
-#: searx/templates/simple/filters/time_range.html:9
+#: search/templates/simple/filters/time_range.html:9
 msgid "Last week"
 msgstr "క్రిందటి వారం"
 
-#: searx/templates/simple/filters/time_range.html:12
+#: search/templates/simple/filters/time_range.html:12
 msgid "Last month"
 msgstr "క్రిందటి నెల"
 
-#: searx/templates/simple/filters/time_range.html:15
+#: search/templates/simple/filters/time_range.html:15
 msgid "Last year"
 msgstr "క్రిందటి సంవత్సరం"
 
-#: searx/templates/simple/messages/no_cookies.html:3
+#: search/templates/simple/messages/no_cookies.html:3
 msgid "Information!"
 msgstr "సమాచారం!"
 
-#: searx/templates/simple/messages/no_cookies.html:4
+#: search/templates/simple/messages/no_cookies.html:4
 msgid "currently, there are no cookies defined."
 msgstr "ప్రస్తుతం, కుకీలు ఏవీ నిర్వచించబడలేదు."
 
-#: searx/templates/simple/messages/no_results.html:6
+#: search/templates/simple/messages/no_results.html:6
 msgid "Sorry!"
 msgstr "క్షమించండి!"
 
-#: searx/templates/simple/messages/no_results.html:12
+#: search/templates/simple/messages/no_results.html:12
 msgid "No results were found. You can try to:"
 msgstr "ఫలితాలు ఏవీ కనుగొనబడలేదు. మీరు వీటిని ప్రయత్నించవచ్చు:"
 
-#: searx/templates/simple/messages/no_results.html:14
+#: search/templates/simple/messages/no_results.html:14
 msgid "There are no more results. You can try to:"
 msgstr "ఇక ఫలితాలు లేవు. మీరు వీటిని ప్రయత్నించవచ్చు:"
 
-#: searx/templates/simple/messages/no_results.html:19
+#: search/templates/simple/messages/no_results.html:19
 msgid "Refresh the page."
 msgstr "పేజీని రిఫ్రెష్ చేయండి."
 
-#: searx/templates/simple/messages/no_results.html:20
+#: search/templates/simple/messages/no_results.html:20
 msgid "Search for another query or select another category (above)."
 msgstr "మరొక ప్రశ్న కోసం శోధించండి లేదా మరొక వర్గాన్ని ఎంచుకోండి (పైన)."
 
-#: searx/templates/simple/messages/no_results.html:21
+#: search/templates/simple/messages/no_results.html:21
 msgid "Change the search engine used in the preferences:"
 msgstr "ప్రాధాన్యతలలో ఉపయోగించే శోధన ఇంజిన్‌ను మార్చండి:"
 
-#: searx/templates/simple/messages/no_results.html:22
+#: search/templates/simple/messages/no_results.html:22
 msgid "Switch to another instance:"
 msgstr "మరొక ఇంస్టాన్సుకు మారండి:"
 
-#: searx/templates/simple/messages/no_results.html:24
+#: search/templates/simple/messages/no_results.html:24
 msgid "Search for another query or select another category."
 msgstr "మరొక ప్రశ్న కోసం శోధించండి లేదా మరొక వర్గాన్ని ఎంచుకోండి."
 
-#: searx/templates/simple/messages/no_results.html:25
+#: search/templates/simple/messages/no_results.html:25
 msgid "Go back to the previous page using the previous page button."
 msgstr "మునుపటి పేజీ బటన్‌ను ఉపయోగించి మునుపటి పేజీకి తిరిగి వెళ్ళండి."
 
-#: searx/templates/simple/preferences/answerers.html:4
-#: searx/templates/simple/preferences/engines.html:23
+#: search/templates/simple/preferences/answerers.html:4
+#: search/templates/simple/preferences/engines.html:23
 msgid "Allow"
 msgstr "అనుమతించు"
 
-#: searx/templates/simple/preferences/answerers.html:5
+#: search/templates/simple/preferences/answerers.html:5
 msgid "Keywords (first word in query)"
 msgstr ""
 
-#: searx/templates/simple/preferences/answerers.html:6
-#: searx/templates/simple/result_templates/packages.html:7
+#: search/templates/simple/preferences/answerers.html:6
+#: search/templates/simple/result_templates/packages.html:7
 msgid "Name"
 msgstr "పేరు"
 
-#: searx/templates/simple/preferences/answerers.html:7
+#: search/templates/simple/preferences/answerers.html:7
 msgid "Description"
 msgstr "వర్ణన"
 
-#: searx/templates/simple/preferences/answerers.html:13
+#: search/templates/simple/preferences/answerers.html:13
 msgid "This is the list of blend's instant answering modules."
 msgstr "ఇది blend యొక్క తక్షణ సమాధాన మాడ్యూల్‌ల జాబితా."
 
-#: searx/templates/simple/preferences/answerers.html:29
+#: search/templates/simple/preferences/answerers.html:29
 msgid "This is the list of plugins."
 msgstr "ఇది ప్లగిన్‌ల జాబితా."
 
-#: searx/templates/simple/preferences/autocomplete.html:2
+#: search/templates/simple/preferences/autocomplete.html:2
 msgid "Autocomplete"
 msgstr "ఆటోకంప్లేటే"
 
-#: searx/templates/simple/preferences/autocomplete.html:15
+#: search/templates/simple/preferences/autocomplete.html:15
 msgid "Show possible queries as you type"
 msgstr ""
 
-#: searx/templates/simple/preferences/center_alignment.html:2
+#: search/templates/simple/preferences/center_alignment.html:2
 msgid "Center Alignment"
 msgstr "మధ్య అమరిక"
 
-#: searx/templates/simple/preferences/center_alignment.html:14
+#: search/templates/simple/preferences/center_alignment.html:14
 msgid "Display results in the center of the page (Oscar layout)."
 msgstr ""
 
-#: searx/templates/simple/preferences/cookies.html:2
+#: search/templates/simple/preferences/cookies.html:2
 msgid ""
 "This is the list of cookies and their values blend is storing on your "
 "computer."
@@ -1343,23 +1343,23 @@ msgstr ""
 "ఇది మీ కంప్యూటర్‌లో blend నిల్వ చేస్తున్న కుక్కీల జాబితా మరియు వాటి "
 "విలువలు."
 
-#: searx/templates/simple/preferences/cookies.html:3
+#: search/templates/simple/preferences/cookies.html:3
 msgid "With this list, you can assess the transparency of blend."
 msgstr ""
 
-#: searx/templates/simple/preferences/cookies.html:9
+#: search/templates/simple/preferences/cookies.html:9
 msgid "Cookie name"
 msgstr "కుకీ పేరు"
 
-#: searx/templates/simple/preferences/cookies.html:10
+#: search/templates/simple/preferences/cookies.html:10
 msgid "Value"
 msgstr "విలువ"
 
-#: searx/templates/simple/preferences/cookies.html:23
+#: search/templates/simple/preferences/cookies.html:23
 msgid "Search URL of the currently saved preferences"
 msgstr "ప్రస్తుతం సేవ్ చేయబడిన ప్రాధాన్యతల URLని శోధించండి"
 
-#: searx/templates/simple/preferences/cookies.html:32
+#: search/templates/simple/preferences/cookies.html:32
 msgid ""
 "Note: specifying custom settings in the search URL can reduce privacy by "
 "leaking data to the clicked result sites."
@@ -1367,111 +1367,111 @@ msgstr ""
 "గమనిక: శోధన URLలో అనుకూల సెట్టింగ్‌లను పేర్కొనడం క్లిక్ చేసిన ఫలితాల "
 "సైట్‌లకు డేటాను లీక్ చేయడం ద్వారా గోప్యతను తగ్గిస్తుంది."
 
-#: searx/templates/simple/preferences/cookies.html:35
+#: search/templates/simple/preferences/cookies.html:35
 msgid "URL to restore your preferences in another browser"
 msgstr "మరొక బ్రౌజర్‌లో మీ ప్రాధాన్యతలను పునరుద్ధరించడానికి URL"
 
-#: searx/templates/simple/preferences/cookies.html:43
+#: search/templates/simple/preferences/cookies.html:43
 msgid ""
 "A URL containing your preferences. This URL can be used to restore your "
 "settings on a different device."
 msgstr ""
 
-#: searx/templates/simple/preferences/cookies.html:46
+#: search/templates/simple/preferences/cookies.html:46
 msgid "Copy preferences hash"
 msgstr "ప్రాధాన్యతల హాష్‌ను కాపీ చేయి"
 
-#: searx/templates/simple/preferences/cookies.html:57
+#: search/templates/simple/preferences/cookies.html:57
 msgid "Insert copied preferences hash (without URL) to restore"
 msgstr ""
 "పునరుద్ధరించడానికి కాపీ చేయబడిన ప్రాధాన్యతల హాష్ (URL లేకుండా) నమోదు "
 "చేయండి"
 
-#: searx/templates/simple/preferences/cookies.html:59
+#: search/templates/simple/preferences/cookies.html:59
 msgid "Preferences hash"
 msgstr "ప్రాధాన్యతల హాష్"
 
-#: searx/templates/simple/preferences/doi_resolver.html:1
+#: search/templates/simple/preferences/doi_resolver.html:1
 msgid "Digital Object Identifier (DOI)"
 msgstr ""
 
-#: searx/templates/simple/preferences/doi_resolver.html:6
+#: search/templates/simple/preferences/doi_resolver.html:6
 msgid "Open Access DOI resolver"
 msgstr "యాక్సెస్ DOI పరిష్కరిణిని తెరవండి"
 
-#: searx/templates/simple/preferences/doi_resolver.html:18
+#: search/templates/simple/preferences/doi_resolver.html:18
 msgid "Select service used by DOI rewrite"
 msgstr "DOI తిరిగి వ్రాయడానికి ఉపయోగించే సేవను ఎంచుకోండి"
 
-#: searx/templates/simple/preferences/engines.html:9
+#: search/templates/simple/preferences/engines.html:9
 msgid ""
 "This tab does not exist in the user interface, but you can search with "
 "these engines via !bangs."
 msgstr ""
 
-#: searx/templates/simple/preferences/engines.html:15
+#: search/templates/simple/preferences/engines.html:15
 msgid "Enable all"
 msgstr "అన్నిటిని ఎనేబుల్ చేయి"
 
-#: searx/templates/simple/preferences/engines.html:16
+#: search/templates/simple/preferences/engines.html:16
 msgid "Disable all"
 msgstr "అన్నిటిని డిసేబుల్ చేయి"
 
-#: searx/templates/simple/preferences/engines.html:25
+#: search/templates/simple/preferences/engines.html:25
 msgid "!bang"
 msgstr "!bang"
 
-#: searx/templates/simple/preferences/engines.html:26
+#: search/templates/simple/preferences/engines.html:26
 msgid "Supports selected language"
 msgstr "ఎంచుకున్న భాషకు మద్దతు ఇస్తుంది"
 
-#: searx/templates/simple/preferences/engines.html:29
+#: search/templates/simple/preferences/engines.html:29
 msgid "Weight"
 msgstr "బరువు"
 
-#: searx/templates/simple/preferences/engines.html:33
+#: search/templates/simple/preferences/engines.html:33
 msgid "Max time"
 msgstr "గరిష్ఠ సమయం"
 
-#: searx/templates/simple/preferences/favicon.html:2
+#: search/templates/simple/preferences/favicon.html:2
 msgid "Favicon Resolver"
 msgstr "ఫేవికాన్ రిసాల్వర్"
 
-#: searx/templates/simple/preferences/favicon.html:15
+#: search/templates/simple/preferences/favicon.html:15
 msgid "Display favicons near search results"
 msgstr "శోధన ఫలితాల దగ్గర ఫేవికాన్‌లను ప్రదర్శించు"
 
-#: searx/templates/simple/preferences/footer.html:2
+#: search/templates/simple/preferences/footer.html:2
 msgid ""
 "These settings are stored in your cookies. This allows us not to store "
 "this data about you."
 msgstr ""
 
-#: searx/templates/simple/preferences/footer.html:3
+#: search/templates/simple/preferences/footer.html:3
 msgid "These cookies serve your sole convenience; we don't use them to track you."
 msgstr ""
 
-#: searx/templates/simple/preferences/footer.html:6
+#: search/templates/simple/preferences/footer.html:6
 msgid "Save"
 msgstr "సేవ్ చేయండి"
 
-#: searx/templates/simple/preferences/footer.html:9
+#: search/templates/simple/preferences/footer.html:9
 msgid "Reset defaults"
 msgstr "నిష్క్రియాలకు అమర్చు"
 
-#: searx/templates/simple/preferences/footer.html:13
+#: search/templates/simple/preferences/footer.html:13
 msgid "Back"
 msgstr "వెనుకకు"
 
-#: searx/templates/simple/preferences/hotkeys.html:2
+#: search/templates/simple/preferences/hotkeys.html:2
 msgid "Hotkeys"
 msgstr "హాట్‌కీలు"
 
-#: searx/templates/simple/preferences/hotkeys.html:13
+#: search/templates/simple/preferences/hotkeys.html:13
 msgid "Vim-like"
 msgstr "విమ్-లాంటిది"
 
-#: searx/templates/simple/preferences/hotkeys.html:18
+#: search/templates/simple/preferences/hotkeys.html:18
 msgid ""
 "Navigate search results with hotkeys (JavaScript required). Press \"h\" "
 "key on main or result page to get help."
@@ -1479,37 +1479,37 @@ msgstr ""
 "హాట్‌కీలతో శోధన ఫలితాలను నావిగేట్ చేయండి (జావాస్క్రిప్ట్ అవసరం). సహాయం "
 "పొందడానికి ప్రధాన లేదా ఫలిత పేజీలో \"h\" కీని నొక్కండి."
 
-#: searx/templates/simple/preferences/image_proxy.html:2
+#: search/templates/simple/preferences/image_proxy.html:2
 msgid "Image proxy"
 msgstr "చిత్రం ప్రాక్సీ"
 
-#: searx/templates/simple/preferences/image_proxy.html:14
+#: search/templates/simple/preferences/image_proxy.html:14
 msgid "Proxy image results through blend"
 msgstr ""
 
-#: searx/templates/simple/preferences/language.html:24
+#: search/templates/simple/preferences/language.html:24
 msgid "What language do you prefer for search?"
 msgstr "శోధన కోసం మీరు ఏ భాషను ఇష్టపడతారు?"
 
-#: searx/templates/simple/preferences/language.html:25
+#: search/templates/simple/preferences/language.html:25
 msgid "Choose Auto-detect to let blend detect the language of your query."
 msgstr ""
 "మీ ప్రశ్న యొక్క భాషను blend గుర్తించేలా చేయడానికి ఆటో-డిటెక్ట్‌ను "
 "ఎంచుకోండి."
 
-#: searx/templates/simple/preferences/method.html:2
+#: search/templates/simple/preferences/method.html:2
 msgid "HTTP Method"
 msgstr "HTTP పద్ధతి"
 
-#: searx/templates/simple/preferences/method.html:14
+#: search/templates/simple/preferences/method.html:14
 msgid "Change how forms are submitted"
 msgstr "ఫారమ్‌లను ఎలా సమర్పించాలో మార్చండి"
 
-#: searx/templates/simple/preferences/query_in_title.html:2
+#: search/templates/simple/preferences/query_in_title.html:2
 msgid "Query in the page's title"
 msgstr "పేజీ శీర్షికలో ప్రశ్న"
 
-#: searx/templates/simple/preferences/query_in_title.html:14
+#: search/templates/simple/preferences/query_in_title.html:14
 msgid ""
 "When enabled, the result page's title contains your query. Your browser "
 "can record this title"
@@ -1517,241 +1517,241 @@ msgstr ""
 "ప్రారంభించబడినప్పుడు, ఫలిత పేజీ యొక్క శీర్షిక మీ ప్రశ్నను కలిగి ఉంటుంది. "
 "మీ బ్రౌజర్ ఈ శీర్షికను రికార్డ్ చేయగలదు"
 
-#: searx/templates/simple/preferences/results_on_new_tab.html:2
+#: search/templates/simple/preferences/results_on_new_tab.html:2
 msgid "Results in new tabs"
 msgstr ""
 
-#: searx/templates/simple/preferences/results_on_new_tab.html:14
+#: search/templates/simple/preferences/results_on_new_tab.html:14
 msgid "Open result links in new browser tabs"
 msgstr ""
 
-#: searx/templates/simple/preferences/safesearch.html:20
+#: search/templates/simple/preferences/safesearch.html:20
 msgid "Filter content"
 msgstr "విషయాలను వడకట్టు"
 
-#: searx/templates/simple/preferences/search_on_category_select.html:2
+#: search/templates/simple/preferences/search_on_category_select.html:2
 msgid "Search on category select"
 msgstr "వర్గం ఎంపికపై శోధించండి"
 
-#: searx/templates/simple/preferences/search_on_category_select.html:14
+#: search/templates/simple/preferences/search_on_category_select.html:14
 msgid ""
 "Perform a search immediately if a category is selected. Disable to select"
 " multiple categories"
 msgstr ""
 
-#: searx/templates/simple/preferences/theme.html:2
+#: search/templates/simple/preferences/theme.html:2
 msgid "Theme"
 msgstr "థీమ్"
 
-#: searx/templates/simple/preferences/theme.html:14
+#: search/templates/simple/preferences/theme.html:14
 msgid "Change the layout of blend"
 msgstr ""
 
-#: searx/templates/simple/preferences/theme.html:19
+#: search/templates/simple/preferences/theme.html:19
 msgid "Theme style"
 msgstr "థీమ్ శైలి"
 
-#: searx/templates/simple/preferences/theme.html:31
+#: search/templates/simple/preferences/theme.html:31
 msgid "Choose auto to follow your browser settings"
 msgstr "మీ బ్రౌజర్ సెట్టింగ్‌లను అనుసరించడానికి ఆటో ఎంచుకోండి"
 
-#: searx/templates/simple/preferences/tokens.html:2
+#: search/templates/simple/preferences/tokens.html:2
 msgid "Engine tokens"
 msgstr "ఇంజిన్ టోకెన్లు"
 
-#: searx/templates/simple/preferences/tokens.html:9
+#: search/templates/simple/preferences/tokens.html:9
 msgid "Access tokens for private engines"
 msgstr "ప్రైవేట్ ఇంజిన్ల కోసం యాక్సెస్ టోకెన్లు"
 
-#: searx/templates/simple/preferences/ui_locale.html:2
+#: search/templates/simple/preferences/ui_locale.html:2
 msgid "Interface language"
 msgstr "వినిమయసీమ భాష"
 
-#: searx/templates/simple/preferences/ui_locale.html:14
+#: search/templates/simple/preferences/ui_locale.html:14
 msgid "Change the language of the layout"
 msgstr "వినిమయసీమ యొక్క భాషను మార్చు"
 
-#: searx/templates/simple/preferences/urlformatting.html:2
+#: search/templates/simple/preferences/urlformatting.html:2
 msgid "URL formatting"
 msgstr "URL ఫార్మాటింగ్"
 
-#: searx/templates/simple/preferences/urlformatting.html:8
+#: search/templates/simple/preferences/urlformatting.html:8
 msgid "Pretty"
 msgstr "ప్రెట్టి"
 
-#: searx/templates/simple/preferences/urlformatting.html:13
+#: search/templates/simple/preferences/urlformatting.html:13
 msgid "Full"
 msgstr "పూర్తి"
 
-#: searx/templates/simple/preferences/urlformatting.html:18
+#: search/templates/simple/preferences/urlformatting.html:18
 msgid "Host"
 msgstr "హోస్ట్"
 
-#: searx/templates/simple/preferences/urlformatting.html:23
+#: search/templates/simple/preferences/urlformatting.html:23
 msgid "Change result URL formatting"
 msgstr "ఫలిత URL ఫార్మాటింగ్‌ను మార్చండి"
 
-#: searx/templates/simple/result_templates/code.html:13
+#: search/templates/simple/result_templates/code.html:13
 msgid "Repository"
 msgstr ""
 
-#: searx/templates/simple/result_templates/default.html:6
-#: searx/templates/simple/result_templates/file.html:53
-#: searx/templates/simple/result_templates/file.html:56
+#: search/templates/simple/result_templates/default.html:6
+#: search/templates/simple/result_templates/file.html:53
+#: search/templates/simple/result_templates/file.html:56
 msgid "show media"
 msgstr "మీడియా చూపించు"
 
-#: searx/templates/simple/result_templates/default.html:6
-#: searx/templates/simple/result_templates/file.html:54
+#: search/templates/simple/result_templates/default.html:6
+#: search/templates/simple/result_templates/file.html:54
 msgid "hide media"
 msgstr "మీడియాను దాచండి"
 
-#: searx/templates/simple/result_templates/default.html:14
-#: searx/templates/simple/result_templates/videos.html:14
+#: search/templates/simple/result_templates/default.html:14
+#: search/templates/simple/result_templates/videos.html:14
 msgid "This site did not provide any description."
 msgstr "ఈ సైట్ ఎలాంటి వివరణను అందించలేదు."
 
-#: searx/templates/simple/result_templates/file.html:30
-#: searx/templates/simple/result_templates/images.html:22
-#: searx/templates/simple/result_templates/torrent.html:18
+#: search/templates/simple/result_templates/file.html:30
+#: search/templates/simple/result_templates/images.html:22
+#: search/templates/simple/result_templates/torrent.html:18
 msgid "Filesize"
 msgstr "ఫైల్ పరిమాణం"
 
-#: searx/templates/simple/result_templates/file.html:36
+#: search/templates/simple/result_templates/file.html:36
 msgid "Date"
 msgstr "తేదీ"
 
-#: searx/templates/simple/result_templates/file.html:42
-#: searx/templates/simple/result_templates/paper.html:44
+#: search/templates/simple/result_templates/file.html:42
+#: search/templates/simple/result_templates/paper.html:44
 msgid "Type"
 msgstr "రకం"
 
-#: searx/templates/simple/result_templates/file.html:67
+#: search/templates/simple/result_templates/file.html:67
 msgid "Download"
 msgstr ""
 
-#: searx/templates/simple/result_templates/images.html:20
+#: search/templates/simple/result_templates/images.html:20
 msgid "Resolution"
 msgstr "స్పష్టత"
 
-#: searx/templates/simple/result_templates/images.html:21
+#: search/templates/simple/result_templates/images.html:21
 msgid "Format"
 msgstr "ఫార్మాట్"
 
-#: searx/templates/simple/result_templates/images.html:24
+#: search/templates/simple/result_templates/images.html:24
 msgid "Engine"
 msgstr "ఇంజిన్"
 
-#: searx/templates/simple/result_templates/images.html:25
+#: search/templates/simple/result_templates/images.html:25
 msgid "View source"
 msgstr "మూలాన్ని వీక్షించండి"
 
-#: searx/templates/simple/result_templates/map.html:12
+#: search/templates/simple/result_templates/map.html:12
 msgid "address"
 msgstr "చిరునామా"
 
-#: searx/templates/simple/result_templates/map.html:43
+#: search/templates/simple/result_templates/map.html:43
 msgid "show map"
 msgstr "మ్యాప్ చూపించు"
 
-#: searx/templates/simple/result_templates/map.html:43
+#: search/templates/simple/result_templates/map.html:43
 msgid "hide map"
 msgstr "మ్యాప్‌ను దాచండి"
 
-#: searx/templates/simple/result_templates/packages.html:12
+#: search/templates/simple/result_templates/packages.html:12
 msgid "Version"
 msgstr "వెర్షన్"
 
-#: searx/templates/simple/result_templates/packages.html:18
+#: search/templates/simple/result_templates/packages.html:18
 msgid "Maintainer"
 msgstr "నిర్వహణదారు"
 
-#: searx/templates/simple/result_templates/packages.html:24
+#: search/templates/simple/result_templates/packages.html:24
 msgid "Updated at"
 msgstr "నవీకరించబడిన సమయం"
 
-#: searx/templates/simple/result_templates/packages.html:30
-#: searx/templates/simple/result_templates/paper.html:50
+#: search/templates/simple/result_templates/packages.html:30
+#: search/templates/simple/result_templates/paper.html:50
 msgid "Tags"
 msgstr "ట్యాగ్‌లు"
 
-#: searx/templates/simple/result_templates/packages.html:36
+#: search/templates/simple/result_templates/packages.html:36
 msgid "Popularity"
 msgstr "ప్రజాదరణ"
 
-#: searx/templates/simple/result_templates/packages.html:42
+#: search/templates/simple/result_templates/packages.html:42
 msgid "License"
 msgstr "లైసెన్స్"
 
-#: searx/templates/simple/result_templates/packages.html:52
+#: search/templates/simple/result_templates/packages.html:52
 msgid "Project"
 msgstr "ప్రాజెక్ట్"
 
-#: searx/templates/simple/result_templates/packages.html:55
+#: search/templates/simple/result_templates/packages.html:55
 msgid "Project homepage"
 msgstr "ప్రాజెక్ట్ హోమ్‌పేజీ"
 
-#: searx/templates/simple/result_templates/paper.html:8
+#: search/templates/simple/result_templates/paper.html:8
 msgid "Published date"
 msgstr "ప్రచురించబడిన తేదీ"
 
-#: searx/templates/simple/result_templates/paper.html:20
+#: search/templates/simple/result_templates/paper.html:20
 msgid "Journal"
 msgstr "జర్నల్"
 
-#: searx/templates/simple/result_templates/paper.html:32
+#: search/templates/simple/result_templates/paper.html:32
 msgid "Editor"
 msgstr "ఎడిటర్"
 
-#: searx/templates/simple/result_templates/paper.html:38
+#: search/templates/simple/result_templates/paper.html:38
 msgid "Publisher"
 msgstr "ప్రచురణకర్త"
 
-#: searx/templates/simple/result_templates/paper.html:56
+#: search/templates/simple/result_templates/paper.html:56
 msgid "DOI"
 msgstr "DOI"
 
-#: searx/templates/simple/result_templates/paper.html:62
+#: search/templates/simple/result_templates/paper.html:62
 msgid "ISSN"
 msgstr "ISSN"
 
-#: searx/templates/simple/result_templates/paper.html:68
+#: search/templates/simple/result_templates/paper.html:68
 msgid "ISBN"
 msgstr "ISBN"
 
-#: searx/templates/simple/result_templates/paper.html:91
+#: search/templates/simple/result_templates/paper.html:91
 msgid "PDF"
 msgstr "PDF"
 
-#: searx/templates/simple/result_templates/paper.html:92
+#: search/templates/simple/result_templates/paper.html:92
 msgid "HTML"
 msgstr "HTML"
 
-#: searx/templates/simple/result_templates/torrent.html:7
+#: search/templates/simple/result_templates/torrent.html:7
 msgid "magnet link"
 msgstr "మాగ్నెట్ లింక్"
 
-#: searx/templates/simple/result_templates/torrent.html:8
+#: search/templates/simple/result_templates/torrent.html:8
 msgid "torrent file"
 msgstr "టోరెంట్ ఫైల్"
 
-#: searx/templates/simple/result_templates/torrent.html:13
+#: search/templates/simple/result_templates/torrent.html:13
 msgid "Seeder"
 msgstr "సీడర్"
 
-#: searx/templates/simple/result_templates/torrent.html:14
+#: search/templates/simple/result_templates/torrent.html:14
 msgid "Leecher"
 msgstr "లీచర్"
 
-#: searx/templates/simple/result_templates/torrent.html:19
+#: search/templates/simple/result_templates/torrent.html:19
 msgid "Number of Files"
 msgstr "ఫైళ్ళ సంఖ్య"
 
-#: searx/templates/simple/result_templates/videos.html:6
+#: search/templates/simple/result_templates/videos.html:6
 msgid "show video"
 msgstr "వీడియో చూపించు"
 
-#: searx/templates/simple/result_templates/videos.html:6
+#: search/templates/simple/result_templates/videos.html:6
 msgid "hide video"
 msgstr "వీడియోను దాచిపెట్టు"
 
@@ -1829,28 +1829,28 @@ msgstr "వీడియోను దాచిపెట్టు"
 #~ msgid "Loading..."
 #~ msgstr ""
 
-#~ msgid "Change searx layout"
+#~ msgid "Change search layout"
 #~ msgstr ""
 
-#~ msgid "Proxying image results through searx"
+#~ msgid "Proxying image results through search"
 #~ msgstr ""
 
-#~ msgid "This is the list of searx's instant answering modules."
+#~ msgid "This is the list of search's instant answering modules."
 #~ msgstr ""
 
 #~ msgid ""
 #~ "This is the list of cookies and"
-#~ " their values searx is storing on "
+#~ " their values search is storing on "
 #~ "your computer."
 #~ msgstr ""
 
-#~ msgid "With that list, you can assess searx transparency."
+#~ msgid "With that list, you can assess search transparency."
 #~ msgstr ""
 
-#~ msgid "It look like you are using searx first time."
+#~ msgid "It look like you are using search first time."
 #~ msgstr ""
 
-#~ msgid "Please, try again later or find another searx instance."
+#~ msgid "Please, try again later or find another search instance."
 #~ msgstr ""
 
 #~ msgid "Themes"

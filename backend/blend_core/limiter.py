@@ -109,7 +109,7 @@ from blend_core import (
     valkeydb,
 )
 from blend_core import botdetection
-from blend_core.extended_types import SXNG_Request, blend_request
+from blend_core.extended_types import BlendRequest, blend_request
 from blend_core.botdetection import (
     config,
     http_accept,
@@ -148,7 +148,7 @@ def get_cfg() -> config.Config:
     return CFG
 
 
-def filter_request(request: SXNG_Request) -> werkzeug.Response | None:
+def filter_request(request: BlendRequest) -> werkzeug.Response | None:
     # pylint: disable=too-many-return-statements
 
     cfg = get_cfg()

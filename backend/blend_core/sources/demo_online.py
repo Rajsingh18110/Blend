@@ -31,7 +31,7 @@ from urllib.parse import urlencode
 from blend_core.result_types import SourceResults
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 
@@ -91,7 +91,7 @@ def request(query: str, params: "OnlineParams") -> None:
     params["url"] = f"{search_api}?{args}"
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
     """Parse out the result items from the response.  In this example we parse the
     response from `api.artic.edu <https://artic.edu>`__ and filter out all
     images.

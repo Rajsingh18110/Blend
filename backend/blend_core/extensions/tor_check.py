@@ -21,7 +21,7 @@ from blend_core.result_types import SourceResults
 
 if typing.TYPE_CHECKING:
     from blend_core.pipeline import SearchWithPlugins
-    from blend_core.extended_types import SXNG_Request
+    from blend_core.extended_types import BlendRequest
     from blend_core.extensions import PluginCfg
 
 
@@ -32,7 +32,7 @@ url_exit_list = "https://check.torproject.org/exit-addresses"
 """URL to load Tor exit list from."""
 
 
-class SXNGPlugin(Plugin):
+class BlendPlugin(Plugin):
     """Rewrite hostnames, remove results or prioritize them."""
 
     id = "tor_check"
@@ -50,7 +50,7 @@ class SXNGPlugin(Plugin):
             preference_section="query",
         )
 
-    def post_search(self, request: "SXNG_Request", search: "SearchWithPlugins") -> SourceResults:
+    def post_search(self, request: "BlendRequest", search: "SearchWithPlugins") -> SourceResults:
         results = SourceResults()
 
         if search.blend_query.pageno > 1:

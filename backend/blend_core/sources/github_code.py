@@ -74,7 +74,7 @@ import typing as t
 from urllib.parse import urlencode
 
 from blend_core.result_types import SourceResults
-from blend_core.extended_types import SXNG_Response
+from blend_core.extended_types import BlendResponse
 from blend_core.network import raise_for_httperror
 
 # about
@@ -215,7 +215,7 @@ def extract_code(code_matches: list[dict[str, t.Any]]) -> tuple[list[str], set[i
     return lines, highlighted_lines_index
 
 
-def response(resp: SXNG_Response) -> SourceResults:
+def response(resp: BlendResponse) -> SourceResults:
     res = SourceResults()
 
     if resp.status_code == 422:

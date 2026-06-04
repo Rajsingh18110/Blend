@@ -29,7 +29,7 @@ kw2func = [
 ]
 
 
-class SXNGAnswerer(Answerer):
+class BlendAnswerer(Answerer):
     """Statistics functions"""
 
     keywords = [kw for kw, _ in kw2func]

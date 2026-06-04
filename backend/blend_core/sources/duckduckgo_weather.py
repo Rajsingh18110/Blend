@@ -18,7 +18,7 @@ from blend_core.sources.duckduckgo import fetch_traits  # pylint: disable=unused
 from blend_core.sources.duckduckgo import get_ddg_lang
 
 from blend_core.result_types import SourceResults
-from blend_core.extended_types import SXNG_Response
+from blend_core.extended_types import BlendResponse
 from blend_core import weather
 
 
@@ -104,7 +104,7 @@ def request(query: str, params: dict[str, t.Any]):
     return params
 
 
-def response(resp: SXNG_Response):
+def response(resp: BlendResponse):
     res = SourceResults()
 
     if resp.text.strip() == "ddg_spice_forecast();":

@@ -193,7 +193,7 @@ from blend_core.utils import (
 )
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 about: dict[str, str | bool] = {
@@ -256,7 +256,7 @@ def get_vqd(
 
 def get_ddg_lang(
     eng_traits: EngineTraits,
-    sxng_locale: str,
+    blend_locale: str,
     default: str = "en_US",
 ) -> str | None:
     """Get DuckDuckGo's language identifier from Markanm's locale.
@@ -286,9 +286,9 @@ def get_ddg_lang(
         params['cookies']['l'] = eng_region
 
     """
-    lang: str | None = eng_traits.get_language(sxng_locale, default)
+    lang: str | None = eng_traits.get_language(blend_locale, default)
 
-    return eng_traits.custom["lang_region"].get(sxng_locale, lang) or None
+    return eng_traits.custom["lang_region"].get(blend_locale, lang) or None
 
 
 ddg_reg_map: dict[str, str] = {
@@ -460,7 +460,7 @@ def is_ddg_captcha(dom: ElementType):
     return bool(eval_xpath(dom, "//form[@id='challenge-form']"))
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
     res = SourceResults()
 
     if resp.status_code == 303:
@@ -568,17 +568,17 @@ def fetch_traits(engine_traits: EngineTraits):
             region = eng_lang + "_" + eng_territory.upper()
 
         try:
-            sxng_tag = locales.region_tag(babel.Locale.parse(region))
+            blend_tag = locales.region_tag(babel.Locale.parse(region))
         except babel.UnknownLocaleError:
             print("ERROR: %s (%s) -> %s is unknown by babel" % (name, eng_tag, region))
             continue
 
-        conflict = engine_traits.regions.get(sxng_tag)
+        conflict = engine_traits.regions.get(blend_tag)
         if conflict:
             if conflict != eng_tag:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, eng_tag))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, eng_tag))
             continue
-        engine_traits.regions[sxng_tag] = eng_tag
+        engine_traits.regions[blend_tag] = eng_tag
 
     # fetch languages
 
@@ -597,19 +597,19 @@ def fetch_traits(engine_traits: EngineTraits):
 
         try:
             if babel_tag == "lang_region":
-                sxng_tag = locales.region_tag(babel.Locale.parse(eng_lang))
-                engine_traits.custom["lang_region"][sxng_tag] = eng_lang
+                blend_tag = locales.region_tag(babel.Locale.parse(eng_lang))
+                engine_traits.custom["lang_region"][blend_tag] = eng_lang
                 continue
 
-            sxng_tag = locales.language_tag(babel.Locale.parse(babel_tag))
+            blend_tag = locales.language_tag(babel.Locale.parse(babel_tag))
 
         except babel.UnknownLocaleError:
             print("ERROR: language %s (%s) is unknown by babel" % (name, eng_lang))
             continue
 
-        conflict = engine_traits.languages.get(sxng_tag)
+        conflict = engine_traits.languages.get(blend_tag)
         if conflict:
             if conflict != eng_lang:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, eng_lang))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, eng_lang))
             continue
-        engine_traits.languages[sxng_tag] = eng_lang
+        engine_traits.languages[blend_tag] = eng_lang

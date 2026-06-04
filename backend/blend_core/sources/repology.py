@@ -31,7 +31,7 @@ from urllib.parse import urlencode
 from blend_core.result_types import SourceResults
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
 
 about = {
     'website': 'https://repology.org',
@@ -67,7 +67,7 @@ def _flatten(xss):
     return [x for xs in xss for x in xs]
 
 
-def response(resp: 'SXNG_Response') -> SourceResults:
+def response(resp: 'BlendResponse') -> SourceResults:
     res = SourceResults()
 
     resp_json = resp.json()

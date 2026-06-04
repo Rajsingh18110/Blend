@@ -47,7 +47,7 @@ class ExpireCacheCfg(msgspec.Struct):  # pylint: disable=too-few-public-methods
 
     db_url: str = ""
     """URL of the SQLite DB, the path to the database file.  If unset a default
-    DB will be created in `/tmp/sxng_cache_{self.name}.db`"""
+    DB will be created in `/tmp/blend_cache_{self.name}.db`"""
 
     MAX_VALUE_LEN: int = 1024 * 10
     """Max length of a *serialized* value."""
@@ -81,9 +81,9 @@ class ExpireCacheCfg(msgspec.Struct):  # pylint: disable=too-few-public-methods
     """
 
     def __post_init__(self):
-        # if db_url is unset, use a default DB in /tmp/sxng_cache_{name}.db
+        # if db_url is unset, use a default DB in /tmp/blend_cache_{name}.db
         if not self.db_url:
-            self.db_url = tempfile.gettempdir() + os.sep + f"sxng_cache_{ExpireCache.normalize_name(self.name)}.db"
+            self.db_url = tempfile.gettempdir() + os.sep + f"blend_cache_{ExpireCache.normalize_name(self.name)}.db"
 
 
 @dataclasses.dataclass

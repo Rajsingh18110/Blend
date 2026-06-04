@@ -40,7 +40,7 @@ from blend_core.utils import (
 )
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 
@@ -77,7 +77,7 @@ def request(query: str, params: "OnlineParams") -> None:
     )
     esearch_url = f"{eutils_api}/esearch.fcgi?{args}"
     # DTD: https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20060628/esearch.dtd
-    esearch_resp: "SXNG_Response" = get(esearch_url, timeout=3)
+    esearch_resp: "BlendResponse" = get(esearch_url, timeout=3)
     pmids_results = etree.XML(esearch_resp.content)
     pmids: list[str] = [i.text for i in pmids_results.xpath("//eSearchResult/IdList/Id")]
 
@@ -93,7 +93,7 @@ def request(query: str, params: "OnlineParams") -> None:
     params["url"] = efetch_url
 
 
-def response(resp: "SXNG_Response") -> SourceResults:  # pylint: disable=too-many-locals
+def response(resp: "BlendResponse") -> SourceResults:  # pylint: disable=too-many-locals
 
     # DTD: https://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_250101.dtd
 

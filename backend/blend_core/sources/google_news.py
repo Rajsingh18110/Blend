@@ -77,9 +77,9 @@ def _engine_traits() -> EngineTraits:
 def request(query, params):
     """blend-News search request"""
 
-    sxng_locale = params.get('markanm_locale', 'en-US')
+    blend_locale = params.get('markanm_locale', 'en-US')
     engine_traits = _engine_traits()
-    ceid = locales.get_engine_locale(sxng_locale, engine_traits.custom['ceid'], default='US:en')
+    ceid = locales.get_engine_locale(blend_locale, engine_traits.custom['ceid'], default='US:en')
     blend_info = get_blend_info(params, engine_traits)
     blend_info['subdomain'] = 'news.blend.com'  # blend news has only one domain
 
@@ -293,11 +293,11 @@ def fetch_traits(engine_traits: EngineTraits):
             if x[1] not in ['Hant', 'Hans']:
                 lang = x[0]
 
-        sxng_locale = _ceid_locale_map.get(ceid, lang + '-' + region)
+        blend_locale = _ceid_locale_map.get(ceid, lang + '-' + region)
         try:
-            locale = babel.Locale.parse(sxng_locale, sep='-')
+            locale = babel.Locale.parse(blend_locale, sep='-')
         except babel.UnknownLocaleError:
-            print("ERROR: %s -> %s is unknown by babel" % (ceid, sxng_locale))
+            print("ERROR: %s -> %s is unknown by babel" % (ceid, blend_locale))
             continue
 
         engine_traits.custom['ceid'][locales.region_tag(locale)] = ceid

@@ -24,14 +24,14 @@ from blend_core.result_types import SourceResults
 
 if typing.TYPE_CHECKING:
     from blend_core.pipeline import SearchWithPlugins
-    from blend_core.extended_types import SXNG_Request
+    from blend_core.extended_types import BlendRequest
     from blend_core.extensions import PluginCfg
 
 
 CONVERT_KEYWORDS = ["in", "to", "as"]
 
 
-class SXNGPlugin(Plugin):
+class BlendPlugin(Plugin):
     """Convert between units.  The result is displayed in area for the
     "answers".
     """
@@ -48,7 +48,7 @@ class SXNGPlugin(Plugin):
             preference_section="general",
         )
 
-    def post_search(self, request: "SXNG_Request", search: "SearchWithPlugins") -> SourceResults:
+    def post_search(self, request: "BlendRequest", search: "SearchWithPlugins") -> SourceResults:
         results = SourceResults()
 
         # only convert between units on the first page

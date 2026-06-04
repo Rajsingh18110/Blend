@@ -185,19 +185,19 @@ def initialize():
     wikipedia_engine = blend_core.sources.engines['wikipedia']
 
     locale2lang = {'nl-BE': 'nl'}
-    for sxng_ui_lang in LOCALE_NAMES:
+    for blend_ui_lang in LOCALE_NAMES:
 
-        sxng_ui_alias = locale2lang.get(sxng_ui_lang, sxng_ui_lang)
+        blend_ui_alias = locale2lang.get(blend_ui_lang, blend_ui_lang)
         wiki_lang = None
 
-        if sxng_ui_alias in wikipedia_engine.traits.custom['WIKIPEDIA_LANGUAGES']:
-            wiki_lang = sxng_ui_alias
+        if blend_ui_alias in wikipedia_engine.traits.custom['WIKIPEDIA_LANGUAGES']:
+            wiki_lang = blend_ui_alias
         if not wiki_lang:
-            wiki_lang = wikipedia_engine.traits.get_language(sxng_ui_alias)
+            wiki_lang = wikipedia_engine.traits.get_language(blend_ui_alias)
         if not wiki_lang:
-            print(f"WIKIPEDIA_LANGUAGES missing {sxng_ui_lang}")
+            print(f"WIKIPEDIA_LANGUAGES missing {blend_ui_lang}")
             continue
-        WIKIPEDIA_LANGUAGES[sxng_ui_lang] = wiki_lang
+        WIKIPEDIA_LANGUAGES[blend_ui_lang] = wiki_lang
 
     LANGUAGES_SPARQL = ', '.join(f"'{l}'" for l in set(WIKIPEDIA_LANGUAGES.values()))
     for engine_name, engine in blend_core.sources.engines.items():

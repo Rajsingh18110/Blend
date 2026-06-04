@@ -16,11 +16,11 @@ from blend_core.result_types import SourceResults
 
 if typing.TYPE_CHECKING:
     from blend_core.pipeline import SearchWithPlugins
-    from blend_core.extended_types import SXNG_Request
+    from blend_core.extended_types import BlendRequest
     from blend_core.extensions import PluginCfg
 
 
-class SXNGPlugin(Plugin):
+class BlendPlugin(Plugin):
     """Plugin converts strings to different hash digests.  The results are
     displayed in area for the "answers".
     """
@@ -42,7 +42,7 @@ class SXNGPlugin(Plugin):
             preference_section="query",
         )
 
-    def post_search(self, request: "SXNG_Request", search: "SearchWithPlugins") -> SourceResults:
+    def post_search(self, request: "BlendRequest", search: "SearchWithPlugins") -> SourceResults:
         """Returns a result list only for the first page."""
         results = SourceResults()
 

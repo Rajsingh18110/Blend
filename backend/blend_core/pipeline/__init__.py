@@ -29,7 +29,7 @@ from blend_core.pipeline.processors.abstract import RequestParams
 
 if t.TYPE_CHECKING:
     from .models import BlendQuery
-    from blend_core.extended_types import SXNG_Request
+    from blend_core.extended_types import BlendRequest
 
 logger = logger.getChild('search')
 
@@ -186,7 +186,7 @@ class Search:
 class SearchWithPlugins(Search):
     """Inherit from the Search class, add calls to the plugins."""
 
-    def __init__(self, blend_query: "BlendQuery", request: "SXNG_Request", user_plugins: list[str]):
+    def __init__(self, blend_query: "BlendQuery", request: "BlendRequest", user_plugins: list[str]):
         super().__init__(blend_query)
         self.user_plugins = user_plugins
         self.result_pool.on_result = self._on_result

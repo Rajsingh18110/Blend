@@ -17,11 +17,11 @@ from . import Plugin, PluginInfo
 
 if typing.TYPE_CHECKING:
     from blend_core.pipeline import SearchWithPlugins
-    from blend_core.extended_types import SXNG_Request
+    from blend_core.extended_types import BlendRequest
     from . import PluginCfg
 
 
-class SXNGPlugin(Plugin):
+class BlendPlugin(Plugin):
     """Simple plugin that displays information about user's request, including
     the IP or HTTP User-Agent.  The information is displayed in area for the
     "answers".
@@ -45,7 +45,7 @@ class SXNGPlugin(Plugin):
             preference_section="query",
         )
 
-    def post_search(self, request: "SXNG_Request", search: "SearchWithPlugins") -> SourceResults:
+    def post_search(self, request: "BlendRequest", search: "SearchWithPlugins") -> SourceResults:
         """Returns a result list only for the first page."""
         results = SourceResults()
 

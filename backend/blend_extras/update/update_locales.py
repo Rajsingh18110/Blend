@@ -51,13 +51,13 @@ def main():
                 RTL_LOCALES.add(tag)
 
     for tr_locale in get_translation_locales():
-        sxng_tag = tr_locale.replace('_', '-')
-        descr = LOCALE_NAMES.get(sxng_tag)
+        blend_tag = tr_locale.replace('_', '-')
+        descr = LOCALE_NAMES.get(blend_tag)
         if not descr:
             locale = babel.Locale.parse(tr_locale)
-            LOCALE_NAMES[sxng_tag] = get_locale_descr(locale, tr_locale)
+            LOCALE_NAMES[blend_tag] = get_locale_descr(locale, tr_locale)
             if locale.text_direction == 'rtl':
-                RTL_LOCALES.add(sxng_tag)
+                RTL_LOCALES.add(blend_tag)
 
     content = {
         "LOCALE_NAMES": LOCALE_NAMES,

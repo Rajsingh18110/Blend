@@ -1,12 +1,12 @@
 # -*- mode: python -*-
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""A blend message file, see :py:obj:`searx.babel`"""
+"""Blend message catalog constants, see :py:obj:`blend_core.babel_extract`."""
 
 import typing
 
-from searx import webutils
-from searx import engines
-from searx.weather import WeatherConditionType
+from blend_core import webutils
+from blend_core import sources as engines
+from blend_core.weather import WeatherConditionType
 
 
 __all__ = [

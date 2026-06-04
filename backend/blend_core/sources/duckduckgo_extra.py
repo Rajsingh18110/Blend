@@ -21,7 +21,7 @@ from blend_core.sources.duckduckgo import fetch_traits  # pylint: disable=unused
 from blend_core.sources.duckduckgo import get_ddg_lang, get_vqd, set_vqd
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 # about

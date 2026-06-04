@@ -21,7 +21,7 @@ from contextlib import contextmanager
 import httpx
 import anyio
 
-from blend_core.extended_types import SXNG_Response
+from blend_core.extended_types import BlendResponse
 from .network import get_network, initialize, check_network_configuration  # pylint:disable=cyclic-import
 from .client import get_loop
 from .raise_for_httperror import raise_for_httperror
@@ -97,7 +97,7 @@ def _get_timeout(start_time: float, kwargs: t.Any) -> float:
     return timeout
 
 
-def request(method: str, url: str, **kwargs: t.Any) -> SXNG_Response:
+def request(method: str, url: str, **kwargs: t.Any) -> BlendResponse:
     """same as requests/requests/api.py request(...)"""
     with _record_http_time() as start_time:
         network = get_context_network()
@@ -174,34 +174,34 @@ class Request(t.NamedTuple):
         return Request('DELETE', url, kwargs)
 
 
-def get(url: str, **kwargs: t.Any) -> SXNG_Response:
+def get(url: str, **kwargs: t.Any) -> BlendResponse:
     kwargs.setdefault('allow_redirects', True)
     return request('get', url, **kwargs)
 
 
-def options(url: str, **kwargs: t.Any) -> SXNG_Response:
+def options(url: str, **kwargs: t.Any) -> BlendResponse:
     kwargs.setdefault('allow_redirects', True)
     return request('options', url, **kwargs)
 
 
-def head(url: str, **kwargs: t.Any) -> SXNG_Response:
+def head(url: str, **kwargs: t.Any) -> BlendResponse:
     kwargs.setdefault('allow_redirects', False)
     return request('head', url, **kwargs)
 
 
-def post(url: str, data: dict[str, t.Any] | None = None, **kwargs: t.Any) -> SXNG_Response:
+def post(url: str, data: dict[str, t.Any] | None = None, **kwargs: t.Any) -> BlendResponse:
     return request('post', url, data=data, **kwargs)
 
 
-def put(url: str, data: dict[str, t.Any] | None = None, **kwargs: t.Any) -> SXNG_Response:
+def put(url: str, data: dict[str, t.Any] | None = None, **kwargs: t.Any) -> BlendResponse:
     return request('put', url, data=data, **kwargs)
 
 
-def patch(url: str, data: dict[str, t.Any] | None = None, **kwargs: t.Any) -> SXNG_Response:
+def patch(url: str, data: dict[str, t.Any] | None = None, **kwargs: t.Any) -> BlendResponse:
     return request('patch', url, data=data, **kwargs)
 
 
-def delete(url: str, **kwargs: t.Any) -> SXNG_Response:
+def delete(url: str, **kwargs: t.Any) -> BlendResponse:
     return request('delete', url, **kwargs)
 
 
@@ -256,7 +256,7 @@ def _close_response_method(self):
         continue
 
 
-def stream(method: str, url: str, **kwargs: t.Any) -> tuple[SXNG_Response, Iterable[bytes]]:
+def stream(method: str, url: str, **kwargs: t.Any) -> tuple[BlendResponse, Iterable[bytes]]:
     """Replace httpx.stream.
 
     Usage:

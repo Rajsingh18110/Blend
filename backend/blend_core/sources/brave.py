@@ -133,7 +133,7 @@ from lxml import html
 
 from blend_core import locales
 from blend_core.enginelib.traits import EngineTraits
-from blend_core.extended_types import SXNG_Response
+from blend_core.extended_types import BlendResponse
 from blend_core.result_types import SourceResults
 from blend_core.utils import (
     eval_xpath_getindex,
@@ -265,7 +265,7 @@ def extract_json_data(text: str) -> dict[str, t.Any]:
     return data
 
 
-def response(resp: SXNG_Response) -> SourceResults:
+def response(resp: BlendResponse) -> SourceResults:
 
     if brave_category in ("search", "goggles"):
         return _parse_search(resp)
@@ -290,7 +290,7 @@ def response(resp: SXNG_Response) -> SourceResults:
     raise ValueError(f"Unsupported brave category: {brave_category}")
 
 
-def _parse_search(resp: SXNG_Response) -> SourceResults:
+def _parse_search(resp: BlendResponse) -> SourceResults:
     res = SourceResults()
     dom = html.fromstring(resp.text)
 
@@ -353,7 +353,7 @@ def _parse_search(resp: SXNG_Response) -> SourceResults:
     return res
 
 
-def _parse_news(resp: SXNG_Response) -> SourceResults:
+def _parse_news(resp: BlendResponse) -> SourceResults:
     res = SourceResults()
     dom = html.fromstring(resp.text)
 
@@ -447,19 +447,19 @@ def fetch_traits(engine_traits: EngineTraits):
         try:
             l = babel.Locale.parse(ui_lang, sep="-")
             if l.territory:
-                sxng_tag = region_tag(babel.Locale.parse(ui_lang, sep="-"))
+                blend_tag = region_tag(babel.Locale.parse(ui_lang, sep="-"))
             else:
-                sxng_tag = language_tag(babel.Locale.parse(ui_lang, sep="-"))
+                blend_tag = language_tag(babel.Locale.parse(ui_lang, sep="-"))
         except babel.UnknownLocaleError:
             # silently ignore unknown languages
             continue
 
-        conflict = engine_traits.custom["ui_lang"].get(sxng_tag)  # type: ignore
+        conflict = engine_traits.custom["ui_lang"].get(blend_tag)  # type: ignore
         if conflict:
             if conflict != ui_lang:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, ui_lang))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, ui_lang))
             continue
-        engine_traits.custom["ui_lang"][sxng_tag] = ui_lang
+        engine_traits.custom["ui_lang"][blend_tag] = ui_lang
 
     # search regions of brave
 
@@ -484,15 +484,15 @@ def fetch_traits(engine_traits: EngineTraits):
         for lang_tag in babel.languages.get_official_languages(country_tag, de_facto=True):
             lang_tag = lang_map.get(lang_tag, lang_tag)
             try:
-                sxng_tag = region_tag(babel.Locale.parse("%s_%s" % (lang_tag, country_tag.upper())))
+                blend_tag = region_tag(babel.Locale.parse("%s_%s" % (lang_tag, country_tag.upper())))
             except babel.UnknownLocaleError:
                 # silently ignore unknown languages
                 continue
-            # print("%-20s: %s <-- %s" % (v["label"], country_tag, sxng_tag))
+            # print("%-20s: %s <-- %s" % (v["label"], country_tag, blend_tag))
 
-            conflict = engine_traits.regions.get(sxng_tag)
+            conflict = engine_traits.regions.get(blend_tag)
             if conflict:
                 if conflict != country_tag:
-                    print("CONFLICT: babel %s --> %s, %s" % (sxng_tag, conflict, country_tag))
+                    print("CONFLICT: babel %s --> %s, %s" % (blend_tag, conflict, country_tag))
                     continue
-            engine_traits.regions[sxng_tag] = country_tag
+            engine_traits.regions[blend_tag] = country_tag

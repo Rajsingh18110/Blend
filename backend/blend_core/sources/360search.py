@@ -17,7 +17,7 @@ from blend_core.utils import extract_text
 from blend_core.network import get as http_get
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
 
 # Metadata
 about = {
@@ -61,7 +61,7 @@ def get_cookie(url: str) -> str:
     cookie: str | None = CACHE.get(COOKIE_CACHE_KEY)
     if cookie:
         return cookie
-    resp: SXNG_Response = http_get(url, timeout=10, allow_redirects=False)
+    resp: BlendResponse = http_get(url, timeout=10, allow_redirects=False)
     headers = resp.headers
     cookie = headers['set-cookie'].split(";")[0]
     CACHE.set(key=COOKIE_CACHE_KEY, value=cookie, expire=COOKIE_CACHE_EXPIRATION_SECONDS)

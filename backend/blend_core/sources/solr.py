@@ -36,7 +36,7 @@ This is an example configuration for searching in the collection
 from urllib.parse import urlencode
 from blend_core.exceptions import BlendEngineAPIException
 from blend_core.result_types import SourceResults
-from blend_core.extended_types import SXNG_Response
+from blend_core.extended_types import BlendResponse
 
 
 base_url = 'http://localhost:8983'
@@ -77,7 +77,7 @@ def request(query, params):
     return params
 
 
-def response(resp: SXNG_Response) -> SourceResults:
+def response(resp: BlendResponse) -> SourceResults:
     try:
         resp_json = resp.json()
     except Exception as e:

@@ -165,10 +165,10 @@ def language_tag(locale: babel.Locale) -> str:
     """Returns Markanm's language tag from the locale and if exits, the tag
     includes the script name (e.g. en, zh_Hant).
     """
-    sxng_lang = locale.language
+    blend_lang = locale.language
     if locale.script:
-        sxng_lang += '_' + locale.script
-    return sxng_lang
+        blend_lang += '_' + locale.script
+    return blend_lang
 
 
 def get_locale(locale_tag: str) -> babel.Locale | None:

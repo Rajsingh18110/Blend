@@ -100,7 +100,7 @@ from urllib.parse import urlencode
 from blend_core.result_types import SourceResults
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 # about
@@ -153,7 +153,7 @@ def request(query: str, params: "OnlineParams") -> None:
     params["url"] = f"{search_url}?{urlencode(args)}"
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
     data = resp.json()
     res = SourceResults()
 

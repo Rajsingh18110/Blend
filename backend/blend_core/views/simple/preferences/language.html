@@ -10,11 +10,11 @@
               {%- if current_language == 'auto' %} selected="selected" {%- endif -%}>
               {{- _('Auto-detect') }} [auto] {{- '' -}}
       </option>{{- '' -}}
-      {% for sxng_tag,lang_name,country_name,english_name,flag in blend_locales | sort(attribute=1) -%}
-        <option value="{{ sxng_tag }}"
-                {%- if sxng_tag == current_language %} selected="selected" {%- endif -%}>
+      {% for blend_tag,lang_name,country_name,english_name,flag in blend_locales | sort(attribute=1) -%}
+        <option value="{{ blend_tag }}"
+                {%- if blend_tag == current_language %} selected="selected" {%- endif -%}>
                 {{ lang_name }}{%- if country_name -%}-{{ country_name }}{%- endif -%}
-                {{- ' ' -}}[{{sxng_tag}}]{{- ' ' -}}
+                {{- ' ' -}}[{{blend_tag}}]{{- ' ' -}}
                 {%- if flag -%}{{ flag }}{%- endif -%}
         </option>
       {%- endfor -%}

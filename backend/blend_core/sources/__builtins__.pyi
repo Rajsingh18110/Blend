@@ -12,7 +12,7 @@ intended monkey patching of the engine modules.
 """
 
 import logging
-from searx.enginelib import traits as _traits
+from blend_core.enginelib import traits as _traits
 
 logger: logging.Logger
 supported_languages: str
@@ -20,7 +20,7 @@ language_aliases: str
 language_support: bool
 traits: _traits.EngineTraits
 
-# from searx.engines.ENGINE_DEFAULT_ARGS
+# from blend_core.sources engine defaults
 about: dict[str, dict[str, str | None | bool]]
 categories: list[str]
 disabled: bool
@@ -38,8 +38,8 @@ timeout: int
 tokens: list[str]
 using_tor_proxy: bool
 
-# from searx.engines.check_engine_module
+# from blend_core.sources.check_engine_module
 network: str
 
-# from searx.engines.update_attributes_for_tor
+# from blend_core.sources.update_attributes_for_tor
 search_url: str

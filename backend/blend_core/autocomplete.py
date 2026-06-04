@@ -27,7 +27,7 @@ from blend_core.exceptions import BlendEngineResponseException
 from blend_core.utils import extr, gen_useragent
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
 
 
 def update_kwargs(**kwargs) -> None:  # type: ignore
@@ -36,17 +36,17 @@ def update_kwargs(**kwargs) -> None:  # type: ignore
     kwargs['raise_for_httperror'] = True
 
 
-def get(*args, **kwargs) -> "SXNG_Response":  # type: ignore
+def get(*args, **kwargs) -> "BlendResponse":  # type: ignore
     update_kwargs(**kwargs)  # pyright: ignore[reportUnknownArgumentType]
     return http_get(*args, **kwargs)  # pyright: ignore[reportUnknownArgumentType]
 
 
-def post(*args, **kwargs) -> "SXNG_Response":  # type: ignore
+def post(*args, **kwargs) -> "BlendResponse":  # type: ignore
     update_kwargs(**kwargs)  # pyright: ignore[reportUnknownArgumentType]
     return http_post(*args, **kwargs)  # pyright: ignore[reportUnknownArgumentType]
 
 
-def baidu(query: str, _sxng_locale: str) -> list[str]:
+def baidu(query: str, _blend_locale: str) -> list[str]:
     # baidu search autocompleter
     base_url = "https://www.baidu.com/sugrec?"
     response = get(base_url + urlencode({'ie': 'utf-8', 'json': 1, 'prod': 'pc', 'wd': query}))
@@ -60,7 +60,7 @@ def baidu(query: str, _sxng_locale: str) -> list[str]:
     return results
 
 
-def bing(query: str, _sxng_locale: str) -> list[str]:
+def bing(query: str, _blend_locale: str) -> list[str]:
     # bing search autocompleter
     base_url = "https://www.bing.com/AS/Suggestions?"
     # cvid has to be a 32 character long string consisting of numbers and uppsercase characters
@@ -80,7 +80,7 @@ def bing(query: str, _sxng_locale: str) -> list[str]:
     return results
 
 
-def brave(query: str, _sxng_locale: str) -> list[str]:
+def brave(query: str, _blend_locale: str) -> list[str]:
     # brave search autocompleter
     url = 'https://search.brave.com/api/suggest?'
     url += urlencode({'q': query})
@@ -96,7 +96,7 @@ def brave(query: str, _sxng_locale: str) -> list[str]:
     return results
 
 
-def dbpedia(query: str, _sxng_locale: str) -> list[str]:
+def dbpedia(query: str, _blend_locale: str) -> list[str]:
     autocomplete_url = 'https://lookup.dbpedia.org/api/search.asmx/KeywordSearch?'
     resp = get(autocomplete_url + urlencode(dict(QueryString=query)))
     results: list[str] = []
@@ -108,13 +108,13 @@ def dbpedia(query: str, _sxng_locale: str) -> list[str]:
     return results
 
 
-def duckduckgo(query: str, sxng_locale: str) -> list[str]:
+def duckduckgo(query: str, blend_locale: str) -> list[str]:
     """Autocomplete from DuckDuckGo. Supports DuckDuckGo's languages"""
 
     traits = engines['duckduckgo'].traits
     args: dict[str, str] = {
         'q': query,
-        'kl': traits.get_region(sxng_locale, traits.all_locale),
+        'kl': traits.get_region(blend_locale, traits.all_locale),
     }
 
     url = 'https://duckduckgo.com/ac/?type=list&' + urlencode(args)
@@ -128,7 +128,7 @@ def duckduckgo(query: str, sxng_locale: str) -> list[str]:
     return results
 
 
-def blend_complete(query: str, sxng_locale: str) -> list[str]:
+def blend_complete(query: str, blend_locale: str) -> list[str]:
     """Autocomplete from blend.  Supports blend's languages and subdomains
     (:py:obj:`blend_core.sources.blend.get_blend_info`) by using the async REST
     API::
@@ -137,7 +137,7 @@ def blend_complete(query: str, sxng_locale: str) -> list[str]:
 
     """
 
-    blend_info: dict[str, t.Any] = blend.get_blend_info({'markanm_locale': sxng_locale}, engines['blend'].traits)
+    blend_info: dict[str, t.Any] = blend.get_blend_info({'markanm_locale': blend_locale}, engines['blend'].traits)
     url = 'https://{subdomain}/complete/search?{args}'
     args = urlencode(
         {
@@ -157,7 +157,7 @@ def blend_complete(query: str, sxng_locale: str) -> list[str]:
     return results
 
 
-def mwmbl(query: str, _sxng_locale: str) -> list[str]:
+def mwmbl(query: str, _blend_locale: str) -> list[str]:
     """Autocomplete from Mwmbl_."""
 
     # mwmbl autocompleter
@@ -169,7 +169,7 @@ def mwmbl(query: str, _sxng_locale: str) -> list[str]:
     return [result for result in results if not result.startswith("go: ") and not result.startswith("search: ")]
 
 
-def naver(query: str, _sxng_locale: str) -> list[str]:
+def naver(query: str, _blend_locale: str) -> list[str]:
     # Naver search autocompleter
     url = f"https://ac.search.naver.com/nx/ac?{urlencode({'q': query, 'r_format': 'json', 'st': 0})}"
     response = get(url)
@@ -183,7 +183,7 @@ def naver(query: str, _sxng_locale: str) -> list[str]:
     return results
 
 
-def qihu360search(query: str, _sxng_locale: str) -> list[str]:
+def qihu360search(query: str, _blend_locale: str) -> list[str]:
     # 360Search search autocompleter
     url = f"https://sug.so.360.cn/suggest?{urlencode({'format': 'json', 'word': query})}"
     response = get(url)
@@ -197,7 +197,7 @@ def qihu360search(query: str, _sxng_locale: str) -> list[str]:
     return results
 
 
-def quark(query: str, _sxng_locale: str) -> list[str]:
+def quark(query: str, _blend_locale: str) -> list[str]:
     # Quark search autocompleter
     url = f"https://sugs.m.sm.cn/web?{urlencode({'q': query})}"
     response = get(url)
@@ -210,7 +210,7 @@ def quark(query: str, _sxng_locale: str) -> list[str]:
     return results
 
 
-def seznam(query: str, _sxng_locale: str) -> list[str]:
+def seznam(query: str, _blend_locale: str) -> list[str]:
     # seznam search autocompleter
     url = 'https://suggest.seznam.cz/fulltext/cs?{query}'
     resp = get(
@@ -232,7 +232,7 @@ def seznam(query: str, _sxng_locale: str) -> list[str]:
     return results
 
 
-def sogou(query: str, _sxng_locale: str) -> list[str]:
+def sogou(query: str, _blend_locale: str) -> list[str]:
     # Sogou search autocompleter
     base_url = "https://sor.html5.qq.com/api/getsug?"
     resp = get(base_url + urlencode({'m': 'markanm', 'key': query}))
@@ -248,7 +248,7 @@ def sogou(query: str, _sxng_locale: str) -> list[str]:
     return results
 
 
-def startpage(query: str, sxng_locale: str) -> list[str]:
+def startpage(query: str, blend_locale: str) -> list[str]:
     """Autocomplete from Startpage's Firefox extension.
     Supports the languages specified in lang_map.
     """
@@ -266,7 +266,7 @@ def startpage(query: str, sxng_locale: str) -> list[str]:
         'sv': 'svenska',
     }
 
-    base_lang = sxng_locale.split('-')[0]
+    base_lang = blend_locale.split('-')[0]
     lui = lang_map.get(base_lang, 'english')
 
     url_params = {
@@ -294,16 +294,16 @@ def startpage(query: str, sxng_locale: str) -> list[str]:
     return results
 
 
-def swisscows(query: str, _sxng_locale: str) -> list[str]:
+def swisscows(query: str, _blend_locale: str) -> list[str]:
     # swisscows autocompleter
     url = 'https://swisscows.ch/api/suggest?{query}&itemsCount=5'
     results: list[str] = json.loads(get(url.format(query=urlencode({'query': query}))).text)
     return results
 
 
-def qwant(query: str, sxng_locale: str) -> list[str]:
+def qwant(query: str, blend_locale: str) -> list[str]:
     """Autocomplete from Qwant. Supports Qwant's regions."""
-    locale = engines['qwant'].traits.get_region(sxng_locale, 'en_US')
+    locale = engines['qwant'].traits.get_region(blend_locale, 'en_US')
     url = 'https://api.qwant.com/v3/suggest?{query}'
     resp = get(url.format(query=urlencode({'q': query, 'locale': locale, 'version': '2'})))
     results: list[str] = []
@@ -317,10 +317,10 @@ def qwant(query: str, sxng_locale: str) -> list[str]:
     return results
 
 
-def wikipedia(query: str, sxng_locale: str) -> list[str]:
+def wikipedia(query: str, blend_locale: str) -> list[str]:
     """Autocomplete from Wikipedia. Supports Wikipedia's languages (aka netloc)."""
     eng_traits = engines['wikipedia'].traits
-    wiki_lang = eng_traits.get_language(sxng_locale, 'en')
+    wiki_lang = eng_traits.get_language(blend_locale, 'en')
     wiki_netloc: str = eng_traits.custom['wiki_netloc'].get(wiki_lang, 'en.wikipedia.org')  # type: ignore
 
     args = urlencode(
@@ -344,7 +344,7 @@ def wikipedia(query: str, sxng_locale: str) -> list[str]:
     return results
 
 
-def yandex(query: str, _sxng_locale: str) -> list[str]:
+def yandex(query: str, _blend_locale: str) -> list[str]:
     # yandex autocompleter
     url = "https://suggest.yandex.com/suggest-ff.cgi?{0}"
     resp = json.loads(get(url.format(urlencode(dict(part=query)))).text)
@@ -377,11 +377,11 @@ backends: dict[str, t.Callable[[str, str], list[str]]] = {
 }
 
 
-def search_autocomplete(backend_name: str, query: str, sxng_locale: str) -> list[str]:
+def search_autocomplete(backend_name: str, query: str, blend_locale: str) -> list[str]:
     backend = backends.get(backend_name)
     if backend is None:
         return []
     try:
-        return backend(query, sxng_locale)
+        return backend(query, blend_locale)
     except (HTTPError, BlendEngineResponseException):
         return []

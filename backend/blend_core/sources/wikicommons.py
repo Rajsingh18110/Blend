@@ -52,7 +52,7 @@ from blend_core.utils import html_to_text, humanize_bytes
 from blend_core.result_types import SourceResults
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 about = {
@@ -121,7 +121,7 @@ def request(query: str, params: "OnlineParams") -> None:
     params["url"] = f"{wc_api_url}?{urlencode(args, safe=':|')}"
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
 
     res = SourceResults()
     json_data = resp.json()

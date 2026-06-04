@@ -404,7 +404,7 @@ function showDeepSearchPending(category, q) {
     ['Engine', 'Crawl4AI'],
     ['Status', 'running']
   ].map(([label, value]) => `<span style="font-size:11px;color:var(--text2);border:1px solid var(--border);border-radius:999px;padding:5px 9px;"><strong style="color:var(--text);">${label}</strong> ${value}</span>`).join('');
-  document.getElementById('deep-search-proof').textContent = 'Pipeline: BlendEngine discovery finds candidate URLs first, then Crawl4AI crawls and extracts content from the top safe URLs. This is not routed through the SearxNG web route.';
+  document.getElementById('deep-search-proof').textContent = 'Pipeline: BlendEngine discovery finds candidate URLs first, then Crawl4AI crawls and extracts content from the top safe URLs.';
 }
 
 function updateDeepSearchPanel(data, category) {
@@ -427,7 +427,7 @@ function updateDeepSearchPanel(data, category) {
     ['Attempted', deep.attempted ?? 0],
     ['Crawled', deep.successful ?? 0],
     ['Failed', deep.failed ?? 0],
-    ['Route', pipeline.searxng_route_used || deep.searxng_route_used ? 'SearxNG' : 'BlendEngine'],
+    ['Route', pipeline.legacy_route_used || deep.legacy_route_used ? 'LegacyRoute' : 'BlendEngine'],
     ['Extractor', deep.engine || pipeline.deep_enrichment || 'Crawl4AI']
   ];
   document.getElementById('deep-search-counters').innerHTML = counters.map(([label, value]) =>
@@ -438,7 +438,7 @@ function updateDeepSearchPanel(data, category) {
     ? `<div style="margin-top:6px;">Crawled URLs: ${crawled.slice(0, 3).map(url => `<code style="color:var(--text2);">${escapeHtml(url)}</code>`).join(' · ')}</div>`
     : '<div style="margin-top:6px;">No URL content was extracted yet. Results still came from discovery providers.</div>';
   document.getElementById('deep-search-proof').innerHTML =
-    `API proof: <code>mode=${escapeHtml(data?.mode || 'deep')}</code> · <code>deep_enrichment=${escapeHtml(pipeline.deep_enrichment || deep.engine || 'Crawl4AI')}</code> · <code>searxng_route_used=${escapeHtml(Boolean(pipeline.searxng_route_used || deep.searxng_route_used))}</code> · Discovery: ${escapeHtml(sourceList.join(', ') || 'unknown')}${crawledHtml}`;
+    `API proof: <code>mode=${escapeHtml(data?.mode || 'deep')}</code> · <code>deep_enrichment=${escapeHtml(pipeline.deep_enrichment || deep.engine || 'Crawl4AI')}</code> · <code>blend_route=${escapeHtml(pipeline.legacy_route_used || deep.legacy_route_used ? 'legacy' : 'native')}</code> · Discovery: ${escapeHtml(sourceList.join(', ') || 'unknown')}${crawledHtml}`;
 }
 
 function currentTabName() {

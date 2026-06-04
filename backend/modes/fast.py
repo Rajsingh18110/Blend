@@ -20,7 +20,7 @@ class FastMode:
         
     def _build_search_urls(self, query: str) -> List[str]:
         # For now, we query DDG HTML and Qwant as fast sources.
-        # This completely abstracts away SearxNG's engine system.
+        # Keep fast mode on Blend's lightweight provider path.
         encoded_query = urllib.parse.quote(query)
         return [
             f"https://html.duckduckgo.com/html/?q={encoded_query}",

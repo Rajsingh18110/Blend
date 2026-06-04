@@ -52,7 +52,7 @@ from blend_core.result_types import SourceResults
 from blend_core.utils import eval_xpath, eval_xpath_getindex, eval_xpath_list, extract_text
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 # about
@@ -144,7 +144,7 @@ def request(query: str, params: "OnlineParams") -> None:
     params["url"] = f"{params['base_url']}/search?{urlencode(filtered_args)}"
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
     res = SourceResults()
     dom = html.fromstring(resp.text)
 
@@ -272,13 +272,13 @@ def fetch_traits(engine_traits: EngineTraits) -> None:
             # silently ignore unknown languages
             # print("ERROR: %s -> %s is unknown by babel" % (x.get("data-name"), eng_lang))
             continue
-        sxng_lang = language_tag(locale)
-        conflict = engine_traits.languages.get(sxng_lang)
+        blend_lang = language_tag(locale)
+        conflict = engine_traits.languages.get(blend_lang)
         if conflict:
             if conflict != eng_lang:
-                print("CONFLICT: babel %s --> %s, %s" % (sxng_lang, conflict, eng_lang))
+                print("CONFLICT: babel %s --> %s, %s" % (blend_lang, conflict, eng_lang))
             continue
-        engine_traits.languages[sxng_lang] = eng_lang
+        engine_traits.languages[blend_lang] = eng_lang
 
     for x in eval_xpath_list(dom, "//form//input[@name='content']"):
         if not x.get("value").startswith("anti__"):

@@ -31,7 +31,7 @@ from blend_core.external_urls import (
 from blend_core.result_types import SourceResults
 
 if t.TYPE_CHECKING:
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
     from blend_core.pipeline.processors import OnlineParams
 
 about = {
@@ -79,7 +79,7 @@ def request(query: str, params: "OnlineParams") -> None:
     params["url"] = URL.format(query=urlencode({"q": query}))
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
     # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     results = SourceResults()
     search_res: dict[str, str] = resp.json()

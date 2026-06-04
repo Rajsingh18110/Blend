@@ -11,7 +11,7 @@ from blend_core.result_types import SourceResults
 
 if t.TYPE_CHECKING:
     from blend_core.pipeline.processors import OnlineCurrenciesParams
-    from blend_core.extended_types import SXNG_Response
+    from blend_core.extended_types import BlendResponse
 
 # about
 about = {
@@ -37,7 +37,7 @@ def request(query: str, params: "OnlineCurrenciesParams") -> None:  # pylint: di
     params["url"] = base_url % params
 
 
-def response(resp: "SXNG_Response") -> SourceResults:
+def response(resp: "BlendResponse") -> SourceResults:
     res = SourceResults()
 
     # remove first and last lines to get only json
