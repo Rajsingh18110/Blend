@@ -1,20 +1,21 @@
 # Blend Engine — by Markanm
 
-![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)
+![License](https://img.shields.io/badge/License-AGPL--3.0--or--later%20%2B%20Apache--2.0-blue.svg)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Status](https://img.shields.io/badge/Status-Public%20Release-green)
 
 Blend Engine is a privacy-first, AI-assisted metasearch engine built by
-Raj Singh / Markanm Team. It combines results from multiple search sources,
-serves a custom dark-first web interface, and includes Navar, an assistant layer
-for summaries, guided answers, page scanning, and search intent routing.
+Raj Singh / Markanm Team. The current codebase serves a custom dark-first web
+interface, exposes Flask JSON endpoints, routes searches through configured
+providers, and includes Navar, an assistant layer for guided answers, page
+scanning, Google Dork generation, and search intent routing.
 
 The project is designed for people who want a clean search experience without
 ad profiling, invasive tracking, or committing private API configuration into
 source control.
 
 ## Acknowledgments
-Blend Engine was originally inspired by and started as a fork of [SearxNG](https://github.com/searxng/searxng). We owe a great debt of gratitude to the SearxNG maintainers and community for their pioneering work in privacy-preserving metasearch. Blend Engine has since evolved into a custom, from-scratch architecture incorporating intelligent extraction (Crawl4AI), advanced privacy modes (Ghost Mode & Tor), and AI intent routing, but its roots in the open web search movement began with SearxNG.
+Blend Engine was originally inspired by and started as a fork of [SearxNG](https://github.com/searxng/searxng). We owe a great debt of gratitude to the SearxNG maintainers and community for their pioneering work in privacy-preserving metasearch. This repository now combines SearxNG-derived pieces with Markanm-authored frontend, assistant, provider-routing, media, and privacy-layer code; its roots in the open web search movement began with SearxNG.
 
 ## What Blend Engine Does
 
@@ -22,18 +23,21 @@ Blend Engine was originally inspired by and started as a fork of [SearxNG](https
 Blend Engine provides a full search application, not just a backend library.
 It includes:
 
-- A Flask-based backend that exposes browser pages and JSON APIs.
+- A Flask-based backend that serves browser pages and JSON APIs.
 - A custom frontend for home, results, about, privacy, and settings pages.
-- Multi-category search across web, images, videos, news, maps, music, files,
-  social results, code, packages, academic sources, and reference sources.
-- Navar AI integration for search summaries, conversational answers, website
-  scanning, Google Dork generation, and multi-tab intent routing.
-- Query routing and result boosting so official, trusted, and relevant domains
-  can be prioritized.
-- DuckDuckGo autocomplete and fallback search paths for local development.
-- Optional YouTube media metadata and stream extraction through `yt-dlp`.
-- Optional Valkey/Redis-compatible caching and rate-limit support.
-- Locale, SafeSearch, UI preference, and engine configuration support.
+- Implemented search paths for web/general results, images, videos/music, news,
+  and frontend map, file, and social tabs that call the same `/api/search`
+  endpoint with category parameters.
+- Navar integration for conversational answers, URL/page scanning, Google Dork
+  generation, and multi-tab intent routing.
+- Query routing and result ranking/boosting across the active provider layer.
+- DuckDuckGo autocomplete with local fallback suggestions.
+- YouTube media search plus optional stream/download helpers through `yt-dlp`.
+- In-process search-response caching in the standalone Flask launcher; Valkey is
+  present as a dependency for lower-level compatibility modules, but this
+  launcher does not require an external Valkey/Redis service by default.
+- Browser-local UI preferences, privacy headers, and environment-based runtime
+  configuration.
 
 ## Core Features
 
@@ -46,21 +50,31 @@ that are ignored by Git.
 
 ### Navar AI Assistant
 
-Navar is the AI assistant layer inside Blend. It can:
+Navar is the assistant layer inside Blend. In the current code it can:
 
-- Create AI summaries from search results.
-- Route user intent to web, images, videos, news, maps, files, social, or AI
-  chat modes.
-- Scan and summarize URLs.
+- Build conversational answers from the query and the result context supplied by
+  the frontend/API call.
+- Route user intent to web, images, videos, news, maps, social, all-search, or
+  AI chat modes.
+- Scan URLs and summarize extracted page text.
 - Generate Google Dork-style advanced queries.
 - Answer Markanm and Blend-specific questions from the built-in knowledge base.
 
+LLM-backed responses depend on the configured provider/API settings. Without a
+working provider configuration, Navar falls back to deterministic routing, scan,
+and knowledge-base responses where available.
+
 ### Multi-Engine Search
 
-The backend contains a large source catalog for general search, media search,
-developer resources, packages, academic references, social platforms, maps,
-weather, and more. Engine behavior is controlled through YAML configuration and
-Python source modules under `backend/blend_core/sources/`.
+The standalone search path in `backend/app.py` uses `SearchRouter` and
+`ProviderManager` to select the active providers. In the current code, general
+web search uses Google/Brave providers, image search uses the Bing image
+provider, video and music search use the YouTube music provider, and news uses
+a Google News RSS path in the Flask launcher.
+
+The repository also contains SearxNG-derived `backend/blend_core/` modules and
+configuration for compatibility, but the custom frontend primarily talks to the
+standalone `/api/search` route.
 
 ### Custom Frontend
 
@@ -69,7 +83,8 @@ mobile-friendly, and focused on practical search workflows:
 
 - Home page with shortcuts, categories, privacy widgets, and search entry.
 - Results page with tabs for web, images, videos, news, maps, music, files,
-  social results, and AI chat.
+  social results, and AI chat. Some tabs are frontend workflows over the shared
+  search API rather than separate fully independent backend engines.
 - Privacy, about, and settings pages.
 - Frontend configuration in `frontend/templates/blend-config.js`.
 
@@ -115,7 +130,8 @@ are unavailable.
 │       └── blend-config.js
 ├── .env.example                   # Public environment template
 ├── admin_config.example.json      # Public API config template
-├── LICENSE                        # Apache License 2.0
+├── LICENSE                        # License summary and component notices
+├── LICENSES/                       # AGPL-3.0-or-later notice and Apache-2.0 text
 ├── README.md                      # This file
 └── README.rst                     # Package/readme compatibility file
 ```
@@ -193,9 +209,8 @@ GET  /ping                   # Health check
 
 ## Public Release Security
 
-This public release was prepared with a clean Git history and a single initial
-release commit. The repository includes only placeholder configuration for API
-keys and secrets.
+This public release is intended to include only placeholder configuration for
+API keys and secrets.
 
 Before publishing changes, run a local secret scan against the working tree and
 commit history. For example, use a tool such as `gitleaks`, `trufflehog`, or a
@@ -214,5 +229,24 @@ admin configuration, or secret-looking default values.
 
 ## License
 
-Copyright © 2026 Raj Singh / Markanm Team  
-Licensed under the [Apache License 2.0](LICENSE).
+Blend Engine preserves the licensing of its upstream roots and keeps Markanm's
+original work freely reusable:
+
+- **SearxNG-derived code, assets, data, and modifications to those parts** are
+  licensed under the **GNU Affero General Public License v3 or later
+  (AGPL-3.0-or-later)**. Blend Engine started as a SearxNG fork, so upstream
+  metasearch/runtime pieces and adapted SearxNG components keep that license.
+  See [`LICENSES/AGPL-3.0-or-later.txt`](LICENSES/AGPL-3.0-or-later.txt).
+- **Original Markanm-created, separable additions** are licensed under the
+  **Apache License 2.0**. This covers the parts developed by Raj Singh /
+  Markanm Team where they are independent original work, including the custom
+  Blend GUI/frontend, public pages, Navar AI assistant and knowledge layer,
+  music downloader/media helpers, custom map-search behavior, provider
+  integrations, privacy modes such as Ghost Mode/Tor helpers, branding, and
+  project documentation. See [`LICENSES/Apache-2.0.txt`](LICENSES/Apache-2.0.txt).
+- If a file has its own SPDX header or more specific license notice, that file's
+  specific notice controls for that file.
+
+Copyright © 2026 Raj Singh / Markanm Team for original Markanm contributions.
+SearxNG-derived portions retain their original upstream copyright and license
+notices.
