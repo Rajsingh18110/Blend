@@ -2,7 +2,7 @@
 # Blend Engine — by Markanm Team
 # https://markanm.com
 # -----------------------------------------------
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: AGPL-3.0-or-later AND Apache-2.0
 """Installer for Markanm package."""
 
 from setuptools import setup, find_packages
@@ -23,7 +23,7 @@ setup(
     name='markanm',
     description="Markanm is a metasearch engine. Users are neither tracked nor profiled.",
     long_description=long_description,
-    license="Apache-2.0",
+    license="AGPL-3.0-or-later AND Apache-2.0",
     author='Markanm',
     author_email='contact@markanm.org',
     python_requires=">=3.10",

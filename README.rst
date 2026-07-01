@@ -1,4 +1,4 @@
-.. SPDX-License-Identifier: Apache-2.0
+.. SPDX-License-Identifier: AGPL-3.0-or-later AND Apache-2.0
 
 Markanm Search
 ==============
@@ -43,7 +43,8 @@ Project notes
 -------------
 
 - Visible product-facing branding is Markanm.
-- The project is licensed under Apache-2.0.
+- SearxNG-derived components remain under AGPL-3.0-or-later.
+- Original separable Markanm additions remain under Apache-2.0.
 - This repository is being adapted as part of the Markanm Browser workspace in
   ``/home/kali/llm/blend_browser``.
 
@@ -51,5 +52,6 @@ License
 -------
 
 | Copyright 2026 Raj Singh / Markanm Team
-| Licensed under the Apache License, Version 2.0
-| https://www.apache.org/licenses/LICENSE-2.0
+| SearxNG-derived components: GNU AGPL v3 or later
+| Original separable Markanm additions: Apache License 2.0
+| See ``LICENSE`` and ``LICENSES/``.
