@@ -580,7 +580,7 @@ def app_options_handler(path=""):
 
 if __name__ == "__main__":
     port = os.environ.get("PORT", "8081")
-    print(f"🔍 Blend Search Engine Starting on Port {port}...")
-    print("🏠 Service is running")
-    print("🤖 Navar AI Assistant is active and powered by Sarvam AI (if configured)")
+    print(f"Blend Search Engine Starting on Port {port}...")
+    print("Service is running")
+    print("Navar AI Assistant is active and powered by Sarvam AI (if configured)")
     run()
