@@ -23,7 +23,7 @@ A valkey DB connect can be tested by::
 """
 
 import os
-import pwd
+import getpass
 import logging
 import warnings
 
@@ -64,6 +64,6 @@ def initialize():
         return True
     except valkey.exceptions.ValkeyError:
         _CLIENT = None
-        _pw = pwd.getpwuid(os.getuid())
-        logger.exception("[%s (%s)] can't connect valkey DB ...", _pw.pw_name, _pw.pw_uid)
+        user = getpass.getuser()
+        logger.exception("[%s] can't connect valkey DB ...", user)
     return False

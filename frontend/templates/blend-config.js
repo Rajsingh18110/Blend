@@ -8,7 +8,13 @@
     document.documentElement.setAttribute('data-theme', systemDark ? 'dark' : 'light');
   }
 
-  const defaultBackend = window.location.protocol === 'file:' ? 'http://127.0.0.1:8081' : '';
+  let defaultBackend = '';
+  if (window.location.protocol === 'file:') {
+    defaultBackend = 'http://127.0.0.1:8081';
+  } else if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '8081') {
+    // Allows UI development on a different port (like Live Server 5500) to still connect to the Python backend
+    defaultBackend = 'http://127.0.0.1:8081';
+  }
   const savedBackend = localStorage.getItem('blend_backend_url');
 
   window.BLEND_CONFIG = window.BLEND_CONFIG || {};
