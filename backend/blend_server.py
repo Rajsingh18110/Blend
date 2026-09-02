@@ -638,7 +638,7 @@ def rss_xsl():
 
 
 @app.route('/search', methods=['GET', 'POST'])
-def blend_search():
+def search():
     """Search query in q and return results.
 
     Supported outputs: html, json, csv, rss.

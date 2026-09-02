@@ -9,7 +9,7 @@ class BingProvider(BaseProvider):
     def __init__(self):
         self.handler = SearchRequestHandler()
         
-    async def search(self, query: str, use_tor: bool = False) -> List[Dict[str, Any]]:
+    async def search(self, query: str, use_tor: bool = False, language: str = "all", pageno: int = 1) -> List[Dict[str, Any]]:
         encoded_query = urllib.parse.quote(query)
         url = f"https://lite.qwant.com/?q={encoded_query}"
         responses = await self.handler.execute_parallel_requests([url], use_tor=use_tor)

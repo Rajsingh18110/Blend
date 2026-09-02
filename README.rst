@@ -31,7 +31,7 @@ Run the search service from this repository root:
 
 .. code-block:: bash
 
-   /home/kali/llm/blend/venv/bin/python -m blend.webapp
+   python3 backend/app.py
 
 Open the app at:
 

@@ -4,7 +4,7 @@ import abc
 
 class BaseProvider(abc.ABC):
     @abc.abstractmethod
-    async def search(self, query: str, use_tor: bool = False) -> List[Dict[str, Any]]:
+    async def search(self, query: str, use_tor: bool = False, language: str = "all", pageno: int = 1) -> List[Dict[str, Any]]:
         pass
         
     @abc.abstractmethod

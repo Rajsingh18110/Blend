@@ -228,6 +228,7 @@ async def api_search():
     
     blend_mode = request.args.get("mode", "fast")
     engines_to_force = request.args.get("engines", "")
+    language = request.args.get("language", "all")
 
     try:
         if category == "news":
@@ -239,17 +240,20 @@ async def api_search():
         from blend_engine.search_router import SearchRouter
         router = SearchRouter()
         use_tor = request.headers.get("X-Blend-Tor") == "1"
-        payload = await router.route(q, category=category, mode=blend_mode, engines=engines_to_force, use_tor=use_tor)
+        pageno = int(request.args.get("pageno") or 1)
+        payload = await router.route(q, category=category, mode=blend_mode, engines=engines_to_force, use_tor=use_tor, language=language, pageno=pageno)
         
         final_resp = jsonify(payload), 200
-        SEARCH_CACHE[cache_key] = (time.time(), final_resp)
+        if payload.get("number_of_results", 0) > 0:
+            SEARCH_CACHE[cache_key] = (time.time(), final_resp)
         return final_resp
     except Exception as e:
         from utils.logger import get_logger
         get_logger("app.api_search").error(f"Blend Engine failed: {e}", exc_info=True)
         fallback = _fallback_web_search(q, category, int(request.args.get("pageno") or 1))
         final_resp = jsonify(fallback), 200
-        SEARCH_CACHE[cache_key] = (time.time(), final_resp)
+        if fallback.get("number_of_results", 0) > 0:
+            SEARCH_CACHE[cache_key] = (time.time(), final_resp)
         return final_resp
 
 def _google_news_rss(q: str):
