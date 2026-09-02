@@ -117,9 +117,19 @@ class RankingEngine:
             penalty = self._compute_contradiction_penalty(result)
             
             div_score = 1.0
-            if host in seen_domains:
-                div_score -= 0.3
-            seen_domains.add(host)
+            
+            # Extract base domain for diversity penalty
+            base_domain = host
+            parts = host.split('.')
+            if len(parts) >= 2:
+                if parts[-2] in ["co", "ac", "gov", "edu", "org", "com", "net"] and len(parts) >= 3:
+                    base_domain = ".".join(parts[-3:])
+                else:
+                    base_domain = ".".join(parts[-2:])
+                    
+            if base_domain in seen_domains:
+                div_score -= 0.6  # Heavy penalty for multiple subdomains/pages from same base domain
+            seen_domains.add(base_domain)
             
             confidence = safe_float(result.get('source_confidence', 1.0))
             content_depth = safe_float(result.get('content_depth', 1.0))

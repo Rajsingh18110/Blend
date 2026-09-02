@@ -12,12 +12,20 @@ class SearchRouter:
         self.result_processor = ResultProcessor()
         self._deep_semaphore = asyncio.Semaphore(1)
 
-    async def route(self, query: str, category: str = "general", mode: str = "fast", engines: str = "", use_tor: bool = False) -> Dict[str, Any]:
+    async def route(self, query: str, category: str = "general", mode: str = "fast", engines: str = "", use_tor: bool = False, language: str = "all", pageno: int = 1) -> Dict[str, Any]:
         """Routes the search request to the appropriate providers."""
         providers = self.provider_manager.get_providers(category, engines)
         
-        # Execute providers in parallel
-        tasks = [p.search(query, use_tor=use_tor) for p in providers]
+        # Execute providers in parallel with a strict timeout for fast response
+        provider_timeout = 2.0 if mode == "fast" else 3.5
+        tasks = []
+        for p in providers:
+            if hasattr(p, "search") and "page" in p.search.__code__.co_varnames:
+                # Some legacy providers (like BingImageProvider) use 'page' instead of 'pageno'
+                tasks.append(asyncio.wait_for(p.search(query, use_tor=use_tor, language=language, page=pageno), timeout=provider_timeout))
+            else:
+                tasks.append(asyncio.wait_for(p.search(query, use_tor=use_tor, language=language, pageno=pageno), timeout=provider_timeout))
+                
         results = await asyncio.gather(*tasks, return_exceptions=True)
         
         all_results = []

@@ -27,7 +27,7 @@
       Blend<span class="dot" style="color:var(--accent)">.</span>
       <span class="powered">markanm</span>
     </a>
-    <div class="topbar-badge">Blend Search</div>
+
   </div>
   <div class="topbar-search">
     <span class="search-icon">⌕</span>
@@ -74,7 +74,7 @@
     <option>SafeSearch: Strict</option>
     <option>SafeSearch: Off</option>
   </select>
-  <span class="filter-pill" onclick="this.classList.toggle('active')">🇮🇳 India only</span>
+
 </div>
 
 <!-- PAGE BODY -->
@@ -131,7 +131,7 @@
       </div>
       <div class="img-grid" id="full-img-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px;"></div>
       <div style="margin-top:24px;text-align:center;">
-        <button onclick="loadMoreImages()" style="padding:10px 28px;background:var(--surface);border:1px solid var(--border2);color:var(--text2);border-radius:var(--radius-xl);cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text)';" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)';">📥 Load more images</button>
+        <button onclick="loadMoreImages()" id="img-load-more-btn" style="background:none;border:none;color:#8ab4f8;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;padding:10px;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">See more results <svg style="width:14px;height:14px;vertical-align:middle;margin-left:4px;" fill="currentColor" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></button>
       </div>
     </div>
 
@@ -205,41 +205,7 @@
 
   </main>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar-col">
-    <!-- About blend card -->
-    <div class="sidebar-card">
-      <div class="sidebar-logo">blend</div>
-      <p class="sidebar-desc">Blend is an AI-Powered Privacy Search Engine. No tracking, no ads profiling. Open-source powered results from multiple engines.</p>
-      <div class="sidebar-links">
-        <a href="about.html" class="sidebar-link"><span class="sidebar-link-dot"></span>About Blend</a>
-        <a href="privacy.html" class="sidebar-link"><span class="sidebar-link-dot"></span>Privacy policy</a>
-        <a href="https://markanm.com/contact" class="sidebar-link"><span class="sidebar-link-dot"></span>Contact / feedback</a>
-        <a href="settings.html" class="sidebar-link"><span class="sidebar-link-dot"></span>Settings</a>
-      </div>
-    </div>
 
-    <!-- Quick shortcuts -->
-    <div class="sidebar-card">
-      <p class="sidebar-section-title">Quick Shortcuts</p>
-      <div class="shortcut-grid">
-        <button class="shortcut-btn" onclick="switchTab('images')"><span class="shortcut-icon">🖼️</span>Images</button>
-        <button class="shortcut-btn" onclick="switchTab('videos')"><span class="shortcut-icon">🎬</span>Videos</button>
-        <button class="shortcut-btn" onclick="switchTab('news')"><span class="shortcut-icon">📰</span>News</button>
-        <button class="shortcut-btn"><span class="shortcut-icon">🇮🇳</span>India filter</button>
-        <button class="shortcut-btn"><span class="shortcut-icon">🌐</span>Hindi results</button>
-        <button class="shortcut-btn" onclick="switchTab('maps')"><span class="shortcut-icon">📍</span>Maps</button>
-      </div>
-    </div>
-
-    <!-- Related searches -->
-    <div class="sidebar-card">
-      <p class="sidebar-section-title">Related Searches</p>
-      <div class="related-list" id="related-list"></div>
-    </div>
-
-    <!-- Suggestions accordion removed per request -->
-  </aside>
 
 </div>
 
@@ -607,12 +573,11 @@ function siteLinksResultBlock(domain, results) {
   }
 
   const renderItem = (r) => `
-    <a href="${escapeHtml(r.url)}" target="${LINK_TARGET}" style="display:block; text-decoration:none; padding: 14px 0; border-top: 1px solid var(--border2); transition: background 0.2s; position:relative; group">
+    <a href="${escapeHtml(r.url)}" target="${LINK_TARGET}" style="display:block; text-decoration:none; padding: 6px 0 10px 0; transition: background 0.2s; position:relative; group">
        <div style="display:flex; align-items:center; justify-content:space-between;">
-         <h3 style="font-size:16px; color:var(--accent); margin:0; font-weight:500; text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${escapeHtml(r.title || getDomain(r.url))}</h3>
-         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+         <h3 style="font-size:16px; color:var(--link); margin:0; font-weight:500; text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${escapeHtml(r.title || getDomain(r.url))}</h3>
        </div>
-       <p style="font-size:13px; color:var(--text2); line-height:1.5; margin:6px 0 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; padding-right: 24px;">${escapeHtml(r.content || '')}</p>
+       <p style="font-size:13px; color:var(--text2); line-height:1.5; margin:4px 0 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${escapeHtml(r.content || '')}</p>
     </a>
   `;
 
@@ -645,13 +610,13 @@ function siteLinksResultBlock(domain, results) {
             const btn = this;
             if(el.style.display === 'none') {
                el.style.display = 'block';
-               btn.innerHTML = 'Show less <svg width=\\'16\\' height=\\'16\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'2\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' style=\\'margin-left:4px;\\'><polyline points=\\'18 15 12 9 6 15\\'></polyline></svg>';
+               btn.innerHTML = 'Show less <svg width=\\'14\\' height=\\'14\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'2\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' style=\\'margin-left:4px;\\'><polyline points=\\'18 15 12 9 6 15\\'></polyline></svg>';
             } else {
                el.style.display = 'none';
-               btn.innerHTML = 'More results from ${domain} <svg width=\\'16\\' height=\\'16\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'2\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' style=\\'margin-left:4px;\\'><polyline points=\\'6 9 12 15 18 9\\'></polyline></svg>';
+               btn.innerHTML = 'More results from ${domain} <svg width=\\'14\\' height=\\'14\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'2\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' style=\\'margin-left:4px;\\'><polyline points=\\'6 9 12 15 18 9\\'></polyline></svg>';
             }
-          " style="display:inline-flex; align-items:center; padding: 14px 0; border-top: 1px solid var(--border2); color:var(--text); font-size:14px; font-weight:500; background:none; border-bottom:none; border-left:none; border-right:none; cursor:pointer; width:100%; text-align:left;">
-            More results from ${domain} <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          " style="display:inline-flex; align-items:center; padding: 10px 0; color:var(--link); font-size:14px; font-weight:500; background:none; border:none; cursor:pointer; width:100%; text-align:left;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+            More results from ${domain} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </button>
           ` : ''}
         </div>` : ''}
@@ -903,7 +868,7 @@ async function renderImages(q) {
 function imageCard(img, idx) {
   return `
     <div style="position:relative; margin-bottom:16px; animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.05}s both; cursor:zoom-in; border-radius:12px; overflow:hidden; background:var(--surface); break-inside:avoid; transform:translateZ(0);" onclick="openLightbox('${(img.img_src || img.url || img.thumbnail_src || '').replace(/'/g, "\\'")}','${(img.title || '').replace(/'/g,"\\'")}')">
-      <img src="${img.img_src || img.thumbnail_src || img.url}" alt="${img.title || 'Image'}" loading="lazy" style="width:100%; height:auto; display:block; transition:transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%231a2340%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%235a6380%22 font-size=%2212%22%3EImage N/A%3C/text%3E%3C/svg%3E'" />
+      <img src="${img.img_src || img.thumbnail_src || img.url}" alt="${img.title || 'Image'}" loading="lazy" style="width:100%; height:auto; display:block; transition:transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);" onerror="this.parentElement.style.display='none';" />
       <div style="position:absolute;top:8px;left:8px;z-index:2;">${deepResultBadge(img)}</div>
       <div style="position:absolute; inset:0; background:rgba(0,0,0,0); transition:background 0.3s;" onmouseover="this.parentElement.querySelector('img').style.transform='scale(1.08)'; this.style.background='rgba(0,0,0,0.2)'" onmouseout="this.parentElement.querySelector('img').style.transform='scale(1)'; this.style.background='rgba(0,0,0,0)'"></div>
       <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); padding:12px; padding-top:24px; color:white; font-size:12px; font-weight:500; opacity:0; transition:opacity 0.3s; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onmouseover="this.style.opacity='1'; this.parentElement.querySelector('img').style.transform='scale(1.08)'" onmouseout="this.style.opacity='0'; this.parentElement.querySelector('img').style.transform='scale(1)'">${img.title || img.source || 'Image'}</div>
@@ -966,7 +931,7 @@ async function loadMoreImages() {
       }
     }
   } catch (e) { console.log('Load more images failed', e); }
-  if (btn) { btn.textContent = '📥 Load more images'; btn.disabled = false; }
+  if (btn) { btn.innerHTML = 'See more results <svg style="width:14px;height:14px;vertical-align:middle;margin-left:4px;" fill="currentColor" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>'; btn.disabled = false; }
 }
 
 function appendImages(images) {
@@ -1466,10 +1431,6 @@ async function renderFiles(q, engineFilter = '') {
       } else {
         params.set('engines', engineFilter);
       }
-    } else {
-      if (!searchQ.includes('filetype:') && !searchQ.includes('ext:')) {
-        searchQ = q + ' (filetype:pdf OR filetype:doc OR filetype:docx OR filetype:ppt OR filetype:xls OR filetype:txt OR filetype:csv)';
-      }
     }
     params.set('q', searchQ);
     
@@ -1564,9 +1525,6 @@ async function renderSocial(q) {
   el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text3);">👥 ' + (selectedSearchMode() === 'deep' ? 'Crawl4AI deep-searching social sources about ' : 'Loading social posts about ') + '"<strong>' + q + '</strong>"...</div>';
   try {
     let searchQ = q;
-    if (!searchQ.includes('site:')) {
-      searchQ += ' (site:reddit.com OR site:twitter.com OR site:linkedin.com OR site:github.com OR site:facebook.com OR site:instagram.com)';
-    }
     const params = new URLSearchParams({ q: searchQ, categories: 'social media', format: 'json' });
     applySearchModeParam(params);
     if (window.LANG_PARAM) params.set('language', window.LANG_PARAM.replace('&language=', ''));
@@ -1598,45 +1556,6 @@ async function renderSocial(q) {
     console.log('Backend social failed', e);
   }
   el.innerHTML = emptyState('👥', `No social results for "${q}"`, 'Try a username, brand name, or add a social platform keyword.', `renderSocial('${escapeJs(q)}')`);
-}
-
-async function renderRelated(q) {
-  const el = document.getElementById('related-list');
-  el.innerHTML = '<div style="padding:12px;color:var(--text3);text-align:center;font-size:12px;">🔍 Finding related searches...</div>';
-  
-  try {
-    const res = await fetch(API(`/autocompleter?q=${encodeURIComponent(q)}`));
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
-    if (data && Array.isArray(data[1]) && data[1].length > 0) {
-      el.innerHTML = data[1].map((r, idx) => {
-        const sources = ['Reddit', 'Quora', 'Twitter', 'Stack Overflow', 'Dev.to', 'GitHub Discussions'];
-        const source = sources[idx % sources.length];
-        return `
-        <a class="related-item" href="results.html?q=${encodeURIComponent(r)}&tab=web" style="animation: slideIn 0.2s ease ${idx * 0.04}s;animation-fill-mode:both;">
-          <span class="related-arrow">→</span><strong>${r}</strong><span style="font-size:10px;color:var(--text3);"> • ${source}</span>
-        </a>`;
-      }).join('');
-      return;
-    }
-  } catch (e) { 
-    console.log('Backend autocomplete failed, using generated data', e);
-  }
-  
-  // Smart related searches based on query
-  const relatedSearches = [
-    { term: q + ' github', source: 'GitHub' },
-    { term: q + ' tutorial', source: 'YouTube' },
-    { term: q + ' documentation', source: 'Stack Overflow' },
-    { term: q + ' best practices', source: 'Dev.to' },
-    { term: q + ' reddit', source: 'Reddit' },
-    { term: q + ' quora', source: 'Quora' },
-  ];
-  
-  el.innerHTML = relatedSearches.slice(0, 6).map((item, idx) => `
-    <a class="related-item" href="results.html?q=${encodeURIComponent(item.term)}&tab=web" style="animation: slideIn 0.2s ease ${idx * 0.04}s;animation-fill-mode:both;">
-      <span class="related-arrow">→</span>${item.term}<span style="font-size:10px;color:var(--text3);"> • ${item.source}</span>
-    </a>`).join('');
 }
 
 /* ── TAB SWITCHING ── */
@@ -1926,7 +1845,7 @@ async function blendFetchStream(url, ytId) {
       
       const frameContainer = document.getElementById('bp-video')?.parentElement;
       if (frameContainer) {
-        frameContainer.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${ytId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute;inset:0;"></iframe>`;
+        frameContainer.innerHTML = `<iframe width="100%" height="100%" src="https://yewtu.be/embed/${ytId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute;inset:0;background:#000;"></iframe>`;
       }
     } else {
       const errFallback = document.getElementById('bp-yt-fallback');
@@ -2102,7 +2021,7 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') { closeLightbox
   document.title = `${q} — Blend Search`;
   window.CURRENT_RESULTS = [];
   
-  renderWeb(q); renderRelated(q);
+  renderWeb(q);
   if (tab === 'images') renderImages(q);
   if (tab === 'videos') renderVideos(q);
   if (tab === 'news') renderNews(q);

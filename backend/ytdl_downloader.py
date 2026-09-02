@@ -35,7 +35,6 @@ def _build_download_options(quality, output_dir, file_id):
         'no_warnings': True,
         'geo_bypass': True,
         'nocheckcertificate': True,
-        'extractor_args': {'youtube': ['player_client=android']},
     }
 
     if quality == "audio":
@@ -140,7 +139,6 @@ def get_stream_info(url):
         'listformats': False,
         'geo_bypass': True,
         'nocheckcertificate': True,
-        'extractor_args': {'youtube': ['player_client=android']},
     }
 
     try:
@@ -278,7 +276,6 @@ def search_youtube(query, max_results=15):
         'ignoreerrors': True,
         'geo_bypass': True,
         'nocheckcertificate': True,
-        'extractor_args': {'youtube': ['player_client=android']},
     }
 
     results = []

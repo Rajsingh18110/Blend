@@ -5,6 +5,7 @@ from providers.brave_provider import BraveProvider
 from providers.crawl_provider import CrawlProvider
 from providers.bing_image_provider import BingImageProvider
 from providers.youtube_music_provider import YoutubeMusicProvider
+from providers.searxng_provider import SearxngProvider
 
 class ProviderManager:
     def __init__(self):
@@ -14,7 +15,8 @@ class ProviderManager:
             "brave": BraveProvider(),
             "crawl": CrawlProvider(),
             "bing_images": BingImageProvider(),
-            "youtube_music": YoutubeMusicProvider()
+            "youtube_music": YoutubeMusicProvider(),
+            "searxng": SearxngProvider()
         }
 
     def get_providers(self, category: str, engines_to_force: str) -> List[Any]:
@@ -30,4 +32,4 @@ class ProviderManager:
         elif category == "news":
             return [self.providers["google"], self.providers["bing"]]
         else:
-            return [self.providers["google"], self.providers["brave"]]
+            return [self.providers["searxng"], self.providers["google"], self.providers["brave"]]
