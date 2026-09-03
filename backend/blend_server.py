@@ -168,6 +168,57 @@ app.jinja_env.add_extension('jinja2.ext.loopcontrols')  # pylint: disable=no-mem
 app.jinja_env.filters['group_engines_in_tab'] = group_engines_in_tab  # pylint: disable=no-member
 app.secret_key = settings['server']['secret_key']
 
+# ── Custom Frontend Routes ──────────────────────────────────────────────────
+import os as _os
+from flask import send_from_directory as flask_send_from_directory
+_FRONTEND_TEMPLATES = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'frontend', 'templates')
+_FRONTEND_STATIC   = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'frontend', 'static')
+
+@app.route('/home')
+@app.route('/home/')
+def custom_index():
+    return flask_send_from_directory(_FRONTEND_TEMPLATES, 'index.html')
+
+@app.route('/home/<path:filename>')
+def custom_frontend_file(filename):
+    # First try templates dir, then static dir
+    if _os.path.isfile(_os.path.join(_FRONTEND_TEMPLATES, filename)):
+        return flask_send_from_directory(_FRONTEND_TEMPLATES, filename)
+    return flask_send_from_directory(_FRONTEND_STATIC, filename)
+
+# Root-level static assets (for index.html at /)
+@app.route('/style.css')
+def root_style():
+    return flask_send_from_directory(_FRONTEND_STATIC, 'style.css')
+
+@app.route('/blend-config.js')
+def root_blend_config():
+    return flask_send_from_directory(_FRONTEND_TEMPLATES, 'blend-config.js')
+
+# Serve all frontend HTML pages at root level (results.html, about.html, settings.html, etc.)
+@app.route('/<page>.html')
+def custom_html_page(page):
+    fname = page + '.html'
+    fpath = _os.path.join(_FRONTEND_TEMPLATES, fname)
+    if _os.path.isfile(fpath):
+        return flask_send_from_directory(_FRONTEND_TEMPLATES, fname)
+    return 'Page not found', 404
+
+# Serve any other root-level static file (js, css, images, etc.)
+@app.route('/static/<path:filename>')
+def custom_static_file(filename):
+    return flask_send_from_directory(_FRONTEND_STATIC, filename)
+
+# /api/search — JSON endpoint for frontend. Calls search() directly (no redirect).
+@app.route('/api/search', methods=['GET', 'POST'])
+def api_search_endpoint():
+    # Inject GET args into the request context so search() can read them
+    # by merging them into blend_request.args (already done via GET params)
+    # Just call the search function directly
+    return search()
+
+# ────────────────────────────────────────────────────────────────────────────
+
 
 def get_locale():
     locale = localeselector()
@@ -598,24 +649,11 @@ def index_error(output_format: str, error_message: str):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    """Render index page."""
-
-    # redirect to search if there's a query in the request
-    if blend_request.form.get('q'):
-        query = ('?' + blend_request.query_string.decode()) if blend_request.query_string else ''
-        return redirect(url_for('search') + query, 308)
-
-    return render(
-        # fmt: off
-        'index.html',
-        selected_categories=get_selected_categories(blend_request.preferences, blend_request.form),
-        current_locale = blend_request.preferences.get_value("locale"),
-        ai_mode = "fast",
-        ai_mode_choices = AI_MODE_CHOICES,
-        engine_scope = "markanm",
-        engine_scope_choices = ENGINE_SCOPE_CHOICES,
-        # fmt: on
-    )
+    """Serve custom Blend frontend homepage."""
+    q = blend_request.form.get('q') or blend_request.args.get('q', '')
+    if q:
+        return redirect(f'/home/results.html?q={q}&tab=web')
+    return flask_send_from_directory(_FRONTEND_TEMPLATES, 'index.html')
 
 
 @app.route('/healthz', methods=['GET'])
@@ -647,7 +685,8 @@ def search():
     # pylint: disable=too-many-statements
 
     # output_format
-    search_form = dict(blend_request.form.items())
+    # Read from both GET args and POST form (GET takes priority for API calls)
+    search_form = {**dict(blend_request.form.items()), **dict(blend_request.args.items())}
     ai_mode = normalize_ai_mode(search_form.get('ai_mode'))
     engine_scope = normalize_engine_scope(search_form.get('engine_scope'))
     selected_ui_category = selected_category(search_form)
