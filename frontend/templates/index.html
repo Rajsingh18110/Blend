@@ -258,27 +258,46 @@
     }
   });
 
+  // ── MOST VISITED SITES TRACKER ──────────────────────────────────
+  // Records visits to external links and surfaces the top ones as shortcuts.
+  // Format stored: { "https://github.com": { name:"GitHub", count:5 }, ... }
 
-  // Shortcuts
-  const DEFAULT_SHORTCUTS = [
-    { name: 'GitHub', url: 'https://github.com' },
-    { name: 'ChatGPT', url: 'https://chat.openai.com' },
-    { name: 'Claude', url: 'https://claude.ai' },
-    { name: 'WhatsApp Web', url: 'https://web.whatsapp.com' },
-    { name: 'YouTube', url: 'https://youtube.com' }
-  ];
-
-  function getShortcuts() {
-    try {
-      const stored = localStorage.getItem('blend_google_shortcuts');
-      if (stored) return JSON.parse(stored);
-    } catch(e) {}
-    return [...DEFAULT_SHORTCUTS];
+  function getVisitData() {
+    try { return JSON.parse(localStorage.getItem('blend_visit_data') || '{}'); } catch(e) { return {}; }
+  }
+  function recordVisit(url, name) {
+    const data = getVisitData();
+    if (!data[url]) data[url] = { name, count: 0 };
+    data[url].count++;
+    data[url].name = name;
+    localStorage.setItem('blend_visit_data', JSON.stringify(data));
+  }
+  function getMostVisited(limit = 8) {
+    const data = getVisitData();
+    return Object.entries(data)
+      .map(([url, info]) => ({ url, name: info.name, count: info.count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit);
+  }
+  function removeVisited(url) {
+    const data = getVisitData();
+    delete data[url];
+    localStorage.setItem('blend_visit_data', JSON.stringify(data));
+    renderShortcuts();
   }
 
-  function saveShortcuts(list) {
-    localStorage.setItem('blend_google_shortcuts', JSON.stringify(list));
+  // ── MANUAL SHORTCUTS (user can also pin sites manually) ──────────
+  function getManualShortcuts() {
+    try { return JSON.parse(localStorage.getItem('blend_manual_shortcuts') || '[]'); } catch(e) { return []; }
+  }
+  function saveManualShortcuts(list) {
+    localStorage.setItem('blend_manual_shortcuts', JSON.stringify(list));
     renderShortcuts();
+  }
+  function removeManualShortcut(e, url) {
+    e.preventDefault(); e.stopPropagation();
+    const list = getManualShortcuts().filter(s => s.url !== url);
+    saveManualShortcuts(list);
   }
 
   function getFavicon(urlStr) {
@@ -290,44 +309,54 @@
 
   function renderShortcuts() {
     const grid = document.getElementById('shortcuts-grid');
-    if(localStorage.getItem('blend_hide_shortcuts') === 'true') {
-      grid.style.display = 'none';
-      return;
-    }
-    grid.style.display = 'flex';
-    
-    const list = getShortcuts();
-    let html = '';
-    
-    list.forEach((s, idx) => {
-      html += `
-        <a href="${s.url}" class="shortcut-btn">
-          <div class="shortcut-icon-wrapper">
-            <img src="${getFavicon(s.url)}" alt="icon" onerror="this.style.display='none'" />
-          </div>
-          <button class="shortcut-menu-btn" onclick="removeShortcut(event, ${idx})" title="Remove shortcut">⋮</button>
-          <div class="shortcut-label">${s.name}</div>
-        </a>
-      `;
-    });
+    if (!grid) return;
 
-    if (list.length < 10) {
-      html += `
+    const manuals = getManualShortcuts();
+    const mostVisited = getMostVisited(8);
+
+    // Merge: manuals first, then most-visited (deduplicated)
+    const manualUrls = new Set(manuals.map(s => s.url));
+    const combined = [
+      ...manuals,
+      ...mostVisited.filter(s => !manualUrls.has(s.url))
+    ].slice(0, 10);
+
+    let html = '';
+
+    if (combined.length === 0) {
+      html = `
         <div class="shortcut-btn" onclick="openShortcutModal()">
-          <div class="shortcut-icon-wrapper" style="font-size:24px;color:var(--text);font-weight:300;">+</div>
+          <div class="shortcut-icon-wrapper" style="font-size:24px;color:var(--text3);font-weight:300;">+</div>
           <div class="shortcut-label">Add shortcut</div>
         </div>
       `;
+    } else {
+      combined.forEach(s => {
+        const isManual = manualUrls.has(s.url);
+        const removeAction = isManual
+          ? `removeManualShortcut(event, '${s.url.replace(/'/g,"\\'")}')` 
+          : `removeVisited('${s.url.replace(/'/g,"\\'")}')`;
+        html += `
+          <a href="${s.url}" class="shortcut-btn" onclick="recordVisit('${s.url.replace(/'/g,"\\'")}','${s.name.replace(/'/g,"\\'")}')">
+            <div class="shortcut-icon-wrapper">
+              <img src="${getFavicon(s.url)}" alt="icon" onerror="this.style.display='none'" />
+            </div>
+            <button class="shortcut-menu-btn" onclick="${removeAction}" title="Remove">⋮</button>
+            <div class="shortcut-label">${s.name}</div>
+          </a>
+        `;
+      });
+      if (combined.length < 10) {
+        html += `
+          <div class="shortcut-btn" onclick="openShortcutModal()">
+            <div class="shortcut-icon-wrapper" style="font-size:24px;color:var(--text3);font-weight:300;">+</div>
+            <div class="shortcut-label">Add shortcut</div>
+          </div>
+        `;
+      }
     }
     grid.innerHTML = html;
   }
-
-  function toggleShortcuts() {
-    const chk = document.getElementById('toggle-shortcuts').checked;
-    localStorage.setItem('blend_hide_shortcuts', chk ? 'false' : 'true');
-    renderShortcuts();
-  }
-  document.getElementById('toggle-shortcuts').checked = localStorage.getItem('blend_hide_shortcuts') !== 'true';
 
   function openShortcutModal() {
     document.getElementById('shortcut-name').value = '';
@@ -340,40 +369,26 @@
     let url = document.getElementById('shortcut-url').value.trim();
     if (!name || !url) return alert('Name and URL required');
     if (!url.startsWith('http')) url = 'https://' + url;
-    
-    const list = getShortcuts();
-    list.push({name, url});
-    saveShortcuts(list);
+    const list = getManualShortcuts();
+    if (!list.find(s => s.url === url)) { list.push({ name, url }); }
+    saveManualShortcuts(list);
     closeShortcutModal();
   }
-  function removeShortcut(e, idx) {
-    e.preventDefault();
-    e.stopPropagation();
-    const list = getShortcuts();
-    list.splice(idx, 1);
-    saveShortcuts(list);
-  }
 
-  // Recent Searches
+  // ── RECENT SEARCHES ──────────────────────────────────────────────
   function getRecentSearches() {
-    try {
-      const stored = localStorage.getItem('blend_recent_searches');
-      if (stored) return JSON.parse(stored);
-    } catch(e) {}
-    return [];
+    try { return JSON.parse(localStorage.getItem('blend_recent_searches') || '[]'); } catch(e) { return []; }
   }
   function addRecentSearch(q) {
-    if(!q) return;
-    let list = getRecentSearches();
-    list = list.filter(x => x.toLowerCase() !== q.toLowerCase());
+    if (!q) return;
+    let list = getRecentSearches().filter(x => x.toLowerCase() !== q.toLowerCase());
     list.unshift(q);
-    if(list.length > 8) list.pop();
+    if (list.length > 8) list.pop();
     localStorage.setItem('blend_recent_searches', JSON.stringify(list));
   }
   function removeRecentSearch(e, q) {
     e.preventDefault(); e.stopPropagation();
-    let list = getRecentSearches();
-    list = list.filter(x => x !== q);
+    const list = getRecentSearches().filter(x => x !== q);
     localStorage.setItem('blend_recent_searches', JSON.stringify(list));
     renderRecentSearches();
   }
@@ -381,7 +396,7 @@
     const box = document.getElementById('search-dropdown');
     const list = getRecentSearches();
     if (list.length === 0) {
-      box.innerHTML = `<div class="dropdown-item" style="color:var(--text3);font-style:italic;">No recent searches</div>`;
+      box.innerHTML = `<div class="dropdown-item" style="color:var(--text3);font-style:italic;padding:12px 20px;">No recent searches</div>`;
       return;
     }
     box.innerHTML = list.map(q => `
@@ -394,44 +409,20 @@
   }
 
   function submitSearch(q) {
-    if(q) {
+    if (q) {
       addRecentSearch(q);
       window.location.href = 'results.html?q=' + encodeURIComponent(q);
     }
   }
-
   function doSearch(e) {
     e.preventDefault();
     const q = document.getElementById('hero-input').value.trim();
     if (q) submitSearch(q);
   }
 
-  // Theme & Colors
-  const COLORS = [
-    '#8ab4f8', '#81c995', '#f28b82', '#fdd663', 
-    '#c58af9', '#fcad70', '#74ebd5', '#ffffff'
-  ];
-  function renderColors() {
-    const grid = document.getElementById('color-grid');
-    grid.innerHTML = COLORS.map(c => `
-      <div class="color-circle" style="background:${c};" onclick="setAccentColor('${c}')"></div>
-    `).join('');
-  }
-  function setAccentColor(color) {
-    document.documentElement.style.setProperty('--accent', color);
-    localStorage.setItem('blend_accent', color);
-  }
-  function setThemeMode(mode) {
-    // Add logic for light/dark
-    alert('Theme switched to ' + mode);
-  }
-
-  // Init
-  const storedAccent = localStorage.getItem('blend_accent');
-  if(storedAccent) document.documentElement.style.setProperty('--accent', storedAccent);
-  
+  // ── INIT ──────────────────────────────────────────────────────────
   renderShortcuts();
-  renderColors();
+  
 </script>
 </body>
 </html>
