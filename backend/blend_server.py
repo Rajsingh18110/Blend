@@ -196,13 +196,17 @@ def root_blend_config():
     return flask_send_from_directory(_FRONTEND_TEMPLATES, 'blend-config.js')
 
 # Serve all frontend HTML pages at root level (results.html, about.html, settings.html, etc.)
+# NOTE: /api/ routes are registered BEFORE this, so they take priority.
 @app.route('/<page>.html')
 def custom_html_page(page):
+    # Never serve /api/* as HTML — return clean 404
+    if page.startswith('api'):
+        return flask_jsonify({'error': 'Not found', 'path': f'/{page}.html'}), 404
     fname = page + '.html'
     fpath = _os.path.join(_FRONTEND_TEMPLATES, fname)
     if _os.path.isfile(fpath):
         return flask_send_from_directory(_FRONTEND_TEMPLATES, fname)
-    return 'Page not found', 404
+    return flask_send_from_directory(_FRONTEND_TEMPLATES, 'index.html')  # SPA fallback
 
 # Serve any other root-level static file (js, css, images, etc.)
 @app.route('/static/<path:filename>')
@@ -212,11 +216,113 @@ def custom_static_file(filename):
 # /api/search — JSON endpoint for frontend. Calls search() directly (no redirect).
 @app.route('/api/search', methods=['GET', 'POST'])
 def api_search_endpoint():
-    # Inject GET args into the request context so search() can read them
-    # by merging them into blend_request.args (already done via GET params)
-    # Just call the search function directly
     return search()
 
+# ── /api/stream — yt-dlp se real playable stream URL extract karo ─────────────
+@app.route('/api/stream', methods=['GET'])
+def api_stream():
+    """Extract real playable stream URLs from YouTube/any URL via yt-dlp."""
+    import sys
+    sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    url = blend_request.args.get('url', '').strip()
+    if not url:
+        return flask_jsonify({'success': False, 'error': 'No URL provided'}), 400
+    try:
+        from ytdl_downloader import get_stream_info
+        info = get_stream_info(url)
+        return flask_jsonify(info)
+    except Exception as e:
+        return flask_jsonify({'success': False, 'error': str(e)}), 500
+
+# ── /api/smart_download — yt-dlp se download karke file serve karo ───────────
+@app.route('/api/smart_download', methods=['GET'])
+def api_smart_download():
+    """Downloads a video/audio via yt-dlp then streams it to the user."""
+    import sys
+    sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    url = blend_request.args.get('url', '').strip()
+    quality = blend_request.args.get('quality', 'best')
+    if not url:
+        return 'No URL provided', 400
+    try:
+        from ytdl_downloader import download_video
+        file_path = download_video(url, quality)
+    except Exception as exc:
+        return f'Download failed: {exc}', 500
+    if not file_path or not _os.path.exists(file_path):
+        return 'Download failed: yt-dlp did not return a file path.', 500
+    from flask import send_file as flask_send_file
+    return flask_send_file(file_path, as_attachment=True,
+                           download_name=_os.path.basename(file_path))
+
+# ── /api/proxy_download — Direct stream proxy (bypass IP locks) ───────────────
+@app.route('/api/proxy_download', methods=['GET'])
+def api_proxy_download():
+    """Proxies a stream URL as a download response."""
+    url = blend_request.args.get('url', '').strip()
+    title = blend_request.args.get('title', 'Blend_Download')
+    ext = blend_request.args.get('ext', 'mp4')
+    if not url:
+        return 'No URL provided', 400
+    try:
+        import requests as _req
+        r = _req.get(url, stream=True, timeout=15,
+                     headers={'User-Agent': 'Mozilla/5.0'})
+        headers = {
+            'Content-Disposition': f'attachment; filename="{title}.{ext}"',
+            'Content-Type': r.headers.get('Content-Type', 'application/octet-stream'),
+        }
+        if 'Content-Length' in r.headers:
+            headers['Content-Length'] = r.headers['Content-Length']
+        def _gen():
+            for chunk in r.iter_content(chunk_size=8192):
+                if chunk:
+                    yield chunk
+        return flask.Response(_gen(), headers=headers)
+    except Exception as e:
+        return f'Proxy download failed: {e}', 500
+
+# ── /api/downloads_list — Downloaded files ki list ───────────────────────────
+@app.route('/api/downloads_list', methods=['GET'])
+def api_downloads_list():
+    downloads_dir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'downloads')
+    if not _os.path.exists(downloads_dir):
+        return flask_jsonify({'files': []})
+    files_data = []
+    for fname in _os.listdir(downloads_dir):
+        fp = _os.path.join(downloads_dir, fname)
+        if _os.path.isfile(fp):
+            size_mb = round(_os.path.getsize(fp) / (1024 * 1024), 2)
+            files_data.append({'name': fname, 'path': fp, 'size': f'{size_mb} MB'})
+    return flask_jsonify({'files': files_data})
+
+# ── /api/ai — AI chat endpoint ────────────────────────────────────────────────
+@app.route('/api/ai', methods=['POST'])
+def api_ai_endpoint():
+    try:
+        from navar_knowledge import build_ai_response
+        data = blend_request.get_json(force=True, silent=True) or {}
+        query = str(data.get('query') or data.get('message') or '').strip()[:500]
+        if not query:
+            return flask_jsonify({'message': 'Query cannot be empty'}), 400
+        results = (data.get('results') or [])[:10]
+        shortcuts = data.get('shortcuts') or []
+        mode = data.get('mode') or 'fast'
+        current_tab = data.get('current_tab', 'web')
+        current_url = data.get('current_url', '')
+        return flask_jsonify(build_ai_response(
+            query, results, shortcuts, mode,
+            current_tab=current_tab, current_url=current_url
+        ))
+    except Exception as exc:
+        return flask_jsonify({'message': f'AI error: {exc}'}), 500
+
+# ── /ping — Health check ──────────────────────────────────────────────────────
+@app.route('/ping', methods=['GET'])
+def api_ping():
+    return flask_jsonify({'status': 'ok', 'server': 'blend_server'})
+
+from flask import jsonify as flask_jsonify
 # ────────────────────────────────────────────────────────────────────────────
 
 

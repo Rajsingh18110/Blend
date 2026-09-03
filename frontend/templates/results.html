@@ -1843,9 +1843,10 @@ async function blendFetchStream(url, ytId) {
       const errFallback = document.getElementById('bp-yt-fallback');
       if (errFallback && url) errFallback.href = url;
       
+      // Use piped.video instead of yewtu.be (no Cloudflare challenge)
       const frameContainer = document.getElementById('bp-video')?.parentElement;
       if (frameContainer) {
-        frameContainer.innerHTML = `<iframe width="100%" height="100%" src="https://yewtu.be/embed/${ytId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute;inset:0;background:#000;"></iframe>`;
+        frameContainer.innerHTML = `<iframe width="100%" height="100%" src="https://piped.video/embed/${ytId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute;inset:0;background:#000;"></iframe>`;
       }
     } else {
       const errFallback = document.getElementById('bp-yt-fallback');
@@ -1913,28 +1914,97 @@ function blendDownload(quality) {
 
 
 
-/* ── REAL EMBEDDED MUSIC PLAYER SYSTEM ── */
+/* ── MUSIC PLAYER SYSTEM — Option C: yt-dlp → piped.video → YouTube link ── */
 window.MUSIC_INDEX = -1;
 
-function playMusicTrack(idx) {
+async function playMusicTrack(idx) {
   if (!window.MUSIC_QUEUE || !window.MUSIC_QUEUE[idx]) return;
   window.MUSIC_INDEX = idx;
   const track = window.MUSIC_QUEUE[idx];
-  document.getElementById('mp-title').textContent = track.title;
-  document.getElementById('music-player').classList.add('show');
-  
-  // Real embedded playback using YouTube iframe
   const ytId = track.id;
-  if (ytId) {
-    const playerContainer = document.getElementById('mp-player-container');
-    if (!playerContainer) {
-      const container = document.createElement('div');
-      container.id = 'mp-player-container';
-      container.style.cssText = 'width:100%; height:80px; margin-top:8px; border-radius:8px; overflow:hidden;';
-      document.getElementById('music-player').insertBefore(container, document.getElementById('music-player').lastElementChild);
-    }
-    document.getElementById('mp-player-container').innerHTML = `<iframe width="100%" height="80" src="https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+  const ytUrl = ytId ? `https://www.youtube.com/watch?v=${ytId}` : track.url;
+
+  // Update player UI
+  document.getElementById('mp-title').textContent = track.title || 'Playing...';
+  document.getElementById('music-player').classList.add('show');
+
+  // Ensure player container exists
+  let container = document.getElementById('mp-player-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'mp-player-container';
+    container.style.cssText = 'width:100%;margin-top:8px;border-radius:8px;overflow:hidden;background:#111;';
+    const mp = document.getElementById('music-player');
+    mp.insertBefore(container, mp.lastElementChild);
   }
+
+  // Show loading state
+  container.innerHTML = `<div style="padding:12px 16px;font-size:13px;color:#aaa;display:flex;align-items:center;gap:8px;">
+    <span style="display:inline-block;width:14px;height:14px;border:2px solid #555;border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;"></span>
+    Loading stream...
+  </div>`;
+
+  // ── Step 1: Try yt-dlp /api/stream for real audio URL ──
+  if (ytUrl) {
+    try {
+      const streamRes = await fetch(API(`/api/stream?url=${encodeURIComponent(ytUrl)}`),
+        { signal: AbortSignal.timeout(12000) });
+      if (streamRes.ok) {
+        const streamData = await streamRes.json();
+        // Find best audio-only stream
+        const audioStreams = (streamData.streams || []).filter(s =>
+          s.ext === 'm4a' || s.ext === 'mp3' || s.ext === 'webm' ||
+          (s.mime && s.mime.startsWith('audio'))
+        );
+        const bestStream = audioStreams[0] || streamData.streams?.[0];
+        const streamUrl = bestStream?.url || streamData.best_stream;
+
+        if (streamUrl) {
+          // ✅ HTML5 <audio> playback — no iframes, no Cloudflare
+          container.innerHTML = `
+            <audio id="mp-audio" controls autoplay style="width:100%;border-radius:8px;background:#1a1a1a;">
+              <source src="${streamUrl}" type="${bestStream?.mime || 'audio/mp4'}">
+              Your browser does not support audio playback.
+            </audio>
+            <div style="padding:8px 12px;display:flex;gap:10px;align-items:center;">
+              ${ ytUrl ? `<a href="${ytUrl}" target="_blank" style="font-size:12px;color:#4da6ff;text-decoration:none;">▶ Open on YouTube</a>` : '' }
+              ${ ytUrl ? `<button onclick="downloadMusic('${ytUrl}','bestaudio')" style="font-size:12px;padding:4px 10px;border:1px solid #444;border-radius:6px;background:none;color:#ccc;cursor:pointer;">⬇ Download</button>` : '' }
+            </div>`;
+          document.getElementById('mp-audio')?.play().catch(() => {});
+          return; // ✅ Done
+        }
+      }
+    } catch (e) {
+      console.warn('yt-dlp stream failed, trying piped.video:', e);
+    }
+  }
+
+  // ── Step 2: Fallback — piped.video embed (no Cloudflare) ──
+  if (ytId) {
+    container.innerHTML = `
+      <div style="position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:8px;overflow:hidden;">
+        <iframe width="100%" height="100%"
+          src="https://piped.video/embed/${ytId}?autoplay=1"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          style="position:absolute;inset:0;"
+        ></iframe>
+      </div>
+      <div style="padding:8px 12px;display:flex;gap:10px;align-items:center;">
+        <a href="${ytUrl}" target="_blank" style="font-size:12px;color:#4da6ff;text-decoration:none;">▶ Open on YouTube</a>
+        <button onclick="downloadMusic('${ytUrl}','bestaudio')" style="font-size:12px;padding:4px 10px;border:1px solid #444;border-radius:6px;background:none;color:#ccc;cursor:pointer;">⬇ Download</button>
+        <span style="font-size:11px;color:#888;margin-left:auto;">via piped.video</span>
+      </div>`;
+    return;
+  }
+
+  // ── Step 3: Last resort — just show YouTube link ──
+  container.innerHTML = `
+    <div style="padding:16px;text-align:center;">
+      <p style="color:#aaa;font-size:14px;margin:0 0 10px;">Could not load stream automatically.</p>
+      ${ ytUrl ? `<a href="${ytUrl}" target="_blank" style="padding:8px 20px;background:#ff0000;color:#fff;border-radius:8px;text-decoration:none;font-size:14px;">▶ Open on YouTube</a>` : '<p style="color:#666;">No playback source available.</p>' }
+    </div>`;
 }
 
 function nextMusic() {
@@ -1952,7 +2022,12 @@ function prevMusic() {
 function closeMusicPlayer() {
   document.getElementById('music-player').classList.remove('show');
   const container = document.getElementById('mp-player-container');
-  if (container) container.innerHTML = ''; // Stop playback
+  if (container) {
+    // Stop audio playback
+    const audio = container.querySelector('audio');
+    if (audio) { audio.pause(); audio.src = ''; }
+    container.innerHTML = '';
+  }
 }
 
 /* ── SEARCH ── */
