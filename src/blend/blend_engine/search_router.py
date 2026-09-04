@@ -44,12 +44,12 @@ class SearchRouter:
                 "language": language,
                 "pageno": pageno,
             }
-            # Use the declared class flag instead of fragile co_varnames introspection (P0-7)
             if getattr(p, "supports_category", False):
                 kwargs["category"] = category
                     
             tasks.append(asyncio.create_task(_time_provider(p, kwargs)))
                 
+        # P0-5: Return partial results.
         done, pending = await asyncio.wait(tasks, timeout=budget)
         
         for task in pending:
@@ -69,6 +69,7 @@ class SearchRouter:
             except Exception as e:
                 errors.append(f"TaskError: {str(e)}")
                 
+        # P0-12: Deduplication. We just want to merge without losing results
         unique_results = self.result_processor.deduplicate(all_results)
         ranked_results = self.ranking_engine.rank_results(unique_results, query)
         
@@ -77,7 +78,7 @@ class SearchRouter:
             try:
                 from blend.scrapers.crawl4ai_wrapper import Crawl4AIWrapper
                 crawler = Crawl4AIWrapper()
-                budget = {'count': 0}
+                crawl_budget = {'count': 0}
                 
                 rate_limiter = None
                 try:
@@ -90,7 +91,7 @@ class SearchRouter:
                 async with self._deep_semaphore:
                     visited = set()
                     crawl_tasks = [
-                        self._crawl_recursive(crawler, rate_limiter, visited, res.get('url', ''), depth=1, budget=budget)
+                        self._crawl_recursive(crawler, rate_limiter, visited, res.get('url', ''), depth=1, budget=crawl_budget)
                         for res in top_results
                     ]
                     crawled_data = await asyncio.gather(*crawl_tasks, return_exceptions=True)
@@ -105,6 +106,9 @@ class SearchRouter:
             finally:
                 if crawler:
                     await crawler.close()
+        
+        # P0-11: Result Count debugging output
+        print(f"[DEBUG-COUNTS] category={category}, raw_providers={len(all_results)}, dedup={len(unique_results)}, ranked={len(ranked_results)}")
         
         return {
             "query": query,

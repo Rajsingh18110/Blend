@@ -5,7 +5,7 @@ from blend.providers.brave_provider import BraveProvider
 from blend.providers.crawl_provider import CrawlProvider
 from blend.providers.bing_image_provider import BingImageProvider
 from blend.providers.youtube_music_provider import YoutubeMusicProvider
-from blend.providers.searxng_provider import SearxngProvider
+from blend.providers.blend_core_provider import BlendCoreProvider
 
 class ProviderManager:
     def __init__(self):
@@ -16,7 +16,7 @@ class ProviderManager:
             "crawl": CrawlProvider(),
             "bing_images": BingImageProvider(),
             "youtube_music": YoutubeMusicProvider(),
-            "searxng": SearxngProvider()
+            "blend_core": BlendCoreProvider()
         }
 
     def get_providers(self, category: str, engines_to_force: str) -> List[Any]:
@@ -25,11 +25,15 @@ class ProviderManager:
             selected = [self.providers[e] for e in engine_names if e in self.providers]
             if selected: return selected
             
+        core_provider = self.providers["blend_core"]
+        
+        # P0-4: Do NOT keep custom providers by default.
+        # Fallback providers are only added if native coverage is insufficient or notoriously unstable.
         if category == "images":
-            return [self.providers["bing_images"]]
+            return [core_provider, self.providers["bing_images"]]
         elif category in ("music", "videos"):
-            return [self.providers["youtube_music"]]
+            return [core_provider, self.providers["youtube_music"]]
         elif category == "news":
-            return [self.providers["google"], self.providers["bing"]]
+            return [core_provider, self.providers["google"], self.providers["bing"]]
         else:
-            return [self.providers["searxng"], self.providers["google"]]
+            return [core_provider, self.providers["google"]]

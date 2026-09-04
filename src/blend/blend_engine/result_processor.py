@@ -62,53 +62,41 @@ class ResultProcessor:
     @staticmethod
     def deduplicate(results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        Cognitive Cross-Source Validation & Confidence Amplification.
-        Merges results based on title/content similarity, not just URLs.
+        P0-12: Deduplication.
+        Primary duplicate identity: normalized canonical URL.
+        Do NOT aggressively remove results merely because title or snippet is similar.
+        Different URLs should remain different results unless there is strong evidence they represent the exact same resource.
         """
         fused_clusters = []
+        seen_urls = {}
         
         for res in results:
-            bypass_sources = {'Bing Images', 'YouTube Music', 'YouTube'}
-            if res.get('source') in bypass_sources:
-                res['cross_source_agreement'] = 1.0
-                res['content_depth'] = 1.0
-                if 'source_confidence' not in res:
-                    res['source_confidence'] = 1.0
+            url = res.get('url', '')
+            if not url:
                 fused_clusters.append(res)
                 continue
-
-            title = res.get('title', '')
-            content = res.get('content', '')
-            url = res.get('url', '')
-            
-            merged = False
-            for cluster in fused_clusters:
-                # Check semantic overlap (similarity > 0.4) or identical URL
-                title_sim = ResultProcessor._compute_similarity(title, cluster.get('title', ''))
-                content_sim = ResultProcessor._compute_similarity(content, cluster.get('content', ''))
                 
-                if title_sim > 0.4 or content_sim > 0.5 or url == cluster.get('url'):
-                    # Merge into existing cluster
-                    cluster['cross_source_agreement'] += 1.0
-                    cluster['source_confidence'] = max(cluster.get('source_confidence', 0), res.get('source_confidence', 0))
-                    
-                    if res.get('source', '') not in cluster.get('source', ''):
-                        cluster['source'] = cluster.get('source', '') + f", {res.get('source', '')}"
-                        
-                    # Expand content depth if new snippet provides more text
-                    if content and cluster.get('content') is not None and content not in cluster['content'] and len(content) > 30:
-                        cluster['content'] += " ... " + content
-                        cluster['content_depth'] += 1.0
-                        
-                    merged = True
-                    break
-                    
-            if not merged:
-                # Initialize new cluster node
+            clean_url = ResultProcessor.clean_url(url).lower()
+            
+            if clean_url in seen_urls:
+                # Exact URL match -> Merge
+                cluster = seen_urls[clean_url]
+                cluster['cross_source_agreement'] = cluster.get('cross_source_agreement', 1.0) + 1.0
+                cluster['source_confidence'] = max(cluster.get('source_confidence', 0), res.get('source_confidence', 0))
+                
+                engine_name = res.get('engine') or res.get('source', '')
+                if engine_name and engine_name not in cluster.get('source', ''):
+                    cluster['source'] = cluster.get('source', '') + f", {engine_name}"
+            else:
+                # New URL -> Keep
                 res['cross_source_agreement'] = 1.0
                 res['content_depth'] = 1.0
                 if 'source_confidence' not in res:
                     res['source_confidence'] = 1.0
+                if 'engine' in res and 'source' not in res:
+                    res['source'] = res['engine']
+                
+                seen_urls[clean_url] = res
                 fused_clusters.append(res)
                 
         return fused_clusters
