@@ -291,7 +291,7 @@ document.head.appendChild(styleSheet);
    BLEND STATE — Request deduplication, in-flight tracking, cache
    These MUST be defined before any render function is called.
    ────────────────────────────────────────────────────────────── */
-window.BLEND_STATE = window.BLEND_STATE || { cache: {}, inFlight: {} };
+window.BLEND_STATE = window.BLEND_STATE || { cache: {}, inFlight: {}, abortControllers: {}, renderTokens: {}, renderCounters: {} };
 
 function getStateKey(tab, q, extra = '') {
   const params = new URLSearchParams(window.location.search);
@@ -300,7 +300,19 @@ function getStateKey(tab, q, extra = '') {
   return `${tab}::${String(q).trim()}::${pageno}::${mode}${extra ? '::' + extra : ''}`;
 }
 
-let globalAbortController = null;
+function nextRenderToken(scope) {
+  const state = window.BLEND_STATE;
+  state.renderCounters = state.renderCounters || {};
+  state.renderCounters[scope] = (state.renderCounters[scope] || 0) + 1;
+  state.renderTokens = state.renderTokens || {};
+  state.renderTokens[scope] = state.renderCounters[scope];
+  return state.renderCounters[scope];
+}
+
+function isLatestRender(scope, token) {
+  const state = window.BLEND_STATE;
+  return !!state.renderTokens && state.renderTokens[scope] === token;
+}
 
 async function fetchWithCache(url, cacheKey) {
   const cached = window.BLEND_STATE.cache[cacheKey];
@@ -310,12 +322,10 @@ async function fetchWithCache(url, cacheKey) {
     return window.BLEND_STATE.inFlight[cacheKey];
   }
 
-  if (globalAbortController) {
-    globalAbortController.abort();
-  }
-  globalAbortController = new AbortController();
+  const controller = new AbortController();
+  window.BLEND_STATE.abortControllers[cacheKey] = controller;
 
-  const promise = fetch(url, { signal: globalAbortController.signal })
+  const promise = fetch(url, { signal: controller.signal })
     .then(r => {
       if (!r.ok) throw new Error(`HTTP ${r.status} from ${url}`);
       return r.json();
@@ -328,6 +338,7 @@ async function fetchWithCache(url, cacheKey) {
     })
     .finally(() => {
       delete window.BLEND_STATE.inFlight[cacheKey];
+      delete window.BLEND_STATE.abortControllers[cacheKey];
     });
 
   window.BLEND_STATE.inFlight[cacheKey] = promise;
@@ -693,6 +704,7 @@ function emptyState(icon, title, desc, retryCallback = null) {
 async function renderWeb(q) {
   const el = document.getElementById('web-results');
   const statsEl = document.getElementById('web-stats');
+  const renderToken = nextRenderToken('web');
   const startedAt = performance.now();
   const mode = selectedSearchMode();
   const modeParam = searchModeQueryPart();
@@ -722,6 +734,7 @@ async function renderWeb(q) {
     
     // Check if we already have this specific fetch in-flight (using our wrapper)
     const data = await fetchWithCache(mainUrl, cacheKey);
+    if (!isLatestRender('web', renderToken)) return;
     
     // Display errors if any
     const errorsEl = document.getElementById('errors-container');
@@ -900,6 +913,7 @@ function extractYtId(url) {
 async function renderImages(q) {
   const el = document.getElementById('full-img-grid');
   const statsEl = document.getElementById('img-stats');
+  const renderToken = nextRenderToken('images');
   const modePart = searchModeQueryPart();
   showDeepSearchPending('images', q);
   
@@ -914,6 +928,7 @@ async function renderImages(q) {
     const cacheKey = getStateKey('images', q);
     const imgUrl = API(`/api/search?q=${encodeURIComponent(q)}&categories=images&pageno=1&format=json${modePart}${window.LANG_PARAM || ''}`);
     const data = await fetchWithCache(imgUrl, cacheKey);
+    if (!isLatestRender('images', renderToken)) return;
     updateDeepSearchPanel(data, 'images');
     if (data.results && data.results.length > 0) {
       window.allImages = boostByUrl(q, data.results);
@@ -1022,6 +1037,7 @@ async function renderVideos(q) {
   const el = document.getElementById('full-videos');
   const statsEl = document.getElementById('video-stats');
   const loadMoreWrap = document.getElementById('video-load-more-wrap');
+  const renderToken = nextRenderToken('videos');
   const modePart = searchModeQueryPart();
   showDeepSearchPending('videos', q);
   
@@ -1037,6 +1053,7 @@ async function renderVideos(q) {
     const cacheKey = getStateKey('videos', q);
     const videoUrl = API(`/api/search?q=${encodeURIComponent(q)}&categories=videos&format=json${modePart}${window.LANG_PARAM || ''}`);
     const data = await fetchWithCache(videoUrl, cacheKey);
+    if (!isLatestRender('videos', renderToken)) return;
     updateDeepSearchPanel(data, 'videos');
     let results = data.results || [];
     
@@ -1097,6 +1114,7 @@ async function loadMoreVideos() {
 }
 async function renderNews(q) {
   const el = document.getElementById('news-list');
+  const renderToken = nextRenderToken('news');
   const modePart = searchModeQueryPart();
   showDeepSearchPending('news', q);
   el.innerHTML = '<div style="grid-column: 1/-1; padding:40px;text-align:center;color:var(--text3);"><div class="loading-spinner"></div><div>' + (selectedSearchMode() === 'deep' ? 'Crawl4AI verifying news pages for ' : 'Fetching live updates for ') + '<strong>' + escapeHtml(q) + '</strong>...</div></div>';
@@ -1104,6 +1122,7 @@ async function renderNews(q) {
     const cacheKey = getStateKey('news', q);
     const newsUrl = API(`/api/search?q=${encodeURIComponent(q)}&categories=news&format=json${modePart}${window.LANG_PARAM || ''}`);
     const data = await fetchWithCache(newsUrl, cacheKey);
+    if (!isLatestRender('news', renderToken)) return;
     updateDeepSearchPanel(data, 'news');
     if (data.results && data.results.length > 0) {
       const results = boostByUrl(q, data.results);
@@ -1349,12 +1368,14 @@ function switchMapMode(mode, encodedQ, lat, lon) {
 
 async function renderMusic(q) {
   const el = document.getElementById('music-list');
+  const renderToken = nextRenderToken('music');
   const searchQ = q || 'Top Trending Music';
   el.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text3);"><div class="loading-spinner" style="margin:0 auto 16px;"></div><div>Loading ${q ? `music for "<strong>${escapeHtml(searchQ)}</strong>"` : '🔥 Real-time Trending Music'}...</div></div>`;
   try {
     const cacheKey = getStateKey('music', searchQ);
     const musicUrl = API(`/api/search?q=${encodeURIComponent(searchQ)}&categories=music&format=json`);
     const data = await fetchWithCache(musicUrl, cacheKey);
+    if (!isLatestRender('music', renderToken)) return;
     if (data.results && data.results.length > 0) {
             window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['music'] = data.results;
@@ -1500,6 +1521,8 @@ async function downloadMusic(url, quality = 'best') {
 async function renderFiles(q, engineFilter = '') {
   const el = document.getElementById('files-list');
   const statsEl = document.getElementById('files-stats');
+  const renderToken = nextRenderToken('files');
+  const startTime = performance.now();
   showDeepSearchPending('files', q);
   
   el.innerHTML = '<div style="padding:40px;text-align:center;grid-column:1/-1;color:var(--text3);"><span style="display:inline-block;animation:pulse 1s infinite;">🔍 Fetching Open-Web Documents...</span></div>';
@@ -1523,6 +1546,7 @@ async function renderFiles(q, engineFilter = '') {
     const cacheKey = getStateKey('files', searchQ);
     const filesUrl = API(`/api/search?${params.toString()}`);
     const data = await fetchWithCache(filesUrl, cacheKey);
+    if (!isLatestRender('files', renderToken)) return;
     updateDeepSearchPanel(data, 'files');
     const timeTaken = ((performance.now() - startTime) / 1000).toFixed(2);
     
@@ -1606,6 +1630,7 @@ function filterFiles(engine) {
 
 async function renderSocial(q) {
   const el = document.getElementById('social-list');
+  const renderToken = nextRenderToken('social');
   showDeepSearchPending('social', q);
   el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text3);">👥 ' + (selectedSearchMode() === 'deep' ? 'Crawl4AI deep-searching social sources about ' : 'Loading social posts about ') + '"<strong>' + q + '</strong>"...</div>';
   try {
@@ -1616,6 +1641,7 @@ async function renderSocial(q) {
     const cacheKey = getStateKey('social', searchQ);
     const socialUrl = API(`/api/search?${params.toString()}`);
     const data = await fetchWithCache(socialUrl, cacheKey);
+    if (!isLatestRender('social', renderToken)) return;
     updateDeepSearchPanel(data, 'social');
     if (data.results && data.results.length > 0) {
       const results = boostByUrl(q, data.results);
