@@ -45,7 +45,7 @@ class SearchRouter:
         if mode == "deep":
             crawler = None
             try:
-                from scrapers.crawl4ai_wrapper import Crawl4AIWrapper
+                from blend.scrapers.crawl4ai_wrapper import Crawl4AIWrapper
                 crawler = Crawl4AIWrapper()
                 budget = {'count': 0}
                 
