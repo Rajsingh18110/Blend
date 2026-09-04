@@ -284,20 +284,55 @@ def download_video(url, quality="best"):
 
     file_id = str(uuid.uuid4())[:8]
     ydl_opts = _build_download_options(quality, output_dir, file_id)
+    # Normalize requested quality and build a fallback chain so we don't
+    # abort immediately when a specific format isn't available for a video.
+    q_norm = normalize_download_quality(quality)
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            file_path = _resolve_download_path(output_dir, file_id, info, ydl)
-            if not file_path:
-                raise RuntimeError(
-                    f"yt-dlp finished but no output file was found for quality='{quality}'. "
-                    "Try a lower quality or install ffmpeg for merged downloads."
-                )
-            return file_path
-    except Exception as e:
-        print(f"Download error: {e}")
-        raise RuntimeError(f"Download failed: {e}") from e
+    # Build fallback order: prefer requested quality, then more permissive options.
+    fallbacks = []
+    if q_norm in ("4k", "1080p", "720p", "360p"):
+        fallbacks = [q_norm, "best", "720p", "360p", "best"]
+    elif q_norm == "audio":
+        fallbacks = ["audio", "best"]
+    else:
+        fallbacks = [q_norm, "best"]
+
+    last_exc = None
+    attempted = []
+    for attempt_q in fallbacks:
+        if attempt_q in attempted:
+            continue
+        attempted.append(attempt_q)
+        ydl_opts = _build_download_options(attempt_q, output_dir, file_id)
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=True)
+                file_path = _resolve_download_path(output_dir, file_id, info, ydl)
+                if not file_path:
+                    # No output file; try next fallback
+                    print(f"yt-dlp finished but no output file found for quality='{attempt_q}'")
+                    last_exc = RuntimeError(
+                        f"yt-dlp finished but no output file was found for quality='{attempt_q}'.")
+                    continue
+                return file_path
+        except Exception as e:
+            # Common yt-dlp message when a format is missing includes
+            # 'Requested format is not available' — we should retry with
+            # looser format selection instead of failing hard.
+            print(f"Download attempt failed (quality={attempt_q}): {e}")
+            last_exc = e
+            # Continue to next fallback
+            continue
+
+    # If we reach here, all fallbacks failed — raise a helpful error.
+    msg = (
+        f"Download failed: tried qualities {attempted}. "
+        "If this persists, run yt-dlp with --list-formats to inspect available formats, "
+        "or try a different quality (e.g., '720p' or 'best')."
+    )
+    if last_exc:
+        msg = msg + f" Last error: {str(last_exc)}"
+    raise RuntimeError(msg)
 
 
 def search_youtube(query, max_results=15):

@@ -141,7 +141,8 @@
         </div>
       </div>
       <div class="img-grid" id="full-img-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px;"></div>
-      <div style="margin-top:24px;text-align:center;">
+      <div id="img-load-more-wrap" style="margin-top:24px;text-align:center;">
+        <button id="img-back-btn" onclick="prevImagePage()" style="display:none;margin-right:12px;padding:8px 14px;background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:8px;cursor:pointer;font-size:13px;">← Back</button>
         <button onclick="loadMoreImages()" id="img-load-more-btn" style="background:none;border:none;color:#8ab4f8;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;padding:10px;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">See more results <svg style="width:14px;height:14px;vertical-align:middle;margin-left:4px;" fill="currentColor" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></button>
       </div>
     </div>
@@ -298,6 +299,14 @@ function getStateKey(tab, q, extra = '') {
   const pageno = params.get('pageno') || '1';
   const mode = document.getElementById('mode-select')?.value || 'fast';
   return `${tab}::${String(q).trim()}::${pageno}::${mode}${extra ? '::' + extra : ''}`;
+}
+
+// Tab-level cache key that ignores page number. Used to decide whether
+// a tab has already rendered this query (so returning to a tab won't
+// trigger a refetch just because another tab changed the URL page param).
+function getTabKey(tab, q) {
+  const mode = document.getElementById('mode-select')?.value || 'fast';
+  return `${tab}::${String(q).trim()}::${mode}`;
 }
 
 function nextRenderToken(scope) {
@@ -700,6 +709,61 @@ function emptyState(icon, title, desc, retryCallback = null) {
     </div>`;
 }
 
+/* ── BACKGROUND SEQUENTIAL LOADER ──
+   Enqueue and process section loads one-by-one after the All/web tab
+   finishes initial render. This reduces concurrent requests and keeps
+   the visible tab responsive. The queue cancels if the user navigates
+   away or the query changes.
+*/
+function enqueueBackgroundSectionLoads(sections, q) {
+  window.BLEND_STATE = window.BLEND_STATE || {};
+  window.BLEND_STATE.loadQueue = window.BLEND_STATE.loadQueue || [];
+  window.BLEND_STATE.loadQueueActive = true;
+  sections.forEach(s => {
+    try {
+      const tabEl = document.getElementById('tab-' + s);
+      const tabKey = getTabKey(s, q);
+      const cacheKey = getStateKey(s, q);
+      // skip if already rendered or cached
+      if (tabEl && tabEl.dataset && tabEl.dataset.renderedKey === tabKey) return;
+      if (window.BLEND_STATE.cache && window.BLEND_STATE.cache[cacheKey]) return;
+      window.BLEND_STATE.loadQueue.push({ section: s, q });
+    } catch (e) { /* ignore */ }
+  });
+  if (!window.BLEND_STATE._processingLoadQueue) processBackgroundLoadQueue(q);
+}
+
+async function processBackgroundLoadQueue(origQ) {
+  if (window.BLEND_STATE._processingLoadQueue) return;
+  window.BLEND_STATE._processingLoadQueue = true;
+  while (window.BLEND_STATE.loadQueue && window.BLEND_STATE.loadQueue.length && window.BLEND_STATE.loadQueueActive) {
+    const item = window.BLEND_STATE.loadQueue.shift();
+    if (!item) break;
+    // stop if user left the All tab or query changed
+    const active = window._activeTab || currentTabName();
+    if (active !== 'web') break;
+    const currentQ = document.getElementById('top-search')?.value?.trim() || new URLSearchParams(window.location.search).get('q') || sessionStorage.getItem('blend_q') || '';
+    if (currentQ !== origQ) break;
+    try {
+      if (item.section === 'images') await renderImages(item.q);
+      else if (item.section === 'videos') await renderVideos(item.q);
+      else if (item.section === 'news') await renderNews(item.q);
+      else if (item.section === 'maps') await renderMapPlaces(item.q);
+      else if (item.section === 'music') await renderMusic(item.q);
+      else if (item.section === 'files') await renderFiles(item.q);
+      else if (item.section === 'social') await renderSocial(item.q);
+    } catch (e) {
+      console.log('Background load failed for', item.section, e);
+    }
+    // gentle inter-load delay to reduce contention
+    await new Promise(r => setTimeout(r, 350));
+  }
+  window.BLEND_STATE._processingLoadQueue = false;
+  window.BLEND_STATE.loadQueueActive = false;
+  window.BLEND_STATE.loadQueue = [];
+}
+
+
 /* ── RENDER FUNCTIONS ── */
 async function renderWeb(q) {
   const el = document.getElementById('web-results');
@@ -932,12 +996,19 @@ async function renderImages(q) {
     updateDeepSearchPanel(data, 'images');
     if (data.results && data.results.length > 0) {
       window.allImages = boostByUrl(q, data.results);
+      window._imgPageSize = data.results.length || 30;
             window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['images'] = window.allImages;
       window.allImages.forEach(img => window._seenImgUrls.add(img.img_src || img.url));
       statsEl.innerHTML = `About ${data.results.length.toLocaleString()} image results · ${searchModeLabel(selectedSearchMode())}`;
-      displayImages(window.allImages);
+      // Initially show only the first page worth of images
+      displayImages(window.allImages.slice(0, window._imgPageSize * window._imgPage));
       document.getElementById('tab-images').dataset.renderedKey = cacheKey;
+      // Show controls
+      const loadWrap = document.getElementById('img-load-more-wrap');
+      if (loadWrap) loadWrap.style.display = 'block';
+      const backBtn = document.getElementById('img-back-btn');
+      if (backBtn) backBtn.style.display = 'none';
       return;
     }
   } catch (e) { 
@@ -947,14 +1018,16 @@ async function renderImages(q) {
   window.allImages = [];
   statsEl.innerHTML = 'No image results';
   el.innerHTML = emptyState('🖼️', `No images for "${q}"`, 'Try a more visual search phrase or check image engines.', `renderImages('${escapeJs(q)}')`);
+  const loadWrap = document.getElementById('img-load-more-wrap');
+  if (loadWrap) loadWrap.style.display = 'none';
 }
 
 function imageCard(img, idx) {
   const gridImg = img.thumbnail_src || img.img_src || img.url || '';
   const lightboxImg = img.img_src || img.url || img.thumbnail_src || '';
   return `
-    <div style="position:relative; margin-bottom:16px; animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.05}s both; cursor:zoom-in; border-radius:12px; overflow:hidden; background:var(--surface); break-inside:avoid; transform:translateZ(0);" onclick="openLightbox('${lightboxImg.replace(/'/g, "\\'")}','${(img.title || '').replace(/'/g,"\\'")}')">
-      <img src="${gridImg}" fetchpriority="${idx < 4 ? 'high' : 'auto'}" alt="${(img.title || 'Image').replace(/"/g, '&quot;')}" loading="lazy" style="width:100%; height:auto; display:block; transition:transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);" onerror="this.parentElement.style.display='none';" />
+    <div style="position:relative; margin-bottom:16px; animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${Math.min(idx,6)*0.02}s both; cursor:zoom-in; border-radius:12px; overflow:hidden; background:var(--surface); break-inside:avoid; transform:translateZ(0);" onclick="openLightbox('${lightboxImg.replace(/'/g, "\\'")}','${(img.title || '').replace(/'/g,"\\'")}')">
+      <img src="${gridImg}" fetchpriority="${idx < 4 ? 'high' : 'auto'}" alt="${(img.title || 'Image').replace(/"/g, '&quot;')}" loading="lazy" style="width:100%; aspect-ratio:16/9; object-fit:cover; display:block; transition:transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);" onerror="this.closest('div').remove();" />
       <div style="position:absolute;top:8px;left:8px;z-index:2;">${deepResultBadge(img)}</div>
       <div style="position:absolute; inset:0; background:rgba(0,0,0,0); transition:background 0.3s;" onmouseover="this.parentElement.querySelector('img').style.transform='scale(1.08)'; this.style.background='rgba(0,0,0,0.2)'" onmouseout="this.parentElement.querySelector('img').style.transform='scale(1)'; this.style.background='rgba(0,0,0,0)'"></div>
       <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); padding:12px; padding-top:24px; color:white; font-size:12px; font-weight:500; opacity:0; transition:opacity 0.3s; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onmouseover="this.style.opacity='1'; this.parentElement.querySelector('img').style.transform='scale(1.08)'" onmouseout="this.style.opacity='0'; this.parentElement.querySelector('img').style.transform='scale(1)'">${img.title || img.source || 'Image'}</div>
@@ -1014,6 +1087,9 @@ async function loadMoreImages() {
         appendImages(newImgs);
         const statsEl = document.getElementById('img-stats');
         if (statsEl) statsEl.innerHTML = `About ${window.allImages.length.toLocaleString()} image results · Page ${window._imgPage}`;
+        // Show back button for page > 1
+        const backBtn = document.getElementById('img-back-btn');
+        if (backBtn) backBtn.style.display = window._imgPage > 1 ? 'inline-block' : 'none';
       }
     }
   } catch (e) { console.log('Load more images failed', e); }
@@ -1031,6 +1107,19 @@ function appendImages(images) {
     fragment.appendChild(wrapper.firstElementChild);
   });
   el.appendChild(fragment);
+}
+
+function prevImagePage() {
+  if (!window._imgPage || window._imgPage <= 1) return;
+  // Move back one page by slicing already-fetched images and redisplaying
+  window._imgPage = Math.max(1, window._imgPage - 1);
+  const pageSize = window._imgPageSize || 30;
+  const visible = (window.allImages || []).slice(0, pageSize * window._imgPage);
+  displayImages(visible);
+  const statsEl = document.getElementById('img-stats');
+  if (statsEl) statsEl.innerHTML = `About ${visible.length.toLocaleString()} image results · Page ${window._imgPage}`;
+  const backBtn = document.getElementById('img-back-btn');
+  if (backBtn) backBtn.style.display = window._imgPage > 1 ? 'inline-block' : 'none';
 }
 
 async function renderVideos(q) {
@@ -1685,20 +1774,28 @@ function switchTab(tab, btn) {
   url.searchParams.set('tab', tab);
   history.replaceState({}, '', url);
 
+  // track active tab for background-load cancellation
+  window._activeTab = tab;
+
   const q = document.getElementById('top-search')?.value?.trim() || new URLSearchParams(window.location.search).get('q') || sessionStorage.getItem('blend_q') || '';
   if (!q) return;
 
   // Query+Tab State Isolation & In-flight request deduplication
   const cacheKey = getStateKey(tab, q);
-  
-  if (tabContent && tabContent.dataset.renderedKey === cacheKey) {
-      return; // Already rendered this exact query for this tab
+  const tabKey = getTabKey(tab, q);
+
+  // If we've already rendered this tab for the same query (ignoring page
+  // number), skip re-rendering — this prevents visiting other tabs from
+  // causing the current tab to refetch when URL pageno changes.
+  if (tabContent && tabContent.dataset.renderedKey === tabKey) {
+    return;
   }
+
   if (window.BLEND_STATE.inFlight[cacheKey]) {
-      return; // Already fetching this exact query for this tab
+    return; // Already fetching this exact query for this tab+page
   }
-  
-  if(tabContent) tabContent.dataset.renderedKey = cacheKey;
+
+  if (tabContent) tabContent.dataset.renderedKey = tabKey;
 
   if (tab === 'web') renderWeb(q);
   if (tab === 'images') renderImages(q);
@@ -1708,6 +1805,19 @@ function switchTab(tab, btn) {
   if (tab === 'music') renderMusic(q);
   if (tab === 'files') renderFiles(q);
   if (tab === 'social') renderSocial(q);
+
+  // If the user opened the All/web tab, start background sequential loads
+  // of other sections (only if we are still on the same query).
+  if (tab === 'web') {
+    const bgSections = ['images', 'videos', 'news', 'maps', 'music', 'files', 'social'];
+    enqueueBackgroundSectionLoads(bgSections, q);
+  } else {
+    // cancel pending background loads when user navigates away
+    if (window.BLEND_STATE && window.BLEND_STATE.loadQueueActive) {
+      window.BLEND_STATE.loadQueueActive = false;
+      window.BLEND_STATE.loadQueue = [];
+    }
+  }
 }
 
 /* ── LIGHTBOX ── */
