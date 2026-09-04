@@ -300,27 +300,28 @@ function getStateKey(tab, q, extra = '') {
   return `${tab}::${String(q).trim()}::${pageno}::${mode}${extra ? '::' + extra : ''}`;
 }
 
+let globalAbortController = null;
+
 async function fetchWithCache(url, cacheKey) {
-  // Return cached data immediately if available and non-empty
   const cached = window.BLEND_STATE.cache[cacheKey];
   if (cached) return cached;
 
-  // Deduplicate concurrent identical requests — return the same promise
   if (window.BLEND_STATE.inFlight[cacheKey]) {
     return window.BLEND_STATE.inFlight[cacheKey];
   }
 
-  const promise = fetch(url)
+  if (globalAbortController) {
+    globalAbortController.abort();
+  }
+  globalAbortController = new AbortController();
+
+  const promise = fetch(url, { signal: globalAbortController.signal })
     .then(r => {
       if (!r.ok) throw new Error(`HTTP ${r.status} from ${url}`);
       return r.json();
     })
     .then(data => {
-      // Only cache healthy non-empty responses (P0-13: never cache empty failures)
-      if (data && (
-        (Array.isArray(data.results) && data.results.length > 0) ||
-        (Array.isArray(data.answers) && data.answers.length > 0)
-      )) {
+      if (data && ((Array.isArray(data.results) && data.results.length > 0) || (Array.isArray(data.answers) && data.answers.length > 0))) {
         window.BLEND_STATE.cache[cacheKey] = data;
       }
       return data;
@@ -770,8 +771,7 @@ async function renderWeb(q) {
     ]);
     
     window.CURRENT_RESULTS = dedupeResults([...officialResults, ...boostedGeneral]);
-    window.BLEND_STATE.cache[cacheKey] = window.CURRENT_RESULTS; // Store globally
-    window.SECTION_CACHE = window.SECTION_CACHE || {};
+        window.SECTION_CACHE = window.SECTION_CACHE || {};
     window.SECTION_CACHE['web'] = window.CURRENT_RESULTS;
     
     if (window.CURRENT_RESULTS.length > 0) {
@@ -793,7 +793,7 @@ async function renderWeb(q) {
           .map((r, idx) => resultCard(r, idx + priorityGeneral.length))
           .join('');
       renderPagination();
-      
+      document.getElementById('tab-web').dataset.renderedKey = cacheKey;
       // BACKGROUND SITE ENRICHMENT
       if (cardDomain) {
           const siteUrl = API(`/api/search?q=${encodeURIComponent('site:' + cardDomain)}&pageno=${pageno}&format=json${window.LANG_PARAM || ''}`);
@@ -917,12 +917,12 @@ async function renderImages(q) {
     updateDeepSearchPanel(data, 'images');
     if (data.results && data.results.length > 0) {
       window.allImages = boostByUrl(q, data.results);
-      window.BLEND_STATE.cache[cacheKey] = window.allImages;
-      window.SECTION_CACHE = window.SECTION_CACHE || {};
+            window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['images'] = window.allImages;
       window.allImages.forEach(img => window._seenImgUrls.add(img.img_src || img.url));
       statsEl.innerHTML = `About ${data.results.length.toLocaleString()} image results · ${searchModeLabel(selectedSearchMode())}`;
       displayImages(window.allImages);
+      document.getElementById('tab-images').dataset.renderedKey = cacheKey;
       return;
     }
   } catch (e) { 
@@ -939,7 +939,7 @@ function imageCard(img, idx) {
   const lightboxImg = img.img_src || img.url || img.thumbnail_src || '';
   return `
     <div style="position:relative; margin-bottom:16px; animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.05}s both; cursor:zoom-in; border-radius:12px; overflow:hidden; background:var(--surface); break-inside:avoid; transform:translateZ(0);" onclick="openLightbox('${lightboxImg.replace(/'/g, "\\'")}','${(img.title || '').replace(/'/g,"\\'")}')">
-      <img src="${gridImg}" alt="${(img.title || 'Image').replace(/"/g, '&quot;')}" loading="lazy" style="width:100%; height:auto; display:block; transition:transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);" onerror="this.parentElement.style.display='none';" />
+      <img src="${gridImg}" fetchpriority="${idx < 4 ? 'high' : 'auto'}" alt="${(img.title || 'Image').replace(/"/g, '&quot;')}" loading="lazy" style="width:100%; height:auto; display:block; transition:transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);" onerror="this.parentElement.style.display='none';" />
       <div style="position:absolute;top:8px;left:8px;z-index:2;">${deepResultBadge(img)}</div>
       <div style="position:absolute; inset:0; background:rgba(0,0,0,0); transition:background 0.3s;" onmouseover="this.parentElement.querySelector('img').style.transform='scale(1.08)'; this.style.background='rgba(0,0,0,0.2)'" onmouseout="this.parentElement.querySelector('img').style.transform='scale(1)'; this.style.background='rgba(0,0,0,0)'"></div>
       <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); padding:12px; padding-top:24px; color:white; font-size:12px; font-weight:500; opacity:0; transition:opacity 0.3s; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onmouseover="this.style.opacity='1'; this.parentElement.querySelector('img').style.transform='scale(1.08)'" onmouseout="this.style.opacity='0'; this.parentElement.querySelector('img').style.transform='scale(1)'">${img.title || img.source || 'Image'}</div>
@@ -1044,14 +1044,14 @@ async function renderVideos(q) {
     const seen = window._seenVideoUrls;
     results = results.filter(v => { if (seen.has(v.url)) return false; seen.add(v.url); return true; });
     results = boostByUrl(q, results);
-    window.BLEND_STATE.cache[cacheKey] = results;
-    window.SECTION_CACHE = window.SECTION_CACHE || {};
+        window.SECTION_CACHE = window.SECTION_CACHE || {};
     window.SECTION_CACHE['videos'] = results;
     
     if (results.length > 0) {
       if (statsEl) statsEl.textContent = `About ${results.length} video results · ${searchModeLabel(selectedSearchMode())}`;
       el.innerHTML = results.map((v, idx) => videoCard(v, idx)).join('');
       if (loadMoreWrap) loadMoreWrap.style.display = 'block';
+      document.getElementById('tab-videos').dataset.renderedKey = cacheKey;
       return;
     }
   } catch (e) { 
@@ -1107,8 +1107,7 @@ async function renderNews(q) {
     updateDeepSearchPanel(data, 'news');
     if (data.results && data.results.length > 0) {
       const results = boostByUrl(q, data.results);
-      window.BLEND_STATE.cache[cacheKey] = results;
-      window.SECTION_CACHE = window.SECTION_CACHE || {};
+            window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['news'] = results;
       document.getElementById('news-stats').textContent = `Top ${results.length} stories for "${q}" · ${searchModeLabel(selectedSearchMode())}`;
       el.innerHTML = results.map((n, idx) => `
@@ -1126,6 +1125,7 @@ async function renderNews(q) {
             </div>
           </div>
         </div>`).join('');
+      document.getElementById('tab-news').dataset.renderedKey = cacheKey;
       return;
     }
   } catch (e) { 
@@ -1318,8 +1318,7 @@ async function renderMapPlaces(q) {
     const data = await fetchWithCache(mapUrl, cacheKey);
     const listEl = document.getElementById('map-results-list');
     if (data.results?.length) {
-      window.BLEND_STATE.cache[cacheKey] = data.results;
-      window.SECTION_CACHE = window.SECTION_CACHE || {};
+            window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['maps'] = data.results;
       listEl.innerHTML = `<p style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">📍 Nearby Places</p>` +
         data.results.slice(0, 8).map(p => `
@@ -1331,6 +1330,7 @@ async function renderMapPlaces(q) {
               ${p.content ? `<div style="font-size:12px;color:var(--text3);margin-top:2px;line-height:1.4;">${escapeHtml(p.content.slice(0,120))}</div>` : ''}
             </div>
           </div>`).join('');
+      document.getElementById('tab-maps').dataset.renderedKey = cacheKey;
     } else {
       listEl.innerHTML = '';
     }
@@ -1356,8 +1356,7 @@ async function renderMusic(q) {
     const musicUrl = API(`/api/search?q=${encodeURIComponent(searchQ)}&categories=music&format=json`);
     const data = await fetchWithCache(musicUrl, cacheKey);
     if (data.results && data.results.length > 0) {
-      window.BLEND_STATE.cache[cacheKey] = data.results;
-      window.SECTION_CACHE = window.SECTION_CACHE || {};
+            window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['music'] = data.results;
       window.MUSIC_QUEUE = data.results.map(m => ({
         title: m.title,
@@ -1434,6 +1433,7 @@ async function renderMusic(q) {
             Load More Results
           </button>
         </div>`;
+      document.getElementById('tab-music').dataset.renderedKey = cacheKey;
       return;
     }
   } catch (e) {
@@ -1531,8 +1531,7 @@ async function renderFiles(q, engineFilter = '') {
       
       const fileExtRegex = /\.(pdf|docx?|xlsx?|pptx?|txt|csv|json|md|py|js|html)$/i;
       
-      window.BLEND_STATE.cache[cacheKey] = data.results;
-      window.SECTION_CACHE = window.SECTION_CACHE || {};
+            window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['files'] = data.results;
       el.innerHTML = data.results.map((r, idx) => {
         let domain = r.parsed_url ? r.parsed_url[1].replace('www.', '') : (r.source || 'File');
@@ -1620,8 +1619,7 @@ async function renderSocial(q) {
     updateDeepSearchPanel(data, 'social');
     if (data.results && data.results.length > 0) {
       const results = boostByUrl(q, data.results);
-      window.BLEND_STATE.cache[cacheKey] = results;
-      window.SECTION_CACHE = window.SECTION_CACHE || {};
+            window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['social'] = results;
       const platformColors = { 'reddit':'#ff6314', 'twitter':'#1da1f2', 'mastodon':'#6364ff', 'github':'#333', 'facebook':'#4267b2', 'linkedin':'#0077b5', 'dev.to':'#0a0a0a' };
       el.innerHTML = results.map((s, idx) => {

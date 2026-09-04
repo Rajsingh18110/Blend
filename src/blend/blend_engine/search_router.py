@@ -37,7 +37,9 @@ class SearchRouter:
                 return p, e
 
         tasks = []
+        task_to_provider = {}
         for p in providers:
+            # Wrap provider.search with budget tracking
             kwargs = {
                 "query": query,
                 "use_tor": use_tor,
@@ -47,20 +49,28 @@ class SearchRouter:
             if getattr(p, "supports_category", False):
                 kwargs["category"] = category
                     
-            tasks.append(asyncio.create_task(_time_provider(p, kwargs)))
+            task = asyncio.create_task(_time_provider(p, kwargs))
+            tasks.append(task)
+            task_to_provider[task] = p.__class__.__name__
                 
         # P0-5: Return partial results.
         done, pending = await asyncio.wait(tasks, timeout=budget)
         
+        import logging
+        logger = logging.getLogger("blend.search_router")
         for task in pending:
             task.cancel() # Cancel slow providers that exceeded the budget
+            provider_name = task_to_provider.get(task, "UnknownProvider")
+            logger.warning(f"ProviderTimeout: {provider_name} exceeded {budget}s budget and was cancelled. Note: Native executor threads may still be running in background.")
             
         all_results = []
         errors = []
+        raw_native_count = 0
         for task in done:
             try:
                 p, res = task.result()
                 if isinstance(res, list):
+                    raw_native_count += len(res)
                     normalized = [p.normalize(r) for r in res]
                     all_results.extend(normalized)
                 elif isinstance(res, Exception):
@@ -107,8 +117,10 @@ class SearchRouter:
                 if crawler:
                     await crawler.close()
         
-        # P0-11: Result Count debugging output
-        print(f"[DEBUG-COUNTS] category={category}, raw_providers={len(all_results)}, dedup={len(unique_results)}, ranked={len(ranked_results)}")
+        # P0-10 & P0-11: Full Telemetry
+        telemetry_msg = f"[DEBUG-COUNTS] category={category}, native_raw={raw_native_count}, normalized={len(all_results)}, dedup={len(unique_results)}, ranked={len(ranked_results)}, API_return={len(ranked_results)}"
+        print(telemetry_msg)
+        logger.info(telemetry_msg)
         
         return {
             "query": query,
