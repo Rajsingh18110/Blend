@@ -66,7 +66,7 @@ def main():
         with open(get_pid_file(), 'w') as f:
             f.write(str(os.getpid()))
         os.environ['BLEND_EMBEDDED_BACKEND'] = '1'
-        from blend.server import app
+        from blend.app import app
         import logging
         logging.getLogger('werkzeug').disabled = True
         app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False)

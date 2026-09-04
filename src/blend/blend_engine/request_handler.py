@@ -46,7 +46,7 @@ class SearchRequestHandler:
             proxy = tor.get_proxy_url()
 
         try:
-            from utils.security import is_safe_url
+            from blend.utils.security import is_safe_url
             is_safe, resolved_ip = is_safe_url(url, resolve_dns=not use_tor)
             if not is_safe:
                 return ""

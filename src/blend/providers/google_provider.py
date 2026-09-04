@@ -3,7 +3,7 @@ from .base_provider import BaseProvider
 from typing import Dict, Any, List
 from bs4 import BeautifulSoup
 import urllib.parse
-from blend_engine.request_handler import SearchRequestHandler
+from blend.blend_engine.request_handler import SearchRequestHandler
 
 class GoogleProvider(BaseProvider):
     def __init__(self):
@@ -11,10 +11,9 @@ class GoogleProvider(BaseProvider):
         
     async def search(self, query: str, use_tor: bool = False, language: str = "all", pageno: int = 1) -> List[Dict[str, Any]]:
         import asyncio
-        from ddgs import DDGS
-        
         def _fetch_ddg():
             try:
+                from ddgs import DDGS
                 results = []
                 with DDGS() as ddgs:
                     for r in ddgs.text(query, max_results=10):
@@ -23,7 +22,7 @@ class GoogleProvider(BaseProvider):
             except Exception as e:
                 import logging
                 logging.getLogger("GoogleProvider").error(f"DDGS error: {e}")
-                return []
+                raise Exception(f"DuckDuckGo search failed: {e}")
                 
         # Run synchronous ddgs in executor to avoid blocking the event loop
         loop = asyncio.get_event_loop()

@@ -3,7 +3,7 @@ from .base_provider import BaseProvider
 from typing import Dict, Any, List
 import urllib.parse
 from bs4 import BeautifulSoup
-from blend_engine.request_handler import SearchRequestHandler
+from blend.blend_engine.request_handler import SearchRequestHandler
 
 class BingProvider(BaseProvider):
     def __init__(self):

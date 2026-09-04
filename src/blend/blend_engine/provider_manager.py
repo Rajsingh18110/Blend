@@ -1,11 +1,11 @@
 from typing import List, Any
-from providers.google_provider import GoogleProvider
-from providers.bing_provider import BingProvider
-from providers.brave_provider import BraveProvider
-from providers.crawl_provider import CrawlProvider
-from providers.bing_image_provider import BingImageProvider
-from providers.youtube_music_provider import YoutubeMusicProvider
-from providers.searxng_provider import SearxngProvider
+from blend.providers.google_provider import GoogleProvider
+from blend.providers.bing_provider import BingProvider
+from blend.providers.brave_provider import BraveProvider
+from blend.providers.crawl_provider import CrawlProvider
+from blend.providers.bing_image_provider import BingImageProvider
+from blend.providers.youtube_music_provider import YoutubeMusicProvider
+from blend.providers.searxng_provider import SearxngProvider
 
 class ProviderManager:
     def __init__(self):
@@ -32,4 +32,4 @@ class ProviderManager:
         elif category == "news":
             return [self.providers["google"], self.providers["bing"]]
         else:
-            return [self.providers["searxng"], self.providers["google"], self.providers["brave"]]
+            return [self.providers["searxng"], self.providers["google"]]

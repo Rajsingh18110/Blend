@@ -396,7 +396,7 @@ engines:
     disabled: true
 
   - name: apple app store
-    engine: apple_app_store
+    disabled: true
     shortcut: aps
     disabled: true
 
@@ -2079,7 +2079,7 @@ engines:
 
   # Requires Tor
   - name: torch
-    engine: xpath
+    disabled: true
     paging: true
     search_url:
       http://xmh57jrknzkhv6y3ls3ubitzfqnkrwxhopf5aygthi7d6rplyvk3noyd.onion/cgi-bin/omega/omega?P={query}&DEFAULTOP=and

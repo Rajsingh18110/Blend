@@ -22,12 +22,12 @@ from flask import Response, jsonify, redirect, render_template_string, request, 
 
 os.environ.setdefault("BLEND_EMBEDDED_BACKEND", "1")
 
-from blend.webapp import app, run
-from navar import build_ai_response
-from navar_identity import NAVAR_IDENTITY
+from blend.server import app, run
+from blend.navar import build_ai_response
+from blend.navar_identity import NAVAR_IDENTITY
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
-FRONTEND_DIR = ROOT_DIR / "frontend"
+ROOT_DIR = Path(__file__).resolve().parent
+FRONTEND_DIR = ROOT_DIR
 TEMPLATES_DIR = FRONTEND_DIR / "templates"
 STATIC_DIR = FRONTEND_DIR / "static"
 MARKANM_URL = "https://markanm.com"
@@ -202,9 +202,9 @@ async def api_search():
     # Cache mechanism to prevent duplicate requests and improve performance
     cache_key = request.url
     if cache_key in SEARCH_CACHE:
-        cached_time, cached_resp = SEARCH_CACHE[cache_key]
+        cached_time, cached_payload = SEARCH_CACHE[cache_key]
         if time.time() - cached_time < CACHE_TTL:
-            return cached_resp
+            return jsonify(cached_payload), 200
 
     # Memory Optimization: Aggressively purge cache to stay within Render 512MB limit
     if len(SEARCH_CACHE) > 100:
@@ -233,28 +233,25 @@ async def api_search():
     try:
         if category == "news":
             payload = _google_news_rss(q)
-            final_resp = jsonify(payload), 200
-            SEARCH_CACHE[cache_key] = (time.time(), final_resp)
-            return final_resp
+            SEARCH_CACHE[cache_key] = (time.time(), payload)
+            return jsonify(payload), 200
 
-        from blend_engine.search_router import SearchRouter
+        from blend.blend_engine.search_router import SearchRouter
         router = SearchRouter()
         use_tor = request.headers.get("X-Blend-Tor") == "1"
         pageno = int(request.args.get("pageno") or 1)
         payload = await router.route(q, category=category, mode=blend_mode, engines=engines_to_force, use_tor=use_tor, language=language, pageno=pageno)
         
-        final_resp = jsonify(payload), 200
         if payload.get("number_of_results", 0) > 0:
-            SEARCH_CACHE[cache_key] = (time.time(), final_resp)
-        return final_resp
+            SEARCH_CACHE[cache_key] = (time.time(), payload)
+        return jsonify(payload), 200
     except Exception as e:
-        from utils.logger import get_logger
-        get_logger("app.api_search").error(f"Blend Engine failed: {e}", exc_info=True)
+        import logging
+        logging.getLogger("app.api_search").error(f"Blend Engine failed: {e}", exc_info=True)
         fallback = _fallback_web_search(q, category, int(request.args.get("pageno") or 1))
-        final_resp = jsonify(fallback), 200
         if fallback.get("number_of_results", 0) > 0:
-            SEARCH_CACHE[cache_key] = (time.time(), final_resp)
-        return final_resp
+            SEARCH_CACHE[cache_key] = (time.time(), fallback)
+        return jsonify(fallback), 200
 
 def _google_news_rss(q: str):
     import urllib.request
@@ -299,8 +296,8 @@ def _google_news_rss(q: str):
         payload["number_of_results"] = len(results)
         return payload
     except Exception as e:
-        from utils.logger import get_logger
-        get_logger("app.news").error(f"News RSS failed: {e}", exc_info=True)
+        import logging
+        logging.getLogger("app.news").error(f"News RSS failed: {e}", exc_info=True)
         return _empty_search_payload(q)
 
 def _fallback_web_search(q: str, category: str = "general", pageno: int = 1):
@@ -466,7 +463,15 @@ def api_ai():
     current_tab = data.get("current_tab", "web")
     current_url = data.get("current_url", "")
     try:
-        return jsonify(build_ai_response(query, results, shortcuts, mode, current_tab=current_tab, current_url=current_url))
+        from flask import stream_with_context
+        def generate():
+            for event in build_ai_response(query, results, shortcuts, mode, current_tab=current_tab, current_url=current_url):
+                yield f"data: {json.dumps(event)}\n\n"
+        
+        return Response(stream_with_context(generate()), mimetype='text/event-stream', headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+        })
     except Exception as exc:
         return jsonify({"message": f"AI error: {exc}"}), 500
 
@@ -485,8 +490,7 @@ def add_privacy_headers(response):
     return response
 
 
-from api_keys import register_admin_routes
-register_admin_routes(app)
+
 
 @app.route("/", defaults={"path": ""}, methods=["OPTIONS"])
 @app.route("/<path:path>", methods=["OPTIONS"])

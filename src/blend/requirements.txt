@@ -30,3 +30,4 @@ aiohttp_socks
 bleach
 tomli
 asgiref
+duckduckgo-search

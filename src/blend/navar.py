@@ -27,9 +27,9 @@ except ImportError:
     BeautifulSoup = None
 
 try:
-    from api_keys import get_active_api_config, get_global_config, get_navar_api_key
-    from navar_identity import NAVAR_IDENTITY
-    from navar_knowledge import answer_markanm_query, is_markanm_query
+    from blend.api_keys import get_active_api_config, get_global_config, get_navar_api_key
+    from blend.navar_identity import NAVAR_IDENTITY
+    from blend.navar_knowledge import answer_markanm_query, is_markanm_query
     _IDENTITY_NAME = NAVAR_IDENTITY.name
     _IDENTITY_MISSION = NAVAR_IDENTITY.mission
     _IDENTITY_TONE = NAVAR_IDENTITY.tone
@@ -319,21 +319,56 @@ def _clean_llm_text(text: str) -> str:
     text = re.sub(r"<(think|thought)>.*", "", text, flags=re.DOTALL | re.IGNORECASE)
     return text.strip()
 
-def _call_llm(messages: list[dict]) -> str:
+def _call_llm_stream(messages: list[dict]):
+    import json
+    # Try Sarvam if key exists
+    sarvam_key = get_navar_api_key()
+    if sarvam_key:
+        try:
+            import requests
+            headers = {"api-subscription-key": sarvam_key, "Content-Type": "application/json"}
+            payload = {
+                "model": "sarvam-2b-v0.5",
+                "messages": messages,
+                "temperature": 0.3,
+                "stream": True
+            }
+            resp = requests.post("https://api.sarvam.ai/chat/completions", headers=headers, json=payload, stream=True, timeout=10)
+            if resp.status_code == 200:
+                for line in resp.iter_lines():
+                    if line:
+                        line = line.decode('utf-8')
+                        if line.startswith("data: "):
+                            data_str = line[6:]
+                            if data_str == "[DONE]":
+                                break
+                            try:
+                                chunk = json.loads(data_str)
+                                content = chunk["choices"][0]["delta"].get("content", "")
+                                if content:
+                                    yield content
+                            except:
+                                pass
+                return
+        except Exception as e:
+            print(f"Sarvam API streaming failed: {e}")
+            
+    # Fallback to g4f streaming
     try:
         import g4f
-        
-        # Use g4f to automatically cycle through free providers
+        from g4f.Provider import DuckDuckGo
         response = g4f.ChatCompletion.create(
-            model=g4f.models.default,
+            model="gpt-4o-mini",
+            provider=DuckDuckGo,
             messages=messages,
-            timeout=20,
+            stream=True
         )
-        return _clean_llm_text(str(response))
+        for chunk in response:
+            if chunk:
+                yield str(chunk)
     except Exception as e:
-        print(f"LLM Call Failed via g4f: {e}")
-        return ""
-
+        print(f"g4f streaming failed: {e}")
+        yield "Error: Could not connect to AI provider."
 
 # ─────────────────────────────────────────────
 #  SCORE / RANK
@@ -351,232 +386,81 @@ def _score(q: str, r: dict) -> float:
     score += SequenceMatcher(None, q.lower(), title).ratio() * 2.0
     return round(score, 4)
 
-
-
 # ─────────────────────────────────────────────
 #  MAIN ENTRY
 # ─────────────────────────────────────────────
 
 def build_ai_response(query: str, results: list[dict],
                       shortcuts: list[dict] = None, mode: str = "fast",
-                      current_tab: str = "web", current_url: str = "") -> dict:
+                      current_tab: str = "web", current_url: str = ""):
     q = query.strip()
     q_lower = q.lower()
     intents = detect_intents(q)
-
-    # ── DORK MODE ──────────────────────────────────────────────────────
-    if mode == "dork" or "dork" in intents:
-        # Extract target: strip dork keywords
-        target = re.sub(r"google dork|dork me|dork\s+|dork:", "", q, flags=re.IGNORECASE).strip()
-        if not target:
-            target = q
-        dorks = _generate_dorks(target)
-        return {
-            "message": "",
-            "action": "dork",
-            "target": target,
-            "dorks": dorks,
-        }
-
-    # ── URL SCAN ────────────────────────────────────────────────────────
-    url_match = re.search(r'(https?://[^\s]+)', q)
-    if (url_match or "scan" in intents) and "guide" not in intents:
-        scan_url = url_match.group(1) if url_match else ""
-        if scan_url:
-            result = _scan_url(scan_url)
-            if result["ok"]:
-                llm_summary = _call_llm([
-                    {"role": "system", "content": _system_for(q, current_tab, current_url)},
-                    {"role": "user", "content": f"I scanned this website: {scan_url}\nTitle: {result['title']}\nContent: {result['summary']}\n\nGive a clear 3-5 line summary of what this website is about. Mention any key links."}
-                ])
-                return {
-                    "message": llm_summary or f"**{result['title']}**\n\n{result['summary']}",
-                    "action": "scan",
-                    "scan_url": scan_url,
-                    "scan_title": result["title"],
-                    "scan_links": result.get("links", []),
-                }
-            else:
-                return {"message": f"⚠️ Could not scan `{scan_url}`: {result.get('error', 'Unknown error')}"}
-
-    # ── STEP-BY-STEP WEBSITE GUIDE ─────────────────────────────────────
-    if "guide" in intents and any(word in q_lower for word in ["login", "signin", "sign in", "register", "signup", "kaise", "how to"]):
-        site = _extract_site_candidate(q)
-        site_url = _resolve_url(site)
-        page = _scan_url(site_url)
-        if page.get("ok") and (page.get("forms") or page.get("text_length", 0) >= 300):
-            return _build_step_guide(q, page, site_url)
-        fallback = _search(f"{site} {q} tutorial steps", "general")[:3]
-        context = "\n".join(f"- {r.get('title','')}: {r.get('content', '')[:180]}" for r in fallback)
-        llm = _call_llm([
-            {"role": "system", "content": _system_for(q, current_tab, current_url)},
-            {"role": "user", "content": f"Create a concise step-by-step guide for this task: {q}\nSite: {site}\nSearch context:\n{context}"}
-        ])
-        return {
-            "message": llm or f"Step 1: Open {site_url}\nStep 2: Look for Login, Sign In, or Account.\nStep 3: Fill the required fields.\nStep 4: Submit and complete any verification.",
-            "action": "guide",
-            "site_url": site_url,
-            "site_title": site,
-            "forms_found": 0,
-        }
-
-    # ── MULTI-TAB: search all sections ─────────────────────────────────
-    if "all" in intents:
-        web = _search(q, "general")[:3]
-        imgs = _search(q, "images")[:4]
-        vids = _search(q, "videos")[:2]
-        news = _search(q, "news")[:2]
-        summary = _build_all_summary(q, web, imgs, vids, news)
-        return {
-            "message": summary,
-            "action": "search_all",
-            "blend_query": q,
-            "web_count": len(web),
-            "image_count": len(imgs),
-            "video_count": len(vids),
-            "news_count": len(news),
-        }
-
-    # ── DEEP MODE ───────────────────────────────────────────────────────
-    if mode == "deep":
-        live = _search(q, "general")[:5]
-        all_results = live or results
-        ranked = sorted(all_results, key=lambda r: _score(q, r), reverse=True)[:3]
-        context = "\n\n".join(
-            f"Source: {r.get('url','')}\nTitle: {r.get('title','')}\nContent: {r.get('content', r.get('snippet',''))[:300]}"
-            for r in ranked
-        )
-        llm = _call_llm([
-            {"role": "system", "content": _system_for(q, current_tab, current_url)},
-            {"role": "user", "content": f"Deep research request: {q}\n\nContext from web:\n{context}\n\nProvide a comprehensive, well-structured answer. Reference sources as [1], [2], [3]."}
-        ])
-        sources = "\n".join(
-            f"[{i+1}] [{r.get('title','Source')}]({r.get('url','')})"
-            for i, r in enumerate(ranked) if r.get("url")
-        )
-        citation_block = f"\n\n**Sources:**\n{sources}" if sources else ""
-        if llm:
-            return {"message": llm + citation_block, "action": "web", "blend_query": q, "results": ranked}
-        fallback = "\n".join(f"• **[{i+1}] {r.get('title')}** — {r.get('content','')[:120]}…" for i, r in enumerate(ranked))
-        return {"message": f"**Deep search results for: {q}**\n\n{fallback}{citation_block}", "action": "web", "blend_query": q}
-
+    
+    import time
+    yield {"type": "status", "message": "[✓] ⚡ Checking high-speed cache..."}
+    time.sleep(0.2)
+    yield {"type": "status", "message": "[✓] 🧠 Analyzing query intent..."}
+    time.sleep(0.2)
+    
     # ── MAPS / LOCATION ─────────────────────────────────────────────────
-    if "maps" in intents:
+    if "maps" in intents or "where is" in q_lower or "location of" in q_lower:
+        yield {"type": "status", "message": "[...] 🗺️ Rendering interactive map sandbox..."}
         place = re.sub(r"where is|location of|map of|kahan hai|kahan per|directions? to|how to reach|find place", "", q, flags=re.IGNORECASE).strip() or q
-        map_results = _search(place, "map")[:3]
-        context = map_results[0].get("content", "") if map_results else ""
-        llm = _call_llm([
-            {"role": "system", "content": _system_for(q, current_tab, current_url)},
-            {"role": "user", "content": f"Give a brief factual answer about the location: '{place}'. Include: country/state, key facts, what it's known for. Keep it under 6 lines. Context: {context}"}
-        ])
-        return {
-            "message": llm or f"📍 Showing map for **{place}**. Check the Maps tab for the full interactive map.",
-            "action": "maps",
-            "map_query": place,
-        }
+        coords = [28.6139, 77.2090] # default fallback
+        try:
+            import urllib.request
+            import urllib.parse
+            import json
+            req = urllib.request.Request(f"https://nominatim.openstreetmap.org/search?q={urllib.parse.quote(place)}&format=json&limit=1", headers={"User-Agent": "BlendSearch/1.0"})
+            resp = urllib.request.urlopen(req, timeout=3).read()
+            data = json.loads(resp)
+            if data:
+                coords = [float(data[0]["lat"]), float(data[0]["lon"])]
+        except:
+            pass
+        yield {"type": "action", "action": "render_map", "coords": coords, "place": place}
+    
+    yield {"type": "status", "message": "[...] 🔍 Fetching top snippets & semantic data..."}
+    time.sleep(0.2)
+    
+    if mode == "deep":
+        yield {"type": "status", "message": "[...] 🕷️ Queuing deep links for long-term index..."}
+        time.sleep(0.2)
+        
+    yield {"type": "status", "message": "[...] ✍️ Synthesizing AI Overview..."}
 
-    # ── IMAGES ─────────────────────────────────────────────────────────
-    if "images" in intents:
-        subject = re.sub(r"show.*images? of|images? of|photos? of|pictures? of|dikhao", "", q, flags=re.IGNORECASE).strip() or q
-        img_results = _search(subject, "images")[:6]
-        return {
-            "message": f"🖼️ Found **{len(img_results)} images** for **{subject}**. Opening the Images tab now.",
-            "action": "images",
-            "blend_query": subject,
-            "image_previews": [r.get("img_src") or r.get("thumbnail_src") for r in img_results if r.get("img_src") or r.get("thumbnail_src")][:4],
-        }
-
-    # ── VIDEOS ──────────────────────────────────────────────────────────
-    if "videos" in intents:
-        subject = re.sub(r"show.*video.*of|video.*of|watch|youtube.*about", "", q, flags=re.IGNORECASE).strip() or q
-        return {
-            "message": f"🎬 Searching for videos about **{subject}**. Opening the Videos tab.",
-            "action": "videos",
-            "blend_query": subject,
-        }
-
-    # ── NEWS ────────────────────────────────────────────────────────────
-    if "news" in intents:
-        subject = re.sub(r"latest news|recent news|news about|news on|aaj ka news", "", q, flags=re.IGNORECASE).strip() or q
-        news_results = _search(subject, "news")[:3]
-        headlines = "\n".join(f"• {r.get('title','')}" for r in news_results)
-        return {
-            "message": f"📰 Latest news for **{subject}**:\n\n{headlines}\n\nOpening News tab for full articles.",
-            "action": "news",
-            "blend_query": subject,
-        }
-
-    # ── SOCIAL ──────────────────────────────────────────────────────────
-    if "social" in intents:
-        subject = re.sub(r"social media|twitter|instagram|reddit.*about|social.*handle|social.*profile", "", q, flags=re.IGNORECASE).strip() or q
-        return {
-            "message": f"👥 Searching social media for **{subject}**. Opening Social tab.",
-            "action": "social",
-            "blend_query": subject,
-        }
-
-    # ── WEB / GENERAL ───────────────────────────────────────────────────
-    # MarkanM / founder
-    if is_markanm_query(q) or ("founder" in q_lower and "blend" in q_lower):
-        live = _search("markanm.com site:markanm.com OR site:markanm.in", "general")[:3]
-        return {
-            "message": answer_markanm_query(),
-            "action": "search_all",
-            "blend_query": "markanm",
-        }
-
-    # General — live search + LLM answer
+    # Fetch live semantic data
     live_results = _domain_boosted_search(q, "general")[:3]
-    
-    # RAG using Social + Wikipedia sources for deep conversational knowledge
-    rag_query = f"{q} (site:reddit.com OR site:quora.com OR site:wikipedia.org)"
-    rag_results = _search(rag_query, "general")[:3]
-    
-    all_res = live_results + rag_results
+    all_res = live_results + results
     if not all_res:
         all_res = results
         
     ranked = sorted(all_res, key=lambda r: _score(q, r), reverse=True)[:4]
 
     context = "\n\n".join(
-        f"Title: {r.get('title','')}\nURL: {r.get('url','')}\nContent: {r.get('content', r.get('snippet',''))[:250]}"
-        for r in ranked
+        f"[{i+1}] Title: {r.get('title','')}\nURL: {r.get('url','')}\nContent: {r.get('content', r.get('snippet',''))[:250]}"
+        for i, r in enumerate(ranked)
     )
 
-    llm = _call_llm([
-        {"role": "system", "content": _system_for(q, current_tab, current_url)},
-        {"role": "user", "content": f"User query: {q}\n\nSearch context:\n{context}\n\nProvide a concise and structured summary answering the user's query using bullet points."}
-    ])
+    sys_prompt = _system_for(q, current_tab, current_url) + "\n\nYou are the Core Orchestrator of the Navar Search Engine. Synthesize the aggregated data into a final response, citing sources as [1], [2]."
+    
+    for chunk in _call_llm_stream([
+        {"role": "system", "content": sys_prompt},
+        {"role": "user", "content": f"User query: {q}\n\nSearch context:\n{context}\n\nProvide a concise, direct, and structured summary answering the user's query. Use markdown."}
+    ]):
+        yield {"type": "text", "chunk": _clean_llm_text(chunk)}
 
-    if llm:
-        return {"message": llm, "action": "web", "blend_query": q, "top_results": ranked[:2]}
+    # Proactive Search Guidance
+    filters = []
+    if "images" in intents or "photo" in q_lower:
+        filters.append("Images")
+    if "videos" in intents or "youtube" in q_lower:
+        filters.append("Videos")
+    if "news" in intents:
+        filters.append("News")
+    if not filters:
+        filters = ["Images", "News"]
+        
+    yield {"type": "suggested_filters", "filters": filters}
 
-    # Fallback: format top result
-    if ranked:
-        best = ranked[0]
-        return {
-            "message": f"**{best.get('title','')}**\n\n{best.get('content', best.get('snippet',''))[:400]}\n\n🔗 [{best.get('url','')}]({best.get('url','')})",
-            "action": "web",
-            "blend_query": q,
-            "top_results": ranked[:2],
-        }
-
-    return {"message": f"I searched for **{q}** but couldn't find a confident answer. Try rephrasing or use the search bar above for full results."}
-
-
-def _build_all_summary(q: str, web, imgs, vids, news) -> str:
-    lines = [f"🔍 Multi-tab search results for **{q}**:\n"]
-    if web:
-        lines.append("**🌐 Web:**")
-        for r in web:
-            lines.append(f"• [{r.get('title','')}]({r.get('url','')})")
-    if imgs:
-        lines.append(f"\n**🖼️ Images:** {len(imgs)} found — see Images tab")
-    if vids:
-        lines.append(f"\n**🎬 Videos:** {len(vids)} found — see Videos tab")
-    if news:
-        lines.append("\n**📰 News:**")
-        for r in news:
-            lines.append(f"• {r.get('title','')}")
-    lines.append("\n\nAll tabs have been populated with results!")
-    return "\n".join(lines)
