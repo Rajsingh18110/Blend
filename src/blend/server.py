@@ -228,7 +228,7 @@ def api_stream():
     if not url:
         return flask_jsonify({'success': False, 'error': 'No URL provided'}), 400
     try:
-        from ytdl_downloader import get_stream_info
+        from blend.ytdl_downloader import get_stream_info
         info = get_stream_info(url)
         return flask_jsonify(info)
     except Exception as e:
@@ -245,8 +245,89 @@ def api_smart_download():
     if not url:
         return 'No URL provided', 400
     try:
-        from ytdl_downloader import download_video
-        file_path = download_video(url, quality)
+        from .ytdl_downloader import download_video
+        try:
+            file_path = download_video(url, quality)
+        except Exception as exc:
+            # Primary download failed (often due to format/403). Try a Piped API
+            # fallback: stream the proxied URL from a healthy Piped endpoint.
+            try:
+                import requests as _req
+                # Attempt to extract a YouTube id from the URL
+                yt_id = None
+                try:
+                    from urllib.parse import parse_qs, urlparse
+                    parsed = urlparse(url)
+                    if parsed.hostname and 'youtube' in parsed.hostname:
+                        qs = parse_qs(parsed.query)
+                        yt_id = qs.get('v', [None])[0]
+                    # fallback: if url looks like youtu.be/<id>
+                    if not yt_id and parsed.hostname and 'youtu.be' in parsed.hostname:
+                        yt_id = parsed.path.lstrip('/')
+                except Exception:
+                    yt_id = None
+
+                # First, try to ask our own extractor for direct stream URLs
+                try:
+                    from blend.ytdl_downloader import get_stream_info
+                    info = get_stream_info(url)
+                    streams = info.get('streams') or []
+                    if streams:
+                        stream_url = streams[0].get('url')
+                        if stream_url:
+                            upstream = _req.get(stream_url, stream=True, timeout=20,
+                                                 headers={'User-Agent': 'Mozilla/5.0'})
+                            if upstream.ok:
+                                from flask import Response as flask_Response
+                                headers = {
+                                    'Content-Disposition': f'attachment; filename="{info.get("title","download")}.mp4"',
+                                    'Content-Type': upstream.headers.get('Content-Type', 'application/octet-stream')
+                                }
+                                def _gen():
+                                    for chunk in upstream.iter_content(chunk_size=8192):
+                                        if chunk:
+                                            yield chunk
+                                return flask_Response(_gen(), headers=headers)
+                except Exception:
+                    pass
+
+                piped_apis = ['https://api.piped.private.coffee', 'https://pipedapi.kavin.rocks', 'https://pipedapi.ducks.party']
+                for api in piped_apis:
+                    if not yt_id:
+                        break
+                    try:
+                        r = _req.get(f"{api}/streams/{yt_id}", timeout=10)
+                        if not r.ok:
+                            continue
+                        data = r.json()
+                        streams = data.get('videoStreams') or data.get('audioStreams') or []
+                        if not streams:
+                            continue
+                        stream_url = streams[0].get('url')
+                        if not stream_url:
+                            continue
+
+                        # Proxy the stream URL to the client
+                        upstream = _req.get(stream_url, stream=True, timeout=20,
+                                             headers={'User-Agent': 'Mozilla/5.0'})
+                        if not upstream.ok:
+                            continue
+                        from flask import Response as flask_Response
+                        headers = {
+                            'Content-Disposition': f'attachment; filename="{yt_id or "download"}.mp4"',
+                            'Content-Type': upstream.headers.get('Content-Type', 'application/octet-stream')
+                        }
+                        def _gen():
+                            for chunk in upstream.iter_content(chunk_size=8192):
+                                if chunk:
+                                    yield chunk
+                        return flask_Response(_gen(), headers=headers)
+                    except Exception:
+                        continue
+
+            except Exception:
+                pass
+            return f'Download failed: {exc}', 500
     except Exception as exc:
         return f'Download failed: {exc}', 500
     if not file_path or not _os.path.exists(file_path):
@@ -281,6 +362,22 @@ def api_proxy_download():
         return flask.Response(_gen(), headers=headers)
     except Exception as e:
         return f'Proxy download failed: {e}', 500
+
+
+@app.route('/api/list_formats', methods=['GET'])
+def api_list_formats():
+    """Return available formats for a given video URL using yt-dlp (download=False)."""
+    url = blend_request.args.get('url', '').strip()
+    if not url:
+        return flask_jsonify({'success': False, 'error': 'No URL provided'}), 400
+    try:
+        sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+        from blend.ytdl_downloader import get_stream_info
+        info = get_stream_info(url)
+        # Return raw formats as best-effort
+        return flask_jsonify({'success': True, 'formats': info.get('streams', []), 'audio_url': info.get('audio_url'), 'title': info.get('title')}), 200
+    except Exception as e:
+        return flask_jsonify({'success': False, 'error': str(e)}), 500
 
 # ── /api/downloads_list — Downloaded files ki list ───────────────────────────
 @app.route('/api/downloads_list', methods=['GET'])
