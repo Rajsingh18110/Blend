@@ -27,13 +27,33 @@ class ProviderManager:
             
         core_provider = self.providers["blend_core"]
         
-        # P0-4: Do NOT keep custom providers by default.
-        # Fallback providers are only added if native coverage is insufficient or notoriously unstable.
-        if category == "images":
-            return [core_provider, self.providers["bing_images"]]
-        elif category in ("music", "videos"):
-            return [core_provider, self.providers["youtube_music"]]
-        elif category == "news":
-            return [core_provider, self.providers["google"], self.providers["bing"]]
-        else:
-            return [core_provider, self.providers["google"]]
+        # Determine native engine count for the category
+        from blend.blend_core import sources
+        native_cat = category
+        if category == "web": native_cat = "general"
+        elif category == "maps": native_cat = "map"
+        elif category == "social": native_cat = "social media"
+        
+        native_engine_count = 0
+        try:
+            for name, engine in sources.engines.items():
+                if getattr(engine, 'disabled', False): continue
+                if native_cat in getattr(engine, 'categories', []):
+                    native_engine_count += 1
+        except Exception:
+            pass
+
+        # P0-4 & P0-9: Do NOT keep custom providers unconditionally.
+        # Fallback providers are only added if native coverage is insufficient (e.g., < 2 engines).
+        providers = [core_provider]
+        
+        if category == "images" and native_engine_count < 2:
+            providers.append(self.providers["bing_images"])
+        elif category in ("music", "videos") and native_engine_count < 2:
+            providers.append(self.providers["youtube_music"])
+        elif category == "news" and native_engine_count < 2:
+            providers.extend([self.providers["google"], self.providers["bing"]])
+        elif category == "web" and native_engine_count < 2:
+            providers.append(self.providers["google"])
+            
+        return providers

@@ -20,12 +20,13 @@ class BlendCoreProvider(BaseProvider):
         lang_param = "en-US" if language == "all" else language
         
         # Native mapping: map external category requests to actual native categories
-        # e.g., 'web' -> 'general', 'maps' -> 'map'
         native_cat = category
         if category == "web":
             native_cat = "general"
         elif category == "maps":
             native_cat = "map"
+        elif category == "social":
+            native_cat = "social media"
 
         engine_refs = []
         for name, engine in sources.engines.items():
@@ -46,17 +47,48 @@ class BlendCoreProvider(BaseProvider):
 
         loop = asyncio.get_running_loop()
 
-        def _run_search():
-            # Pipeline Search uses flask context
-            app = Flask(__name__)
-            with app.test_request_context():
-                search_obj = pipeline.Search(blend_query)
-                results_pool = search_obj.blend_search()
-                return results_pool.get_ordered_results()
-
-        # Run synchronously blocking code in a thread pool so it doesn't block FastAPI's async event loop
+        from flask import current_app, request
+        from flask import copy_current_request_context
+        
         try:
-            native_results = await loop.run_in_executor(None, _run_search)
+            # We are inside the FastAPI/Flask hybrid, request is active
+            req_obj = request._get_current_object()
+            if not hasattr(req_obj, '_get_current_object'):
+                req_obj._get_current_object = lambda: req_obj
+            
+            from blend.blend_core.extended_types import BlendRequest
+            try:
+                blend_request = BlendRequest(req_obj)
+            except Exception:
+                blend_request = req_obj  # Fallback if BlendRequest fails
+        except Exception as e:
+            print(f"[BlendCoreProvider] Failed to capture Flask request: {e}")
+            req_obj = None
+            blend_request = None
+
+        def _run_search():
+            from blend.blend_core.pipeline import SearchWithPlugins
+            if blend_request and hasattr(blend_request, 'user_plugins'):
+                search_obj = SearchWithPlugins(blend_query, blend_request, blend_request.user_plugins)
+            else:
+                search_obj = pipeline.Search(blend_query)
+            results_pool = search_obj.blend_search()
+            return results_pool.get_ordered_results()
+
+        try:
+            if req_obj:
+                from flask import current_app
+                app_obj = current_app._get_current_object()
+                def _run_search_ctx():
+                    # req_obj.environ is the original WSGI environ
+                    with app_obj.request_context(req_obj.environ):
+                        return _run_search()
+                native_results = await loop.run_in_executor(None, _run_search_ctx)
+            else:
+                from flask import Flask
+                app = Flask(__name__)
+                with app.test_request_context():
+                    native_results = await loop.run_in_executor(None, _run_search)
         except Exception as e:
             print(f"[BlendCoreProvider] pipeline execution failed: {e}")
             raise e

@@ -231,11 +231,6 @@ async def api_search():
     language = request.args.get("language", "all")
 
     try:
-        if category == "news":
-            payload = _google_news_rss(q)
-            SEARCH_CACHE[cache_key] = (time.time(), payload)
-            return jsonify(payload), 200
-
         from blend.blend_engine.search_router import SearchRouter
         router = SearchRouter()
         use_tor = request.headers.get("X-Blend-Tor") == "1"
