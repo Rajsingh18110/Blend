@@ -24,8 +24,24 @@ def _quality_height_cap(quality):
     }.get((quality or "best").lower())
 
 
+def normalize_download_quality(quality):
+    """Normalize frontend/backend aliases to supported yt-dlp quality values."""
+    q = (quality or "best").strip().lower().replace(" ", "")
+    aliases = {
+        "audio": "audio",
+        "mp3": "audio",
+        "music": "audio",
+        "bestaudio": "audio",
+        "audioonly": "audio",
+        "video": "best",
+        "mp4": "best",
+        "bestvideo": "best",
+    }
+    return aliases.get(q, q)
+
+
 def _build_download_options(quality, output_dir, file_id):
-    quality = (quality or "best").lower()
+    quality = normalize_download_quality(quality)
     ffmpeg_available = _ffmpeg_available()
 
     ydl_opts = {
@@ -147,8 +163,8 @@ def get_stream_info(url):
 
         # Build streams list
         streams = []
-        best_video_url = None
         best_audio_url = None
+        best_audio_tbr = -1
 
         all_formats = info.get('formats', [])
 
@@ -162,22 +178,29 @@ def get_stream_info(url):
             acodec = f.get('acodec', 'none')
             has_video = vcodec != 'none'
             has_audio = acodec != 'none'
+            mime = (f.get('mime_type') or f.get('mime') or '').lower()
 
-            # Collect combined streams (has both video + audio)
+            stream_entry = {
+                'url': furl,
+                'ext': ext,
+                'height': height,
+                'label': f'{height}p' if height else 'auto',
+                'type': 'combined' if has_video and has_audio else 'audio' if has_audio and not has_video else 'video',
+                'filesize': f.get('filesize'),
+                'tbr': f.get('tbr'),
+                'mime': mime,
+            }
+
+            # Prefer real combined streams for video playback.
             if has_video and has_audio and ext in ('mp4', 'webm'):
-                streams.append({
-                    'url': furl,
-                    'ext': ext,
-                    'height': height,
-                    'label': f'{height}p' if height else 'auto',
-                    'type': 'combined',
-                    'filesize': f.get('filesize'),
-                    'tbr': f.get('tbr'),
-                })
-            # Track best audio-only
+                streams.append(stream_entry)
+
+            # Track the strongest audio-only stream for music playback/downloads.
             if has_audio and not has_video and ext in ('m4a', 'mp4', 'webm', 'opus'):
-                if best_audio_url is None:
+                tbr = f.get('tbr') or 0
+                if tbr > best_audio_tbr or (tbr == best_audio_tbr and best_audio_url is None):
                     best_audio_url = furl
+                    best_audio_tbr = tbr
 
         # Sort streams by quality descending
         streams.sort(key=lambda x: x.get('height', 0), reverse=True)
@@ -192,7 +215,19 @@ def get_stream_info(url):
                     'height': info.get('height', 0),
                     'label': 'best',
                     'type': 'direct',
+                    'mime': (info.get('mime_type') or info.get('mime') or '').lower(),
                 })
+
+        # If we have an audio-only stream and no video stream, make it available as the best stream.
+        if not streams and best_audio_url:
+            streams.append({
+                'url': best_audio_url,
+                'ext': 'm4a',
+                'height': 0,
+                'label': 'audio',
+                'type': 'audio',
+                'mime': 'audio/mp4',
+            })
 
         # Format duration
         dur_sec = info.get('duration') or 0

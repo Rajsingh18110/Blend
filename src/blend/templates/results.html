@@ -1723,18 +1723,21 @@ function closeLightbox(e) {
 }
 
 async function fallbackPipedApi(ytId, type = 'video') {
-  const apis = ['https://pipedapi.kavin.rocks', 'https://pipedapi.ducks.party', 'https://api.piped.private.coffee', 'https://piped-api.lunar.icu'];
+  const apis = ['https://api.piped.private.coffee', 'https://pipedapi.kavin.rocks', 'https://pipedapi.ducks.party', 'https://piped-api.lunar.icu'];
   for (const api of apis) {
     try {
       const res = await fetch(`${api}/streams/${ytId}`, { signal: AbortSignal.timeout(4000) });
       if (res.ok) {
         const data = await res.json();
-        let streams = type === 'audio' ? data.audioStreams : (data.videoStreams || []);
+        let streams = type === 'audio' ? (data.audioStreams || []) : (data.videoStreams || []);
         if (streams && streams.length > 0 && streams[0].url) {
           return streams[0].url;
         }
         if (data.audioStreams && data.audioStreams.length > 0 && data.audioStreams[0].url) {
           return data.audioStreams[0].url;
+        }
+        if (data.videoStreams && data.videoStreams.length > 0 && data.videoStreams[0].url) {
+          return data.videoStreams[0].url;
         }
       }
     } catch(e) { console.warn(`Fallback ${api} failed`); }
@@ -2041,8 +2044,22 @@ function blendSwitchStream(streamUrl, ext) {
   if (loading) loading.style.display = 'none';
   video.style.display = 'block';
 
-  // Set source and play
   const currentTime = video.currentTime || 0;
+  video.dataset.streamUrl = streamUrl;
+  video.dataset.streamExt = ext;
+  video.dataset.fallbackAttempted = '0';
+  video.onerror = async () => {
+    if (video.dataset.fallbackAttempted === '1' || !window.BLEND_PLAYER?.ytId) return;
+    video.dataset.fallbackAttempted = '1';
+    const fallbackUrl = await fallbackPipedApi(window.BLEND_PLAYER.ytId, 'video');
+    if (fallbackUrl) {
+      video.src = fallbackUrl;
+      video.load();
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    }
+  };
+
   video.src = streamUrl;
   video.load();
   video.currentTime = currentTime;
@@ -2139,8 +2156,21 @@ async function playMusicTrack(idx) {
             </audio>
             <div style="padding:8px 12px;display:flex;gap:10px;align-items:center;">
               ${ ytUrl ? `<a href="${ytUrl}" target="_blank" style="font-size:12px;color:#4da6ff;text-decoration:none;">▶ Open on YouTube</a>` : '' }
-              ${ ytUrl ? `<button onclick="downloadMusic('${ytUrl}','bestaudio')" style="font-size:12px;padding:4px 10px;border:1px solid #444;border-radius:6px;background:none;color:#ccc;cursor:pointer;">⬇ Download</button>` : '' }
+              ${ ytUrl ? `<button onclick="downloadMusic('${ytUrl}','audio')" style="font-size:12px;padding:4px 10px;border:1px solid #444;border-radius:6px;background:none;color:#ccc;cursor:pointer;">⬇ Download</button>` : '' }
             </div>`;
+          const audio = document.getElementById('mp-audio');
+          if (audio) {
+            audio.onerror = async () => {
+              if (audio.dataset.fallbackAttempted === '1' || !ytId) return;
+              audio.dataset.fallbackAttempted = '1';
+              const fallbackUrl = await fallbackPipedApi(ytId, 'audio');
+              if (fallbackUrl) {
+                audio.src = fallbackUrl;
+                audio.load();
+                audio.play().catch(() => {});
+              }
+            };
+          }
           document.getElementById('mp-audio')?.play().catch(() => {});
           return; // ✅ Done
         }
@@ -2165,7 +2195,7 @@ async function playMusicTrack(idx) {
         </audio>
         <div style="padding:8px 12px;display:flex;gap:10px;align-items:center;">
           ${ ytUrl ? `<a href="${ytUrl}" target="_blank" style="font-size:12px;color:#4da6ff;text-decoration:none;">▶ Open on YouTube</a>` : '' }
-          ${ ytUrl ? `<button onclick="downloadMusic('${ytUrl}','bestaudio')" style="font-size:12px;padding:4px 10px;border:1px solid #444;border-radius:6px;background:none;color:#ccc;cursor:pointer;">⬇ Download</button>` : '' }
+          ${ ytUrl ? `<button onclick="downloadMusic('${ytUrl}','audio')" style="font-size:12px;padding:4px 10px;border:1px solid #444;border-radius:6px;background:none;color:#ccc;cursor:pointer;">⬇ Download</button>` : '' }
           <span style="font-size:11px;color:#888;margin-left:auto;">via Proxy API</span>
         </div>`;
       document.getElementById('mp-audio')?.play().catch(() => {});
