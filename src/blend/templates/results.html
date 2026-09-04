@@ -1083,8 +1083,13 @@ async function loadMoreImages() {
       });
       window._seenImgUrls = seen;
       if (newImgs.length > 0) {
+        const wasEmpty = (window.allImages || []).length === 0;
         window.allImages = [...(window.allImages || []), ...newImgs];
-        appendImages(newImgs);
+        if (wasEmpty) {
+          displayImages(window.allImages);
+        } else {
+          appendImages(newImgs);
+        }
         const statsEl = document.getElementById('img-stats');
         if (statsEl) statsEl.innerHTML = `About ${window.allImages.length.toLocaleString()} image results · Page ${window._imgPage}`;
         // Show back button for page > 1
