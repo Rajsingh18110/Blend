@@ -17,9 +17,9 @@ class SearchRouter:
         providers = self.provider_manager.get_providers(category, engines)
         
         # Execute providers with a LATENCY BUDGET
-        # fast=10.0s: VPS latency + rate limits mean fallbacks need more time
-        # deep=15.0s: allow slower providers + Crawl4AI time
-        budget = 10.0 if mode == "fast" else 15.0
+        # fast=15.0s: VPS latency + rate limits mean fallbacks need more time
+        # deep=25.0s: allow slower providers + Crawl4AI time
+        budget = 15.0 if mode == "fast" else 25.0
         
         import time
         async def _time_provider(p, kwargs):
