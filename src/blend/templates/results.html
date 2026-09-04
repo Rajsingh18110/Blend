@@ -873,7 +873,7 @@ function videoCard(v, idx) {
   const clickAction = `window.open('${v.url}', '_blank')`;
   return `<div class="video-card" onclick="${clickAction}" style="animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.05}s both;">
     <div class="video-thumb" style="position:relative;">
-      <img src="${v.thumbnail || v.thumb || v.img_src || 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=320&h=180&fit=crop'}" alt="${escapeHtml(v.title)}" loading="lazy" />
+      <img src="${v.thumbnail || v.thumbnail_src || v.thumbnail_url || v.thumb || v.img_src || 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=320&h=180&fit=crop'}" alt="${escapeHtml(v.title)}" loading="lazy" />
       <div style="position:absolute;top:8px;left:8px;z-index:3;">${deepResultBadge(v)}</div>
       <div class="play-overlay"><div class="play-btn-circle"><div class="play-icon"></div></div></div>
       <span class="duration-chip">${v.duration || v.length || 'Play'}</span>
