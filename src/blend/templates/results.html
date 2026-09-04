@@ -935,9 +935,11 @@ async function renderImages(q) {
 }
 
 function imageCard(img, idx) {
+  const gridImg = img.thumbnail_src || img.img_src || img.url || '';
+  const lightboxImg = img.img_src || img.url || img.thumbnail_src || '';
   return `
-    <div style="position:relative; margin-bottom:16px; animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.05}s both; cursor:zoom-in; border-radius:12px; overflow:hidden; background:var(--surface); break-inside:avoid; transform:translateZ(0);" onclick="openLightbox('${(img.img_src || img.url || img.thumbnail_src || '').replace(/'/g, "\\'")}','${(img.title || '').replace(/'/g,"\\'")}')">
-      <img src="${img.img_src || img.thumbnail_src || img.url}" alt="${img.title || 'Image'}" loading="lazy" style="width:100%; height:auto; display:block; transition:transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);" onerror="this.parentElement.style.display='none';" />
+    <div style="position:relative; margin-bottom:16px; animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.05}s both; cursor:zoom-in; border-radius:12px; overflow:hidden; background:var(--surface); break-inside:avoid; transform:translateZ(0);" onclick="openLightbox('${lightboxImg.replace(/'/g, "\\'")}','${(img.title || '').replace(/'/g,"\\'")}')">
+      <img src="${gridImg}" alt="${(img.title || 'Image').replace(/"/g, '&quot;')}" loading="lazy" style="width:100%; height:auto; display:block; transition:transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);" onerror="this.parentElement.style.display='none';" />
       <div style="position:absolute;top:8px;left:8px;z-index:2;">${deepResultBadge(img)}</div>
       <div style="position:absolute; inset:0; background:rgba(0,0,0,0); transition:background 0.3s;" onmouseover="this.parentElement.querySelector('img').style.transform='scale(1.08)'; this.style.background='rgba(0,0,0,0.2)'" onmouseout="this.parentElement.querySelector('img').style.transform='scale(1)'; this.style.background='rgba(0,0,0,0)'"></div>
       <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); padding:12px; padding-top:24px; color:white; font-size:12px; font-weight:500; opacity:0; transition:opacity 0.3s; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onmouseover="this.style.opacity='1'; this.parentElement.querySelector('img').style.transform='scale(1.08)'" onmouseout="this.style.opacity='0'; this.parentElement.querySelector('img').style.transform='scale(1)'">${img.title || img.source || 'Image'}</div>
@@ -2243,16 +2245,8 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') { closeLightbox
   
   document.title = `${q} — Blend Search`;
   window.CURRENT_RESULTS = [];
-  window.SECTION_CACHE = window.SECTION_CACHE || {};
   
-  renderWeb(q);
-  if (tab === 'images') renderImages(q);
-  if (tab === 'videos') renderVideos(q);
-  if (tab === 'news') renderNews(q);
-  if (tab === 'maps') renderMapPlaces(q);
-  if (tab === 'music') renderMusic(q);
-  if (tab === 'files') renderFiles(q);
-  if (tab === 'social') renderSocial(q);
+  // P0-6: FRONTEND MUST NEVER FETCH ALL TABS. Initialize only the requested tab.
   switchTab(tab);
 
   // Wake up Render Backend
