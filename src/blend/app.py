@@ -237,6 +237,11 @@ async def api_search():
         pageno = int(request.args.get("pageno") or 1)
         payload = await router.route(q, category=category, mode=blend_mode, engines=engines_to_force, use_tor=use_tor, language=language, pageno=pageno)
         
+        if payload.get("number_of_results", 0) == 0 and category in ("general", "web", "all"):
+            fallback = _fallback_web_search(q, category, pageno)
+            if fallback and fallback.get("number_of_results", 0) > 0:
+                payload = fallback
+                
         if payload.get("number_of_results", 0) > 0:
             SEARCH_CACHE[cache_key] = (time.time(), payload)
         return jsonify(payload), 200
