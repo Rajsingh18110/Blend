@@ -17,7 +17,7 @@ class SearchRouter:
         providers = self.provider_manager.get_providers(category, engines)
         
         # Execute providers in parallel with a strict timeout for fast response
-        provider_timeout = 2.0 if mode == "fast" else 3.5
+        provider_timeout = 6.0 if mode == "fast" else 10.0
         tasks = []
         for p in providers:
             if hasattr(p, "search") and "page" in p.search.__code__.co_varnames:
@@ -36,7 +36,8 @@ class SearchRouter:
                 normalized = [providers[i].normalize(r) for r in res]
                 all_results.extend(normalized)
             elif isinstance(res, Exception):
-                errors.append(str(res))
+                err_msg = str(res) or res.__class__.__name__
+                errors.append(f"{providers[i].__class__.__name__}: {err_msg}")
                 
         unique_results = self.result_processor.deduplicate(all_results)
         ranked_results = self.ranking_engine.rank_results(unique_results, query)
@@ -50,7 +51,7 @@ class SearchRouter:
                 
                 rate_limiter = None
                 try:
-                    from utils.rate_limit import RateLimiter
+                    from blend.utils.rate_limit import RateLimiter
                     rate_limiter = RateLimiter()
                 except ImportError:
                     pass
@@ -93,7 +94,7 @@ class SearchRouter:
         visited.add(url)
         
         try:
-            from utils.security import is_safe_url
+            from blend.utils.security import is_safe_url
             is_safe, _ = is_safe_url(url)
             if not is_safe:
                 return None

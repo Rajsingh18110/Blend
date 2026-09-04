@@ -1,5 +1,5 @@
 import sys
-from utils.logger import get_logger
+from blend.utils.logger import get_logger
 logger = get_logger("startup_checks")
 
 def run_checks():

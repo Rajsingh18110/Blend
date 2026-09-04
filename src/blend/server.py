@@ -216,14 +216,7 @@ def custom_html_page(page):
 def custom_static_file(filename):
     return flask_send_from_directory(_FRONTEND_STATIC, filename)
 
-# /api/search — JSON endpoint for frontend. Calls search() directly (no redirect).
-@app.route('/api/search', methods=['GET', 'POST'])
-def api_search_endpoint():
-    # Force JSON format for API requests
-    args = blend_request.args.copy()
-    args['format'] = 'json'
-    blend_request.args = args
-    return search()
+
 
 # ── /api/stream — yt-dlp se real playable stream URL extract karo ─────────────
 @app.route('/api/stream', methods=['GET'])
@@ -303,26 +296,7 @@ def api_downloads_list():
             files_data.append({'name': fname, 'path': fp, 'size': f'{size_mb} MB'})
     return flask_jsonify({'files': files_data})
 
-# ── /api/ai — AI chat endpoint ────────────────────────────────────────────────
-@app.route('/api/ai', methods=['POST'])
-def api_ai_endpoint():
-    try:
-        from navar_knowledge import build_ai_response
-        data = blend_request.get_json(force=True, silent=True) or {}
-        query = str(data.get('query') or data.get('message') or '').strip()[:500]
-        if not query:
-            return flask_jsonify({'message': 'Query cannot be empty'}), 400
-        results = (data.get('results') or [])[:10]
-        shortcuts = data.get('shortcuts') or []
-        mode = data.get('mode') or 'fast'
-        current_tab = data.get('current_tab', 'web')
-        current_url = data.get('current_url', '')
-        return flask_jsonify(build_ai_response(
-            query, results, shortcuts, mode,
-            current_tab=current_tab, current_url=current_url
-        ))
-    except Exception as exc:
-        return flask_jsonify({'message': f'AI error: {exc}'}), 500
+
 
 # ── /ping — Health check ──────────────────────────────────────────────────────
 @app.route('/ping', methods=['GET'])
