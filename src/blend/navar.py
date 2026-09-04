@@ -321,6 +321,7 @@ def _clean_llm_text(text: str) -> str:
 
 def _call_llm_stream(messages: list[dict]):
     import json
+    sarvam_error = None
     # Try Sarvam if key exists
     sarvam_key = get_navar_api_key()
     if sarvam_key:
@@ -328,12 +329,12 @@ def _call_llm_stream(messages: list[dict]):
             import requests
             headers = {"api-subscription-key": sarvam_key, "Content-Type": "application/json"}
             payload = {
-                "model": "sarvam-2b-v0.5",
+                "model": "sarvam-105b-conversations",
                 "messages": messages,
                 "temperature": 0.3,
                 "stream": True
             }
-            resp = requests.post("https://api.sarvam.ai/chat/completions", headers=headers, json=payload, stream=True, timeout=10)
+            resp = requests.post("https://api.sarvam.ai/v1/chat/completions", headers=headers, json=payload, stream=True, timeout=10)
             if resp.status_code == 200:
                 for line in resp.iter_lines():
                     if line:
@@ -350,16 +351,17 @@ def _call_llm_stream(messages: list[dict]):
                             except:
                                 pass
                 return
+            else:
+                sarvam_error = f"HTTP {resp.status_code}: {resp.text}"
         except Exception as e:
+            sarvam_error = str(e)
             print(f"Sarvam API streaming failed: {e}")
             
     # Fallback to g4f streaming
     try:
         import g4f
-        from g4f.Provider import DuckDuckGo
         response = g4f.ChatCompletion.create(
             model="gpt-4o-mini",
-            provider=DuckDuckGo,
             messages=messages,
             stream=True
         )
@@ -368,7 +370,12 @@ def _call_llm_stream(messages: list[dict]):
                 yield str(chunk)
     except Exception as e:
         print(f"g4f streaming failed: {e}")
-        yield "Error: Could not connect to AI provider."
+        err_msg = "Error: Could not connect to AI provider."
+        if sarvam_key:
+            err_msg += f" (Sarvam: {sarvam_error}, g4f: {e})"
+        else:
+            err_msg += f" (g4f: {e})"
+        yield err_msg
 
 # ─────────────────────────────────────────────
 #  SCORE / RANK

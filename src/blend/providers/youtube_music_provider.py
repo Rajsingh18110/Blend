@@ -98,12 +98,8 @@ class YoutubeMusicProvider(BaseProvider):
         return results
 
     async def search(self, query: str, use_tor: bool = False, language: str = "all", pageno: int = 1) -> List[Dict[str, Any]]:
-        # Run 3 variant queries in parallel to get 20+ unique results
-        variant_queries = [
-            query,
-            query + ' tutorial',
-            query + ' video',
-        ]
+        # Run just the original query to speed up execution
+        variant_queries = [query]
 
         async with aiohttp.ClientSession(headers=self.HEADERS) as session:
             all_lists = await asyncio.gather(

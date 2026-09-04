@@ -33,6 +33,12 @@ def get_navar_api_key() -> str:
     cfg = get_active_api_config()
     if cfg and cfg.get("api_key"):
         return cfg.get("api_key", "").strip()
+    try:
+        from dotenv import load_dotenv
+        env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env")
+        load_dotenv(env_path)
+    except ImportError:
+        pass
     return os.environ.get("NAVAR_API_KEY", "").strip()
 
 def get_global_config() -> dict:
