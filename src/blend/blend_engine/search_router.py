@@ -16,28 +16,58 @@ class SearchRouter:
         """Routes the search request to the appropriate providers."""
         providers = self.provider_manager.get_providers(category, engines)
         
-        # Execute providers in parallel with a strict timeout for fast response
-        provider_timeout = 6.0 if mode == "fast" else 10.0
+        # Execute providers with a LATENCY BUDGET
+        # fast=5.0s: DDGS/GoogleProvider consistently takes 3-5s; 2.5s was too tight
+        # deep=8.0s: allow slower providers + Crawl4AI time
+        budget = 5.0 if mode == "fast" else 8.0
+        
+        import time
+        async def _time_provider(p, kwargs):
+            start = time.perf_counter()
+            try:
+                # Give each provider slightly more than the router budget so they have a chance to return 
+                # just before the router cuts them off.
+                res = await asyncio.wait_for(p.search(**kwargs), timeout=budget + 0.5)
+                elapsed = time.perf_counter() - start
+                print(f"[SEARCH_ROUTER] Provider {p.__class__.__name__} completed in {elapsed:.3f}s with {len(res) if isinstance(res, list) else 'error'} results.")
+                return p, res
+            except Exception as e:
+                elapsed = time.perf_counter() - start
+                print(f"[SEARCH_ROUTER] Provider {p.__class__.__name__} FAILED in {elapsed:.3f}s: {e}")
+                return p, e
+
         tasks = []
         for p in providers:
-            if hasattr(p, "search") and "page" in p.search.__code__.co_varnames:
-                # Some legacy providers (like BingImageProvider) use 'page' instead of 'pageno'
-                tasks.append(asyncio.wait_for(p.search(query, use_tor=use_tor, language=language, page=pageno), timeout=provider_timeout))
-            else:
-                tasks.append(asyncio.wait_for(p.search(query, use_tor=use_tor, language=language, pageno=pageno), timeout=provider_timeout))
+            kwargs = {
+                "query": query,
+                "use_tor": use_tor,
+                "language": language,
+                "pageno": pageno,
+            }
+            # Use the declared class flag instead of fragile co_varnames introspection (P0-7)
+            if getattr(p, "supports_category", False):
+                kwargs["category"] = category
+                    
+            tasks.append(asyncio.create_task(_time_provider(p, kwargs)))
                 
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+        done, pending = await asyncio.wait(tasks, timeout=budget)
         
+        for task in pending:
+            task.cancel() # Cancel slow providers that exceeded the budget
+            
         all_results = []
         errors = []
-        for i, res in enumerate(results):
-            if isinstance(res, list):
-                # normalize and extract metadata
-                normalized = [providers[i].normalize(r) for r in res]
-                all_results.extend(normalized)
-            elif isinstance(res, Exception):
-                err_msg = str(res) or res.__class__.__name__
-                errors.append(f"{providers[i].__class__.__name__}: {err_msg}")
+        for task in done:
+            try:
+                p, res = task.result()
+                if isinstance(res, list):
+                    normalized = [p.normalize(r) for r in res]
+                    all_results.extend(normalized)
+                elif isinstance(res, Exception):
+                    err_msg = str(res) or res.__class__.__name__
+                    errors.append(f"{p.__class__.__name__}: {err_msg}")
+            except Exception as e:
+                errors.append(f"TaskError: {str(e)}")
                 
         unique_results = self.result_processor.deduplicate(all_results)
         ranked_results = self.ranking_engine.rank_results(unique_results, query)
