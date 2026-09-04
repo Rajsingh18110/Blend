@@ -35,7 +35,7 @@ class BingImageProvider(BaseProvider):
         url = (
             f"https://www.bing.com/images/async"
             f"?q={encoded_query}&first={first}&count=40"
-            f"&safeSearch=Strict&mkt=en-US&adlt=Strict"
+            f"&safeSearch=Moderate&mkt=en-US&adlt=Moderate"
         )
         
         headers = dict(self.base_headers)
@@ -43,7 +43,7 @@ class BingImageProvider(BaseProvider):
 
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                async with session.get(url, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=25)) as resp:
                     html = await resp.text(errors='replace')
         except Exception:
             return []
