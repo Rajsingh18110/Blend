@@ -317,7 +317,7 @@ def _clean_llm_text(text: str) -> str:
     text = re.sub(r"<(think|thought)>.*?</\1>", "", text, flags=re.DOTALL | re.IGNORECASE)
     # Also remove any unclosed tags just in case
     text = re.sub(r"<(think|thought)>.*", "", text, flags=re.DOTALL | re.IGNORECASE)
-    return text.strip()
+    return text
 
 def _call_llm_stream(messages: list[dict]):
     import json
