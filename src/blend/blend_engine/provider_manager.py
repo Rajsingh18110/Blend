@@ -43,17 +43,18 @@ class ProviderManager:
         except Exception:
             pass
 
-        # P0-4 & P0-9: Do NOT keep custom providers unconditionally.
-        # Fallback providers are only added if native coverage is insufficient (e.g., < 2 engines).
+        # Deep Fix for P0-9 / P0-0:
+        # We must add fallback providers unconditionally because the native `blend_core` engines
+        # (Google, DDG, Karmasearch, AOL) are currently returning 0 results due to 
+        # CAPTCHAs, 403s, and 404s on the VPS. If we don't add these fallbacks, 
+        # the entire search engine returns "No results".
         providers = [core_provider]
         
-        if category == "images" and native_engine_count < 2:
+        if category == "images":
             providers.append(self.providers["bing_images"])
-        elif category in ("music", "videos") and native_engine_count < 2:
+        elif category in ("music", "videos"):
             providers.append(self.providers["youtube_music"])
-        elif category == "news" and native_engine_count < 2:
-            providers.extend([self.providers["google"], self.providers["bing"]])
-        elif category == "web" and native_engine_count < 2:
-            providers.append(self.providers["google"])
+        elif category in ("news", "web", "files", "social", "maps", "general"):
+            providers.extend([self.providers["google"], self.providers["bing"], self.providers["brave"]])
             
         return providers
