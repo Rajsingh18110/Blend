@@ -23,7 +23,22 @@ dependencies = [
     "lxml",
     "pyyaml",
     "typer<0.13",
-    "whitenoise"
+    "whitenoise",
+    "msgspec",
+    "aiohttp",
+    "aiohttp-socks",
+    "python-dotenv",
+    "valkey",
+    "PySocks",
+    "httpx",
+    "httpx-socks",
+    "python-dateutil",
+    "isodate",
+    "markdown-it-py",
+    "bleach",
+    "packaging",
+    "cloudscraper",
+    "typing_extensions"
 ]
 
 [project.scripts]
