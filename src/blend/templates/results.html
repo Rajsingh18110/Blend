@@ -1384,7 +1384,7 @@ async function renderMusic(q) {
       el.innerHTML = searchUI + headerHtml + `<div id="music-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;">` +
         data.results.map((m, idx) => {
           const ytId = m.id || extractYtId(m.url);
-          const thumb = m.thumbnail || (ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : '');
+          const thumb = m.thumbnail || m.thumbnail_src || m.thumbnail_url || m.thumb || m.img_src || (ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : 'https://images.unsplash.com/photo-1516280440502-a2fe619c67ce?w=320&h=180&fit=crop');
           return `
           <div onclick="playYouTubeModal('${ytId}','${escapeJs(m.title)}','${escapeJs(m.url)}')"
                style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;
