@@ -1,0 +1,73 @@
+# -----------------------------------------------
+# Blend Engine — by Markanm Team
+# https://markanm.com
+# -----------------------------------------------
+# SPDX-License-Identifier: Apache-2.0
+"""Browse one of the largest collections of copyleft icons
+that can be used for own projects (e.g. apps, websites).
+
+.. _Website: https://lucide.dev
+
+"""
+
+import typing as t
+
+from blend.blend_core.result_types import SourceResults
+
+if t.TYPE_CHECKING:
+    from extended_types import BlendResponse
+    from search.processors.online import OnlineParams
+
+
+about = {
+    "website": "https://lucide.dev/",
+    "wikidata_id": None,
+    "official_api_documentation": None,
+    "use_official_api": True,
+    "results": "JSON",
+}
+
+cdn_base_url = "https://cdn.jsdelivr.net/npm/lucide-static"
+categories = ["images", "icons"]
+
+
+def request(query: str, params: "OnlineParams"):
+    params["url"] = f"{cdn_base_url}/tags.json"
+    params['query'] = query
+    return params
+
+
+def response(resp: "BlendResponse") -> SourceResults:
+    res = SourceResults()
+    query_parts = resp.search_params["query"].lower().split(" ")
+
+    def is_result_match(result: tuple[str, list[str]]) -> bool:
+        icon_name, tags = result
+
+        for part in query_parts:
+            if part in icon_name:
+                return True
+
+            for tag in tags:
+                if part in tag:
+                    return True
+
+        return False
+
+    filtered_results = filter(is_result_match, resp.json().items())
+    for icon_name, tags in filtered_results:
+        img_src = f"{cdn_base_url}/icons/{icon_name}.svg"
+        res.add(
+            res.types.LegacyResult(
+                {
+                    "template": "images.html",
+                    "url": img_src,
+                    "title": icon_name,
+                    "content": ", ".join(tags),
+                    "img_src": img_src,
+                    "img_format": "SVG",
+                }
+            )
+        )
+
+    return res

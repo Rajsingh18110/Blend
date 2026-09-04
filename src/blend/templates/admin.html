@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Blend Search</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="logo">Blend<span style="color:var(--accent)">.</span><span class="powered">markanm</span></a>
+    <div class="topbar-badge" style="background:var(--red); color:#fff;">Admin</div>
+  </div>
+  <nav class="topbar-nav" style="margin-left:12px;">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="settings.html" class="nav-link">Settings</a>
+  </nav>
+</header>
+
+<main class="content-page" style="max-width:700px;">
+
+  <div class="page-hero" style="margin-bottom:32px;">
+    <div class="page-tag">🔑 Security</div>
+    <h1 class="page-title" style="font-size:36px;">Admin Panel</h1>
+    <p class="page-subtitle" style="font-size:15px;">Configure global settings, AI providers, and webhooks.</p>
+  </div>
+
+  <div class="section-block">
+    <h2 class="section-heading">Authentication</h2>
+    <div class="settings-grid">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Admin Token</div>
+          <div class="setting-desc">Required to view or change settings</div>
+        </div>
+        <input type="password" id="api-admin-token" class="setting-select" placeholder="Enter admin token" style="width:250px; padding:6px 10px; background:var(--bg-3); border:1px solid var(--border);" />
+      </div>
+      <div class="setting-row" style="justify-content: flex-end;">
+        <button onclick="fetchApiConfig()" style="padding:8px 16px; background:var(--bg-2); color:var(--text); border:1px solid var(--border); border-radius:var(--radius); font-weight:bold; cursor:pointer;">Authenticate</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block" id="admin-content" style="opacity: 0.5; pointer-events: none;">
+    <h2 class="section-heading">AI Provider Config</h2>
+    <div class="settings-grid">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">LLM Provider</div>
+          <div class="setting-desc">Select the primary AI backend</div>
+        </div>
+        <select class="setting-select" id="api-provider">
+          <option value="g4f">G4F (Free Fallback)</option>
+          <option value="openai">OpenAI</option>
+          <option value="anthropic">Anthropic</option>
+          <option value="gemini">Google Gemini</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Model Name</div>
+          <div class="setting-desc">e.g., gpt-4o, claude-3-haiku-20240307</div>
+        </div>
+        <input type="text" id="api-model" class="setting-select" placeholder="Model ID" style="width:250px; padding:6px 10px; background:var(--bg-3); border:1px solid var(--border);" />
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">API Key</div>
+          <div class="setting-desc">Securely stored on backend</div>
+        </div>
+        <input type="password" id="api-key" class="setting-select" placeholder="***" style="width:250px; padding:6px 10px; background:var(--bg-3); border:1px solid var(--border);" />
+      </div>
+    </div>
+    
+    <h2 class="section-heading" style="margin-top:24px;">Global Config</h2>
+    <div class="settings-grid">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Webhook URL</div>
+          <div class="setting-desc">Endpoint to notify on events</div>
+        </div>
+        <input type="text" id="webhook-url" class="setting-select" placeholder="https://..." style="width:250px; padding:6px 10px; background:var(--bg-3); border:1px solid var(--border);" />
+      </div>
+      <div class="setting-row" style="justify-content: flex-end;">
+        <button onclick="saveApiConfig()" style="padding:8px 16px; background:var(--accent); color:#000; border:none; border-radius:var(--radius); font-weight:bold; cursor:pointer;">Save Configuration</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  let savedTimer;
+  function showSaved(msg='Saved!') {
+    clearTimeout(savedTimer);
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:10px 20px;background:var(--accent);color:#000;font-weight:600;font-size:13px;border-radius:8px;z-index:999;transition:opacity 0.3s;font-family:"DM Sans",sans-serif;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    savedTimer = setTimeout(() => { toast.style.opacity = '0'; }, 1800);
+  }
+
+  async function fetchApiConfig() {
+    const token = document.getElementById('api-admin-token').value;
+    if (!token) return;
+    try {
+        const res = await fetch('/api/admin/get_api_config', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({admin_token: token})
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.provider) document.getElementById('api-provider').value = data.provider;
+            if (data.model) document.getElementById('api-model').value = data.model;
+            if (data.api_key) document.getElementById('api-key').value = data.api_key;
+            if (data.webhook_url) document.getElementById('webhook-url').value = data.webhook_url;
+            showSaved('Authenticated!');
+            
+            const content = document.getElementById('admin-content');
+            content.style.opacity = '1';
+            content.style.pointerEvents = 'auto';
+        } else {
+            const err = await res.json();
+            alert(err.error || 'Unauthorized');
+        }
+    } catch(e) {}
+  }
+  
+  document.getElementById('api-admin-token').addEventListener('keydown', e => {
+      if(e.key === 'Enter') fetchApiConfig();
+  });
+
+  async function saveApiConfig() {
+      const token = document.getElementById('api-admin-token').value;
+      const provider = document.getElementById('api-provider').value;
+      const model = document.getElementById('api-model').value;
+      const key = document.getElementById('api-key').value;
+      const webhook = document.getElementById('webhook-url').value;
+      
+      const res = await fetch('/api/admin/set_api_config', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+              admin_token: token, 
+              provider: provider, 
+              model: model, 
+              api_key: key,
+              webhook_url: webhook
+          })
+      });
+      if (res.ok) {
+          showSaved('Configuration Saved!');
+          fetchApiConfig();
+      } else {
+          const data = await res.json();
+          alert(data.error || 'Failed to save config');
+      }
+  }
+  
+  const theme = localStorage.getItem('blend_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+</script>
+</body>
+</html>

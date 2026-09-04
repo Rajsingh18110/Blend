@@ -1,0 +1,63 @@
+# -----------------------------------------------
+# Blend Engine — by Markanm Team
+# https://markanm.com
+# -----------------------------------------------
+# SPDX-License-Identifier: Apache-2.0
+# pylint: disable=missing-module-docstring, missing-class-docstring
+import typing
+
+import re
+from ipaddress import ip_address
+
+from flask_babel import gettext
+
+from blend.blend_core.result_types import SourceResults
+
+from . import Plugin, PluginInfo
+
+if typing.TYPE_CHECKING:
+    from blend.blend_core.pipeline import SearchWithPlugins
+    from blend.blend_core.extended_types import BlendRequest
+    from . import PluginCfg
+
+
+class BlendPlugin(Plugin):
+    """Simple plugin that displays information about user's request, including
+    the IP or HTTP User-Agent.  The information is displayed in area for the
+    "answers".
+    """
+
+    id = "self_info"
+    keywords = ["ip", "user-agent"]
+
+    def __init__(self, plg_cfg: "PluginCfg"):
+        super().__init__(plg_cfg)
+
+        self.ip_regex = re.compile(r"^ip", re.IGNORECASE)
+        self.ua_regex = re.compile(r"^user-agent", re.IGNORECASE)
+
+        self.info = PluginInfo(
+            id=self.id,
+            name=gettext("Self Information"),
+            description=gettext(
+                """Displays your IP if the query is "ip" and your user agent if the query is "user-agent"."""
+            ),
+            preference_section="query",
+        )
+
+    def post_search(self, request: "BlendRequest", search: "SearchWithPlugins") -> SourceResults:
+        """Returns a result list only for the first page."""
+        results = SourceResults()
+
+        if search.blend_query.pageno > 1:
+            return results
+
+        if self.ip_regex.search(search.blend_query.query) and request.remote_addr:
+            results.add(
+                results.types.Answer(answer=gettext("Your IP is: ") + ip_address(request.remote_addr).compressed)
+            )
+
+        if self.ua_regex.match(search.blend_query.query):
+            results.add(results.types.Answer(answer=gettext("Your user-agent is: ") + str(request.user_agent)))
+
+        return results

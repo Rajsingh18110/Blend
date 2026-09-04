@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+
+<meta name="author" content="Markanm Team">
+<meta name="publisher" content="Markanm">
+<meta name="copyright" content="Markanm Team">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — Blend Search</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="logo">Blend<span style="color:var(--accent)">.</span><span class="powered">markanm</span></a>
+    <div class="topbar-badge">Settings</div>
+  </div>
+  <div class="topbar-search">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="top-search" placeholder="Search anything…" autocomplete="off" />
+  </div>
+  <button class="search-submit" onclick="doSearch()">Search</button>
+  <nav class="topbar-nav" style="margin-left:12px;">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="privacy.html" class="nav-link">Privacy</a>
+    <a href="settings.html" class="nav-link active">Settings</a>
+  </nav>
+</header>
+
+<main class="content-page" style="max-width:700px;">
+
+  <div class="page-hero" style="margin-bottom:32px;">
+    <div class="page-tag">⚙️ Preferences</div>
+    <h1 class="page-title" style="font-size:36px;">Settings</h1>
+    <p class="page-subtitle" style="font-size:15px;">All preferences are stored in your browser only. Nothing is sent to our servers.</p>
+  </div>
+
+  <!-- SEARCH ENGINE -->
+  <div class="section-block">
+    <h2 class="section-heading">🔍 Search Engine</h2>
+    <div class="settings-grid">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Default Engine</div>
+          <div class="setting-desc">Which engine powers your results by default</div>
+        </div>
+        <select class="setting-select" id="s-engine" onchange="save('engine',this.value)">
+          <option value="blend">Blend (All engines)</option>
+          <option value="google">Google</option>
+          <option value="bing">Bing</option>
+          <option value="ddg">DuckDuckGo</option>
+          <option value="brave">Brave Search</option>
+          <option value="qwant">Qwant</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Response Mode</div>
+          <div class="setting-desc">Fast Response vs. comprehensive Deep Search</div>
+        </div>
+        <select class="setting-select" id="s-mode" onchange="save('mode',this.value)">
+          <option value="fast">Fast Response</option>
+          <option value="deep">Deep Search</option>
+          <option value="ai">AI Summary</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Results per page</div>
+          <div class="setting-desc">Number of web results shown per search</div>
+        </div>
+        <select class="setting-select" id="s-count" onchange="save('count',this.value)">
+          <option value="10">10 results</option>
+          <option value="20">20 results</option>
+          <option value="30">30 results</option>
+          <option value="50">50 results</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIVACY -->
+  <div class="section-block">
+    <h2 class="section-heading">🔒 Privacy & Safety</h2>
+    <div class="settings-grid">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Safe Search</div>
+          <div class="setting-desc">Filter explicit content from results</div>
+        </div>
+        <select class="setting-select" id="s-safe" onchange="save('safe',this.value)">
+          <option value="moderate">Moderate</option>
+          <option value="strict">Strict</option>
+          <option value="off">Off</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Open links in new tab</div>
+          <div class="setting-desc">Clicking search results opens a new browser tab</div>
+        </div>
+        <div class="toggle-switch" id="t-newtab" onclick="toggleSetting(this,'newtab')"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Proxy image requests</div>
+          <div class="setting-desc">Route image loads through Blend to hide your IP from image sources</div>
+        </div>
+        <div class="toggle-switch" id="t-proxy" onclick="toggleSetting(this,'proxy')"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Save Search History</div>
+          <div class="setting-desc">Store searches locally for personalized suggestions</div>
+        </div>
+        <div class="toggle-switch" id="t-history" onclick="toggleSetting(this,'history')"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label" style="color:var(--accent);">Tor Network Support</div>
+          <div class="setting-desc">Route backend requests through Tor (Slower, max privacy)</div>
+        </div>
+        <div class="toggle-switch" id="t-tor" onclick="toggleSetting(this,'tor')"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEDIA SETTINGS -->
+  <div class="section-block">
+    <h2 class="section-heading">🎬 Media Preferences</h2>
+    <div class="settings-grid">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Video Autoplay</div>
+          <div class="setting-desc">Automatically play videos in the modal</div>
+        </div>
+        <div class="toggle-switch on" id="t-autoplay" onclick="toggleSetting(this,'autoplay')"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPEARANCE -->
+  <div class="section-block">
+    <h2 class="section-heading">🎨 Appearance</h2>
+    <div class="settings-grid">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Theme</div>
+          <div class="setting-desc">Color scheme for Blend's interface</div>
+        </div>
+        <select class="setting-select" id="s-theme" onchange="save('theme',this.value)">
+          <option value="dark">Dark (default)</option>
+          <option value="light">Light</option>
+          <option value="system">Follow system</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Compact mode</div>
+          <div class="setting-desc">Show more results with tighter spacing</div>
+        </div>
+        <div class="toggle-switch" id="t-compact" onclick="toggleSetting(this,'compact')"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Show engine badges</div>
+          <div class="setting-desc">Display which engine each result came from</div>
+        </div>
+        <div class="toggle-switch on" id="t-badges" onclick="toggleSetting(this,'badges')"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Show favicons</div>
+          <div class="setting-desc">Display website icons next to search results</div>
+        </div>
+        <div class="toggle-switch on" id="t-favicons" onclick="toggleSetting(this,'favicons')"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LANGUAGE & REGION -->
+  <div class="section-block">
+    <h2 class="section-heading">🌐 Language & Region</h2>
+    <div class="settings-grid">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Interface language</div>
+          <div class="setting-desc">Language for Blend's UI</div>
+        </div>
+        <select class="setting-select" id="s-lang" onchange="save('lang',this.value)">
+          <option value="en">English</option>
+          <option value="hi">Hindi</option>
+          <option value="hinglish">Hinglish</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Search region</div>
+          <div class="setting-desc">Bias results toward a specific country</div>
+        </div>
+        <select class="setting-select" id="s-region" onchange="save('region',this.value)">
+          <option value="in">India 🇮🇳</option>
+          <option value="all">All regions 🌍</option>
+          <option value="us">United States 🇺🇸</option>
+          <option value="gb">United Kingdom 🇬🇧</option>
+          <option value="de">Germany 🇩🇪</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">India-first results</div>
+          <div class="setting-desc">Prioritize Indian sources in search results</div>
+        </div>
+        <div class="toggle-switch on" id="t-india" onclick="toggleSetting(this,'india')"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI FEATURES -->
+  <div class="section-block">
+    <h2 class="section-heading">🤖 AI Features</h2>
+    <div class="settings-grid">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">AI summaries</div>
+          <div class="setting-desc">Show AI-generated summaries above results</div>
+        </div>
+        <div class="toggle-switch" id="t-ai" onclick="toggleSetting(this,'ai')"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">AI model</div>
+          <div class="setting-desc">Which model powers AI summaries</div>
+        </div>
+        <select class="setting-select" id="s-aimodel" onchange="save('aimodel',this.value)">
+          <option value="local">Local (Private)</option>
+          <option value="blend">Blend Cloud</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Auto-suggestions</div>
+          <div class="setting-desc">Show search suggestions as you type</div>
+        </div>
+        <div class="toggle-switch on" id="t-suggest" onclick="toggleSetting(this,'suggest')"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <!-- DANGER ZONE -->
+  <div class="section-block">
+    <h2 class="section-heading" style="color:var(--red);border-bottom-color:rgba(255,82,82,0.2);">⚠️ Reset</h2>
+    <div style="padding:18px;background:rgba(255,82,82,0.05);border:1px solid rgba(255,82,82,0.15);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px;">Clear all preferences</div>
+        <div style="font-size:12px;color:var(--text3);">Resets all settings to default. This only clears browser localStorage.</div>
+      </div>
+      <button onclick="clearAll()" style="padding:9px 18px;background:rgba(255,82,82,0.12);border:1px solid rgba(255,82,82,0.3);color:var(--red);border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s;" onmouseover="this.style.background='rgba(255,82,82,0.2)'" onmouseout="this.style.background='rgba(255,82,82,0.12)'">Clear preferences</button>
+    </div>
+  </div>
+
+  <!-- VERSION -->
+  <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">
+    Blend Search v1.0.0 · <a href="about.html" style="color:var(--text3);">About</a> · <a href="privacy.html" style="color:var(--text3);">Privacy</a>
+  </div>
+
+</main>
+
+<footer>
+  <span class="footer-copy">© 2026 Blend · Search Engine</span>
+  <div class="footer-links">
+    <a href="index.html" class="footer-link">Home</a>
+    <a href="about.html" class="footer-link">About</a>
+    <a href="privacy.html" class="footer-link">Privacy</a>
+    <a href="https://markanm.com/" class="footer-link">Join Us</a>
+  </div>
+</footer>
+
+<script src="blend-config.js"></script>
+<script>
+  function save(key, val) {
+    localStorage.setItem('blend_'+key, val);
+    if (key === 'theme') applyTheme(val);
+    showSaved();
+  }
+
+  function applyTheme(value) {
+    const theme = value === 'system'
+      ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : value;
+    document.documentElement.setAttribute('data-theme', theme || 'dark');
+  }
+
+  function toggleSetting(el, key) {
+    el.classList.toggle('on');
+    save(key, el.classList.contains('on') ? '1' : '0');
+  }
+
+  function loadSettings() {
+    const defaults = { engine:'blend', mode:'fast', count:'10', safe:'moderate', theme:'dark', lang:'en', region:'in', aimodel:'local', newtab:'0', proxy:'0', compact:'0', badges:'1', favicons:'1', india:'1', ai:'0', suggest:'1', tor:'0', history:'0', autoplay:'1' };
+    
+    // Explicit sync for history with privacy consent
+    if (localStorage.getItem('blend_privacy_consent') === 'true') {
+      localStorage.setItem('blend_history', '1');
+    }
+    
+    for (const [key, def] of Object.entries(defaults)) {
+      const val = localStorage.getItem('blend_'+key) ?? def;
+      const sel = document.getElementById('s-'+key);
+      const tog = document.getElementById('t-'+key);
+      if (sel) sel.value = val;
+      if (tog) { tog.classList.toggle('on', val === '1'); }
+    }
+    applyTheme(localStorage.getItem('blend_theme') || defaults.theme);
+  }
+
+  function clearAll() {
+    if (!confirm('Reset all Blend preferences to default?')) return;
+    Object.keys(localStorage).filter(k => k.startsWith('blend_')).forEach(k => localStorage.removeItem(k));
+    localStorage.removeItem('blend_search_history');
+    localStorage.removeItem('blend_privacy_consent');
+    loadSettings();
+    showSaved('Preferences & History reset!');
+  }
+
+  let savedTimer;
+  function showSaved(msg='Saved!') {
+    clearTimeout(savedTimer);
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:10px 20px;background:var(--accent);color:#000;font-weight:600;font-size:13px;border-radius:var(--radius-xl);z-index:999;transition:opacity 0.3s;font-family:"DM Sans",sans-serif;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    savedTimer = setTimeout(() => { toast.style.opacity = '0'; }, 1800);
+  }
+
+  function doSearch() {
+    const q = document.getElementById('top-search').value.trim();
+    if (q) window.location.href = `results.html?q=${encodeURIComponent(q)}&tab=web`;
+  }
+  document.getElementById('top-search').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+
+
+
+  loadSettings();
+</script>
+</body>
+</html>
