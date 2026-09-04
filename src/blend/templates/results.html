@@ -287,6 +287,52 @@ const styleSheet = document.createElement("style");
 styleSheet.innerText = SETTINGS_CSS;
 document.head.appendChild(styleSheet);
 
+/* ──────────────────────────────────────────────────────────────
+   BLEND STATE — Request deduplication, in-flight tracking, cache
+   These MUST be defined before any render function is called.
+   ────────────────────────────────────────────────────────────── */
+window.BLEND_STATE = window.BLEND_STATE || { cache: {}, inFlight: {} };
+
+function getStateKey(tab, q, extra = '') {
+  const params = new URLSearchParams(window.location.search);
+  const pageno = params.get('pageno') || '1';
+  const mode = document.getElementById('mode-select')?.value || 'fast';
+  return `${tab}::${String(q).trim()}::${pageno}::${mode}${extra ? '::' + extra : ''}`;
+}
+
+async function fetchWithCache(url, cacheKey) {
+  // Return cached data immediately if available and non-empty
+  const cached = window.BLEND_STATE.cache[cacheKey];
+  if (cached) return cached;
+
+  // Deduplicate concurrent identical requests — return the same promise
+  if (window.BLEND_STATE.inFlight[cacheKey]) {
+    return window.BLEND_STATE.inFlight[cacheKey];
+  }
+
+  const promise = fetch(url)
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status} from ${url}`);
+      return r.json();
+    })
+    .then(data => {
+      // Only cache healthy non-empty responses (P0-13: never cache empty failures)
+      if (data && (
+        (Array.isArray(data.results) && data.results.length > 0) ||
+        (Array.isArray(data.answers) && data.answers.length > 0)
+      )) {
+        window.BLEND_STATE.cache[cacheKey] = data;
+      }
+      return data;
+    })
+    .finally(() => {
+      delete window.BLEND_STATE.inFlight[cacheKey];
+    });
+
+  window.BLEND_STATE.inFlight[cacheKey] = promise;
+  return promise;
+}
+
 function escapeHtml(value) {
   return String(value || '')
     .replace(/&/g, '&amp;')
@@ -425,10 +471,10 @@ function currentTabName() {
 function resetTabState(tab) {
   if (tab === 'web') window.CURRENT_RESULTS = [];
   if (tab === 'images') window.allImages = [];
-  if (tab === 'videos') delete document.getElementById('full-videos').dataset.loaded;
-  if (tab === 'news') delete document.getElementById('news-list').dataset.loaded;
-  if (tab === 'files') delete document.getElementById('files-list').dataset.loaded;
-  if (tab === 'social') delete document.getElementById('social-list').dataset.loaded;
+  if (tab === 'videos') delete document.getElementById('full-videos').dataset.renderedKey;
+  if (tab === 'news') delete document.getElementById('news-list').dataset.renderedKey;
+  if (tab === 'files') delete document.getElementById('files-list').dataset.renderedKey;
+  if (tab === 'social') delete document.getElementById('social-list').dataset.renderedKey;
 }
 
 function resetSearchModeState() {
@@ -436,20 +482,11 @@ function resetSearchModeState() {
   window.allImages = [];
   ['full-videos', 'news-list', 'files-list', 'social-list'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) delete el.dataset.loaded;
+    if (el) delete el.dataset.renderedKey;
   });
 }
 
-function renderActiveSearchTab(tab, q) {
-  if (tab === 'web') renderWeb(q);
-  if (tab === 'images') renderImages(q);
-  if (tab === 'videos') renderVideos(q);
-  if (tab === 'news') renderNews(q);
-  if (tab === 'files') renderFiles(q);
-  if (tab === 'social') renderSocial(q);
-  if (tab === 'maps') renderMapPlaces(q);
-  if (tab === 'music') renderMusic(q);
-}
+
 
 function deepTextPreview(markdown, maxLength = 520) {
   return String(markdown || '')
@@ -678,13 +715,12 @@ async function renderWeb(q) {
     const domains = guessDomainsFromQuery(q);
     const officialDomains = domains.slice(0, 3);
     const siteQuery = officialDomains.length ? officialDomains.map(d => `site:${d}`).join(' OR ') : '';
-    const [mainResult, siteResult] = await Promise.allSettled([
-      fetch(API(`/api/search?q=${encodeURIComponent(q)}&pageno=${pageno}&format=json${modeParam}${window.LANG_PARAM || ''}`)),
-      siteQuery ? fetch(API(`/api/search?q=${encodeURIComponent(siteQuery)}&pageno=${pageno}&format=json${window.LANG_PARAM || ''}`)) : Promise.resolve(null)
-    ]);
-
-    if (mainResult.status !== 'fulfilled' || !mainResult.value.ok) throw new Error('API Error');
-    const data = await mainResult.value.json();
+    
+    const cacheKey = getStateKey('web', q);
+    const mainUrl = API(`/api/search?q=${encodeURIComponent(q)}&pageno=${pageno}&format=json${modeParam}${window.LANG_PARAM || ''}`);
+    
+    // Check if we already have this specific fetch in-flight (using our wrapper)
+    const data = await fetchWithCache(mainUrl, cacheKey);
     
     // Display errors if any
     const errorsEl = document.getElementById('errors-container');
@@ -698,61 +734,44 @@ async function renderWeb(q) {
     }
 
     updateDeepSearchPanel(data, 'web');
-    let siteResults = [];
-    if (siteResult.status === 'fulfilled' && siteResult.value && siteResult.value.ok) {
-      const siteData = await siteResult.value.json();
-      siteResults = siteData.results || [];
-    }
-
+    
     const mainResults = data.results || [];
     const trustedResults = markanmTrustedResults(q);
     
-    // Find the TOP domain from our guessed domains that actually has results
     let cardDomain = '';
-    const allFetched = [...trustedResults, ...siteResults, ...mainResults];
+    const allFetched = [...trustedResults, ...mainResults];
     for (let d of domains) {
        if (allFetched.some(r => urlMatchesDomain(r.url || '', [d]))) {
           cardDomain = d;
-          break; // Stop at .com if it exists, otherwise fall back to .in
+          break; 
        }
     }
     
-    // If we didn't find any of our guessed domains, just use the top result's domain
-    let needsExtraSiteFetch = false;
     if (!cardDomain && mainResults.length > 0 && !isSocialUrl(mainResults[0].url)) {
         cardDomain = getDomain(mainResults[0].url);
-        needsExtraSiteFetch = true; // We didn't fetch sitelinks for this domain in parallel!
-    }
-
-    // EXTRA FETCH for non-.com/.in domains (like .ai, .edu, etc.)
-    if (needsExtraSiteFetch && cardDomain) {
-      try {
-        const extraSiteRes = await fetch(API(`/api/search?q=${encodeURIComponent('site:' + cardDomain)}&pageno=${pageno}&format=json${window.LANG_PARAM || ''}`));
-        if (extraSiteRes.ok) {
-           const extraSiteData = await extraSiteRes.json();
-           siteResults = extraSiteData.results || [];
-        }
-      } catch (e) {}
     }
 
     const activeOfficialDomains = cardDomain ? [cardDomain] : [];
 
     const officialResults = dedupeResults([
       ...trustedResults.filter(r => !isSocialUrl(r.url || '') && urlMatchesDomain(r.url || '', activeOfficialDomains)),
-      ...siteResults.filter(r => urlMatchesDomain(r.url || '', activeOfficialDomains)),
       ...mainResults.filter(r => urlMatchesDomain(r.url || '', activeOfficialDomains))
     ]);
+    
     const shownUrls = new Set(officialResults.map(r => r.url));
     const siteGeneral = [
-      ...trustedResults.filter(r => !isSocialUrl(r.url || '') && !shownUrls.has(r.url)),
-      ...siteResults.filter(r => !shownUrls.has(r.url))
+      ...trustedResults.filter(r => !isSocialUrl(r.url || '') && !shownUrls.has(r.url))
     ];
     siteGeneral.forEach(r => shownUrls.add(r.url));
+    
     const boostedGeneral = dedupeResults([
       ...siteGeneral,
       ...boostByUrl(q, mainResults.filter(r => !shownUrls.has(r.url)))
     ]);
+    
     window.CURRENT_RESULTS = dedupeResults([...officialResults, ...boostedGeneral]);
+    window.BLEND_STATE.cache[cacheKey] = window.CURRENT_RESULTS; // Store globally
+    window.SECTION_CACHE = window.SECTION_CACHE || {};
     window.SECTION_CACHE['web'] = window.CURRENT_RESULTS;
     
     if (window.CURRENT_RESULTS.length > 0) {
@@ -762,8 +781,11 @@ async function renderWeb(q) {
       const firstOfficialDomain = officialResults.length ? getDomain(officialResults[0].url || '') : '';
       const priorityGeneral = boostedGeneral.filter(r => urlMatchesDomain(r.url || '', officialDomains));
       const restGeneral = boostedGeneral.filter(r => !urlMatchesDomain(r.url || '', officialDomains));
+      
       el.innerHTML =
+        `<div id="sitelinks-container-${cacheKey.replace(/[^a-zA-Z0-9]/g,'-')}">` +
         (firstOfficialDomain ? siteLinksResultBlock(firstOfficialDomain, officialResults) : '') +
+        `</div>` +
         priorityGeneral
           .map((r, idx) => resultCard(r, idx))
           .join('') +
@@ -771,6 +793,26 @@ async function renderWeb(q) {
           .map((r, idx) => resultCard(r, idx + priorityGeneral.length))
           .join('');
       renderPagination();
+      
+      // BACKGROUND SITE ENRICHMENT
+      if (cardDomain) {
+          const siteUrl = API(`/api/search?q=${encodeURIComponent('site:' + cardDomain)}&pageno=${pageno}&format=json${window.LANG_PARAM || ''}`);
+          // DO NOT await this, let it run in background
+          fetch(siteUrl)
+             .then(r => r.ok ? r.json() : null)
+             .then(siteData => {
+                 if(siteData && siteData.results && siteData.results.length > 0) {
+                     const siteLinks = siteData.results.filter(r => urlMatchesDomain(r.url || '', activeOfficialDomains));
+                     if(siteLinks.length > 0) {
+                         const combined = dedupeResults([...officialResults, ...siteLinks]);
+                         const container = document.getElementById(`sitelinks-container-${cacheKey.replace(/[^a-zA-Z0-9]/g,'-')}`);
+                         if(container) {
+                             container.innerHTML = siteLinksResultBlock(firstOfficialDomain || cardDomain, combined);
+                         }
+                     }
+                 }
+             }).catch(() => {});
+      }
       return;
     }
   } catch (err) { 
@@ -869,12 +911,14 @@ async function renderImages(q) {
   window._seenImgUrls = new Set();
 
   try {
-    const res = await fetch(API(`/api/search?q=${encodeURIComponent(q)}&categories=images&pageno=1&format=json${modePart}${window.LANG_PARAM || ''}`), { signal: AbortSignal.timeout(30000) });
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
+    const cacheKey = getStateKey('images', q);
+    const imgUrl = API(`/api/search?q=${encodeURIComponent(q)}&categories=images&pageno=1&format=json${modePart}${window.LANG_PARAM || ''}`);
+    const data = await fetchWithCache(imgUrl, cacheKey);
     updateDeepSearchPanel(data, 'images');
     if (data.results && data.results.length > 0) {
       window.allImages = boostByUrl(q, data.results);
+      window.BLEND_STATE.cache[cacheKey] = window.allImages;
+      window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['images'] = window.allImages;
       window.allImages.forEach(img => window._seenImgUrls.add(img.img_src || img.url));
       statsEl.innerHTML = `About ${data.results.length.toLocaleString()} image results · ${searchModeLabel(selectedSearchMode())}`;
@@ -988,9 +1032,9 @@ async function renderVideos(q) {
   if (loadMoreWrap) loadMoreWrap.style.display = 'none';
   
   try {
-    const res = await fetch(API(`/api/search?q=${encodeURIComponent(q)}&categories=videos&format=json${modePart}${window.LANG_PARAM || ''}`));
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
+    const cacheKey = getStateKey('videos', q);
+    const videoUrl = API(`/api/search?q=${encodeURIComponent(q)}&categories=videos&format=json${modePart}${window.LANG_PARAM || ''}`);
+    const data = await fetchWithCache(videoUrl, cacheKey);
     updateDeepSearchPanel(data, 'videos');
     let results = data.results || [];
     
@@ -998,6 +1042,8 @@ async function renderVideos(q) {
     const seen = window._seenVideoUrls;
     results = results.filter(v => { if (seen.has(v.url)) return false; seen.add(v.url); return true; });
     results = boostByUrl(q, results);
+    window.BLEND_STATE.cache[cacheKey] = results;
+    window.SECTION_CACHE = window.SECTION_CACHE || {};
     window.SECTION_CACHE['videos'] = results;
     
     if (results.length > 0) {
@@ -1053,12 +1099,14 @@ async function renderNews(q) {
   showDeepSearchPending('news', q);
   el.innerHTML = '<div style="grid-column: 1/-1; padding:40px;text-align:center;color:var(--text3);"><div class="loading-spinner"></div><div>' + (selectedSearchMode() === 'deep' ? 'Crawl4AI verifying news pages for ' : 'Fetching live updates for ') + '<strong>' + escapeHtml(q) + '</strong>...</div></div>';
   try {
-    const res = await fetch(API(`/api/search?q=${encodeURIComponent(q)}&categories=news&format=json${modePart}${window.LANG_PARAM || ''}`));
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
+    const cacheKey = getStateKey('news', q);
+    const newsUrl = API(`/api/search?q=${encodeURIComponent(q)}&categories=news&format=json${modePart}${window.LANG_PARAM || ''}`);
+    const data = await fetchWithCache(newsUrl, cacheKey);
     updateDeepSearchPanel(data, 'news');
     if (data.results && data.results.length > 0) {
       const results = boostByUrl(q, data.results);
+      window.BLEND_STATE.cache[cacheKey] = results;
+      window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['news'] = results;
       document.getElementById('news-stats').textContent = `Top ${results.length} stories for "${q}" · ${searchModeLabel(selectedSearchMode())}`;
       el.innerHTML = results.map((n, idx) => `
@@ -1263,10 +1311,13 @@ async function renderMapPlaces(q) {
   // ── STEP 6: Load text results ──
   try {
     const searchQ = (lat && lon) ? `${q} near ${lat},${lon}` : finalQuery;
-    const res = await fetch(API(`/api/search?q=${encodeURIComponent(searchQ)}&categories=map&format=json`));
-    const data = await res.json();
+    const cacheKey = getStateKey('maps', searchQ);
+    const mapUrl = API(`/api/search?q=${encodeURIComponent(searchQ)}&categories=map&format=json`);
+    const data = await fetchWithCache(mapUrl, cacheKey);
     const listEl = document.getElementById('map-results-list');
     if (data.results?.length) {
+      window.BLEND_STATE.cache[cacheKey] = data.results;
+      window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['maps'] = data.results;
       listEl.innerHTML = `<p style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">📍 Nearby Places</p>` +
         data.results.slice(0, 8).map(p => `
@@ -1299,10 +1350,12 @@ async function renderMusic(q) {
   const searchQ = q || 'Top Trending Music';
   el.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text3);"><div class="loading-spinner" style="margin:0 auto 16px;"></div><div>Loading ${q ? `music for "<strong>${escapeHtml(searchQ)}</strong>"` : '🔥 Real-time Trending Music'}...</div></div>`;
   try {
-    const res = await fetch(API(`/api/search?q=${encodeURIComponent(searchQ)}&categories=music&format=json`));
-    if (!res.ok) throw new Error('API Error ' + res.status);
-    const data = await res.json();
+    const cacheKey = getStateKey('music', searchQ);
+    const musicUrl = API(`/api/search?q=${encodeURIComponent(searchQ)}&categories=music&format=json`);
+    const data = await fetchWithCache(musicUrl, cacheKey);
     if (data.results && data.results.length > 0) {
+      window.BLEND_STATE.cache[cacheKey] = data.results;
+      window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['music'] = data.results;
       window.MUSIC_QUEUE = data.results.map(m => ({
         title: m.title,
@@ -1465,10 +1518,9 @@ async function renderFiles(q, engineFilter = '') {
     
     if (window.LANG_PARAM) params.set('language', window.LANG_PARAM.replace('&language=', ''));
     
-    const startTime = performance.now();
-    const res = await fetch(API(`/api/search?${params.toString()}`));
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
+    const cacheKey = getStateKey('files', searchQ);
+    const filesUrl = API(`/api/search?${params.toString()}`);
+    const data = await fetchWithCache(filesUrl, cacheKey);
     updateDeepSearchPanel(data, 'files');
     const timeTaken = ((performance.now() - startTime) / 1000).toFixed(2);
     
@@ -1477,6 +1529,8 @@ async function renderFiles(q, engineFilter = '') {
       
       const fileExtRegex = /\.(pdf|docx?|xlsx?|pptx?|txt|csv|json|md|py|js|html)$/i;
       
+      window.BLEND_STATE.cache[cacheKey] = data.results;
+      window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['files'] = data.results;
       el.innerHTML = data.results.map((r, idx) => {
         let domain = r.parsed_url ? r.parsed_url[1].replace('www.', '') : (r.source || 'File');
@@ -1558,12 +1612,14 @@ async function renderSocial(q) {
     const params = new URLSearchParams({ q: searchQ, categories: 'social media', format: 'json' });
     applySearchModeParam(params);
     if (window.LANG_PARAM) params.set('language', window.LANG_PARAM.replace('&language=', ''));
-    const res = await fetch(API(`/api/search?${params.toString()}`));
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
+    const cacheKey = getStateKey('social', searchQ);
+    const socialUrl = API(`/api/search?${params.toString()}`);
+    const data = await fetchWithCache(socialUrl, cacheKey);
     updateDeepSearchPanel(data, 'social');
     if (data.results && data.results.length > 0) {
       const results = boostByUrl(q, data.results);
+      window.BLEND_STATE.cache[cacheKey] = results;
+      window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['social'] = results;
       const platformColors = { 'reddit':'#ff6314', 'twitter':'#1da1f2', 'mastodon':'#6364ff', 'github':'#333', 'facebook':'#4267b2', 'linkedin':'#0077b5', 'dev.to':'#0a0a0a' };
       el.innerHTML = results.map((s, idx) => {
@@ -1593,7 +1649,10 @@ async function renderSocial(q) {
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-'+tab).style.display = 'block';
+  
+  const tabContent = document.getElementById('tab-'+tab);
+  if(tabContent) tabContent.style.display = 'block';
+  
   const activeBtn = btn || document.querySelector(`.tab-btn[data-tab="${tab}"]`);
   if (activeBtn) activeBtn.classList.add('active');
   const url = new URL(window.location);
@@ -1602,14 +1661,27 @@ function switchTab(tab, btn) {
 
   const q = document.getElementById('top-search')?.value?.trim() || new URLSearchParams(window.location.search).get('q') || sessionStorage.getItem('blend_q') || '';
   if (!q) return;
-  if (tab === 'web' && !window.CURRENT_RESULTS?.length) renderWeb(q);
-  if (tab === 'images' && !window.allImages?.length) renderImages(q);
-  if (tab === 'videos' && !document.getElementById('full-videos').dataset.loaded) { document.getElementById('full-videos').dataset.loaded = '1'; renderVideos(q); }
-  if (tab === 'news' && !document.getElementById('news-list').dataset.loaded) { document.getElementById('news-list').dataset.loaded = '1'; renderNews(q); }
-  if (tab === 'maps' && !document.getElementById('map-places').dataset.loaded) { document.getElementById('map-places').dataset.loaded = '1'; renderMapPlaces(q); }
-  if (tab === 'music' && !document.getElementById('music-list').dataset.loaded) { document.getElementById('music-list').dataset.loaded = '1'; renderMusic(q); }
-  if (tab === 'files' && !document.getElementById('files-list').dataset.loaded) { document.getElementById('files-list').dataset.loaded = '1'; renderFiles(q); }
-  if (tab === 'social' && !document.getElementById('social-list').dataset.loaded) { document.getElementById('social-list').dataset.loaded = '1'; renderSocial(q); }
+
+  // Query+Tab State Isolation & In-flight request deduplication
+  const cacheKey = getStateKey(tab, q);
+  
+  if (tabContent && tabContent.dataset.renderedKey === cacheKey) {
+      return; // Already rendered this exact query for this tab
+  }
+  if (window.BLEND_STATE.inFlight[cacheKey]) {
+      return; // Already fetching this exact query for this tab
+  }
+  
+  if(tabContent) tabContent.dataset.renderedKey = cacheKey;
+
+  if (tab === 'web') renderWeb(q);
+  if (tab === 'images') renderImages(q);
+  if (tab === 'videos') renderVideos(q);
+  if (tab === 'news') renderNews(q);
+  if (tab === 'maps') renderMapPlaces(q);
+  if (tab === 'music') renderMusic(q);
+  if (tab === 'files') renderFiles(q);
+  if (tab === 'social') renderSocial(q);
 }
 
 /* ── LIGHTBOX ── */
@@ -2338,7 +2410,6 @@ function handleModeChange() {
     resetSearchModeState();
     showDeepSearchPending(tab, q);
     switchTab(tab);
-    if (['maps', 'music'].includes(tab) && q) renderActiveSearchTab(tab, q);
     const input = document.getElementById('ai-chat-input');
     if (input) input.placeholder = "Ask Navar anything...";
     return;
@@ -2352,15 +2423,16 @@ function handleModeChange() {
     if (panel) panel.style.display = 'none';
     switchTab('ai');
     const input = document.getElementById('ai-chat-input');
-    input.placeholder = "Enter target for AI Google Dorks...";
-    input.focus();
+    if(input) {
+      input.placeholder = "Enter target for AI Google Dorks...";
+      input.focus();
+    }
   } else {
     const input = document.getElementById('ai-chat-input');
     if (input) input.placeholder = "Ask Navar anything...";
     const tab = currentTabName() === 'ai' ? 'web' : currentTabName();
     resetSearchModeState();
     switchTab(tab);
-    if (['maps', 'music'].includes(tab) && q) renderActiveSearchTab(tab, q);
   }
 }
 

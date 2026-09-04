@@ -26,7 +26,8 @@ class BingImageProvider(BaseProvider):
         url_lower = url.lower()
         return not any(b in url_lower for b in BLOCKED_HOSTS)
 
-    async def search(self, query: str, use_tor: bool = False, page: int = 1, language: str = "all") -> List[Dict[str, Any]]:
+    async def search(self, query: str, use_tor: bool = False, pageno: int = 1, language: str = "all", **kwargs) -> List[Dict[str, Any]]:
+        page = pageno  # Router sends pageno; internally we use page
         encoded_query = urllib.parse.quote(query)
         first = (page - 1) * 35
         

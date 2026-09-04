@@ -1,16 +1,30 @@
 
 from .base_provider import BaseProvider
 from typing import Dict, Any, List
-from bs4 import BeautifulSoup
 import urllib.parse
-from blend.blend_engine.request_handler import SearchRequestHandler
+import logging
 
-class GoogleProvider(BaseProvider):
+logger = logging.getLogger("DDGSProvider")
+
+class DDGSProvider(BaseProvider):
+    """
+    Web search provider backed by duckduckgo-search (DDGS).
+
+    Named 'DDGSProvider' for accuracy (P0-3: do not silently misname providers).
+    Previously called 'GoogleProvider' — that name was misleading as it uses
+    the DuckDuckGo search library, not the Google Search API.
+
+    Backward-compat alias 'GoogleProvider' is preserved at the bottom of this
+    module so existing imports continue to work.
+    """
+    supports_category: bool = False  # DDGS doesn't route by category
+
     def __init__(self):
-        self.handler = SearchRequestHandler()
+        pass
         
-    async def search(self, query: str, use_tor: bool = False, language: str = "all", pageno: int = 1) -> List[Dict[str, Any]]:
+    async def search(self, query: str, use_tor: bool = False, language: str = "all", pageno: int = 1, **kwargs) -> List[Dict[str, Any]]:
         import asyncio
+
         def _fetch_ddg():
             try:
                 from ddgs import DDGS
@@ -18,10 +32,10 @@ class GoogleProvider(BaseProvider):
                 with DDGS() as ddgs:
                     for r in ddgs.text(query, max_results=10):
                         results.append(r)
+                logger.info(f"DDGS returned {len(results)} results for '{query}'")
                 return results
             except Exception as e:
-                import logging
-                logging.getLogger("GoogleProvider").error(f"DDGS error: {e}")
+                logger.error(f"DDGS error for '{query}': {type(e).__name__}: {e}")
                 raise Exception(f"DuckDuckGo search failed: {e}")
                 
         # Run synchronous ddgs in executor to avoid blocking the event loop
@@ -38,16 +52,14 @@ class GoogleProvider(BaseProvider):
                     "url": href, 
                     "title": title, 
                     "content": snippet, 
-                    "source": "Google (Proxy)",
+                    "source": "DuckDuckGo",
                     "source_confidence": 1.0,
                     "signal_strength": 1.0,
-                    "source_node": "Google_WebSignalAgent",
-                    "freshness_metadata": 1.0
                 })
         return results
         
     def normalize(self, result: Dict[str, Any]) -> Dict[str, Any]:
-        domain = urllib.parse.urlparse(result["url"]).netloc
+        domain = urllib.parse.urlparse(result.get("url", "")).netloc
         result["parsed_url"] = ["https", domain, "", "", "", ""]
         return result
         
@@ -56,3 +68,7 @@ class GoogleProvider(BaseProvider):
         
     def extract_metadata(self, result: Dict[str, Any]) -> Dict[str, Any]:
         return {}
+
+
+# Backward-compat alias (P0-3: preserve imports without breaking behavior)
+GoogleProvider = DDGSProvider
