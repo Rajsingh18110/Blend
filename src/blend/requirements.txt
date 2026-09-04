@@ -31,3 +31,4 @@ bleach
 tomli
 asgiref
 duckduckgo-search
+python-dotenv
