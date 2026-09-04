@@ -22,7 +22,8 @@ dependencies = [
     "beautifulsoup4",
     "lxml",
     "pyyaml",
-    "typer<0.13"
+    "typer<0.13",
+    "whitenoise"
 ]
 
 [project.scripts]
