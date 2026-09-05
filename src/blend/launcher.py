@@ -21,8 +21,13 @@ def get_binary_path():
 def report_progress(block_num, block_size, total_size):
     downloaded = block_num * block_size
     if total_size > 0:
-        percent = downloaded * 100 / total_size
-        sys.stdout.write(f"\r📥 Downloading Blend: {percent:.1f}% ({downloaded / (1024*1024):.1f} MB / {total_size / (1024*1024):.1f} MB)")
+        percent = min(downloaded * 100 / total_size, 100)
+        
+        bar_length = 30
+        filled_length = int(bar_length * percent // 100)
+        bar = '█' * filled_length + '-' * (bar_length - filled_length)
+        
+        sys.stdout.write(f"\r📥 Downloading Blend: [{bar}] {percent:.1f}% ({downloaded / (1024*1024):.1f} MB / {total_size / (1024*1024):.1f} MB)")
         sys.stdout.flush()
     else:
         sys.stdout.write(f"\r📥 Downloading Blend: {downloaded / (1024*1024):.1f} MB downloaded...")
