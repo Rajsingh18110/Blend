@@ -991,28 +991,32 @@ async function renderImages(q) {
   try {
     const cacheKey = getStateKey('images', q);
     const imgUrl = API(`/api/search?q=${encodeURIComponent(q)}&categories=images&pageno=1&format=json${modePart}${window.LANG_PARAM || ''}`);
-    const data = await fetchWithCache(imgUrl, cacheKey);
+    // Use direct fetch with AbortSignal timeout (not fetchWithCache which can hang)
+    const res = await fetch(imgUrl, { signal: AbortSignal.timeout(30000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    
     if (!isLatestRender('images', renderToken)) return;
     updateDeepSearchPanel(data, 'images');
     if (data.results && data.results.length > 0) {
       window.allImages = boostByUrl(q, data.results);
       window._imgPageSize = data.results.length || 30;
-            window.SECTION_CACHE = window.SECTION_CACHE || {};
+      window.SECTION_CACHE = window.SECTION_CACHE || {};
       window.SECTION_CACHE['images'] = window.allImages;
       window.allImages.forEach(img => window._seenImgUrls.add(img.img_src || img.url));
       statsEl.innerHTML = `About ${data.results.length.toLocaleString()} image results · ${searchModeLabel(selectedSearchMode())}`;
-      // Initially show only the first page worth of images
-      displayImages(window.allImages.slice(0, window._imgPageSize * window._imgPage));
+      // Display all loaded images immediately
+      displayImages(window.allImages);
       document.getElementById('tab-images').dataset.renderedKey = cacheKey;
       // Show controls
       const loadWrap = document.getElementById('img-load-more-wrap');
-      if (loadWrap) loadWrap.style.display = 'block';
+      if (loadWrap) loadWrap.style.display = window.allImages.length >= (window._imgPageSize || 30) ? 'block' : 'none';
       const backBtn = document.getElementById('img-back-btn');
       if (backBtn) backBtn.style.display = 'none';
       return;
     }
   } catch (e) { 
-    console.log('Backend images failed', e);
+    console.error('Backend images failed', e);
   }
   
   window.allImages = [];
