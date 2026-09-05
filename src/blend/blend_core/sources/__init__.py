@@ -125,9 +125,17 @@ def load_engine(engine_data: dict[str, t.Any]) -> "Engine | types.ModuleType | N
         return None
     try:
         engine = load_module(module_name + '.py', ENGINE_DIR)
-    except (SyntaxError, KeyboardInterrupt, SystemExit, SystemError, ImportError, RuntimeError):
+    except ImportError:
+        # Optional engine dependency missing: do not crash the whole app.
+        logger.exception('ImportError while loading engine "{}" - marking inactive'.format(module_name))
+        engine_data["inactive"] = True
+        return None
+    except (SyntaxError, KeyboardInterrupt, SystemExit, SystemError, RuntimeError):
+        # Non-import related fatal errors during engine loading should not
+        # cause the application to exit; mark engine as inactive instead.
         logger.exception('Fatal exception in engine "{}"'.format(module_name))
-        sys.exit(1)
+        engine_data["inactive"] = True
+        return None
     except BaseException:
         logger.exception('Cannot load engine "{}"'.format(module_name))
         return None
