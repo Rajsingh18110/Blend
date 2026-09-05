@@ -209,12 +209,17 @@ def get_stream_info(url):
         if not streams:
             direct_url = info.get('url')
             if direct_url:
+                vcodec = info.get('vcodec', 'none')
+                acodec = info.get('acodec', 'none')
+                has_video = vcodec != 'none'
+                has_audio = acodec != 'none'
+                direct_type = 'combined' if has_video and has_audio else 'audio' if has_audio and not has_video else 'video'
                 streams.append({
                     'url': direct_url,
                     'ext': info.get('ext', 'mp4'),
                     'height': info.get('height', 0),
                     'label': 'best',
-                    'type': 'direct',
+                    'type': direct_type,
                     'mime': (info.get('mime_type') or info.get('mime') or '').lower(),
                 })
 
@@ -254,6 +259,30 @@ def get_stream_info(url):
         else:
             upload_date = upload_raw
 
+        # Determine whether available streams contain any video track
+        has_video_stream = False
+        for s in streams:
+            if s.get('type') in ('combined', 'video', 'direct'):
+                has_video_stream = True
+                break
+
+        has_any_video_track = any((f.get('vcodec', 'none') or 'none') != 'none' for f in all_formats)
+        needs_muxing = has_any_video_track and not has_video_stream
+        is_audio_only = not has_any_video_track
+
+        # Best combined stream (video+audio) if available
+        best_combined = None
+        for s in streams:
+            if s.get('type') == 'combined' and s.get('url'):
+                best_combined = s.get('url')
+                break
+
+        best_stream_mime = None
+        if streams:
+            best_stream_mime = streams[0].get('mime') or streams[0].get('mime_type')
+        else:
+            best_stream_mime = (info.get('mime_type') or info.get('mime') or '').lower()
+
         return {
             'success': True,
             'title': info.get('title', ''),
@@ -268,6 +297,10 @@ def get_stream_info(url):
             'streams': streams,
             'audio_url': best_audio_url,
             'best_stream': streams[0]['url'] if streams else None,
+            'best_combined_stream': best_combined,
+            'best_stream_mime': best_stream_mime,
+            'is_audio_only': bool(is_audio_only),
+            'needs_muxing': needs_muxing,
             'video_id': info.get('id', ''),
         }
 

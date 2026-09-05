@@ -1935,6 +1935,15 @@ function playYouTubeModal(ytId, title, url) {
                controlslist="nodownload">
           <source src="" type="video/mp4"/>
         </video>
+        
+        <!-- Audio Overlay (Visible only when playing audio) -->
+        <div id="bp-audio-overlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.85);z-index:5;pointer-events:none;flex-direction:column;align-items:center;justify-content:center;">
+           <img id="bp-audio-thumb" src="" style="width:140px;height:140px;border-radius:12px;object-fit:cover;box-shadow:0 10px 40px rgba(0,0,0,0.8);margin-bottom:20px;" />
+           <div style="color:#fff;font-size:20px;font-weight:600;display:flex;align-items:center;gap:10px;text-shadow:0 2px 10px rgba(0,0,0,0.8);">
+             <svg width="24" height="24" fill="#00c9a7" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+             Audio Only
+           </div>
+        </div>
 
         <!-- CUSTOM QUALITY OVERLAY (The Three Dots Menu) -->
         <div style="position:absolute;top:16px;right:16px;z-index:10;">
@@ -2075,6 +2084,9 @@ async function blendFetchStream(url, ytId) {
        video.style.backgroundSize = 'contain';
        video.style.backgroundPosition = 'center';
        video.style.backgroundRepeat = 'no-repeat';
+       
+       const audioThumb = document.getElementById('bp-audio-thumb');
+       if (audioThumb) audioThumb.src = thumb;
     }
 
     // Auto-switch download to audio if audio-only
@@ -2097,7 +2109,7 @@ async function blendFetchStream(url, ytId) {
       qualityBtns.innerHTML = streams.map((s, i) => {
         const bg = i === 0 ? 'rgba(0,201,167,0.15)' : 'transparent';
         const color = i === 0 ? '#00c9a7' : '#e0e0e0';
-        return `<button onclick="blendSwitchStream('${escapeJs(s.url)}','${s.ext}'); document.getElementById('bp-quality-menu').style.display='none';"
+        return `<button onclick="blendSwitchStream('${escapeJs(s.url)}','${s.ext}','${s.type}'); document.getElementById('bp-quality-menu').style.display='none';"
                 style="background:${bg};border:none;color:${color};padding:8px 12px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:600;text-align:left;transition:all 0.2s;width:100%;"
                 onmouseover="this.style.background='rgba(255,255,255,0.1)'"
                 onmouseout="this.style.background='${bg}'">
@@ -2112,8 +2124,22 @@ async function blendFetchStream(url, ytId) {
 
     // Load the best stream into HTML5 video
     const bestUrl = streams[0]?.url || data.best_stream;
-    if (bestUrl) {
-      blendSwitchStream(bestUrl, streams[0]?.ext || 'mp4');
+    
+    if (data.needs_muxing && window.BLEND_PLAYER?.ytId) {
+       // The original video has a video track, but YouTube serves separate DASH streams.
+       // Try fetching a pre-muxed stream from Piped API.
+       const fallbackUrl = await fallbackPipedApi(window.BLEND_PLAYER.ytId, 'video');
+       if (fallbackUrl) {
+           blendSwitchStream(fallbackUrl, 'mp4', 'video');
+       } else if (bestUrl) {
+           const isAudio = data.is_audio_only || (streams[0]?.type === 'audio');
+           blendSwitchStream(bestUrl, streams[0]?.ext || 'mp4', isAudio ? 'audio' : (streams[0]?.type || 'video'));
+       } else {
+           throw new Error('No playable stream found');
+       }
+    } else if (bestUrl) {
+      const isAudio = data.is_audio_only || (streams[0]?.type === 'audio');
+      blendSwitchStream(bestUrl, streams[0]?.ext || 'mp4', isAudio ? 'audio' : (streams[0]?.type || 'video'));
     } else {
       throw new Error('No playable stream found');
     }
@@ -2130,7 +2156,7 @@ async function blendFetchStream(url, ytId) {
       const fallbackUrl = await fallbackPipedApi(ytId, 'video');
       if (fallbackUrl) {
         if (errorEl) errorEl.style.display = 'none';
-        blendSwitchStream(fallbackUrl, 'mp4');
+        blendSwitchStream(fallbackUrl, 'mp4', 'video');
         return;
       }
       
@@ -2151,9 +2177,10 @@ async function blendFetchStream(url, ytId) {
   }
 }
 
-function blendSwitchStream(streamUrl, ext) {
+function blendSwitchStream(streamUrl, ext, type) {
   const video = document.getElementById('bp-video');
   const loading = document.getElementById('bp-loading');
+  const overlay = document.getElementById('bp-audio-overlay');
   if (!video) return;
 
   const mimeMap = { mp4: 'video/mp4', webm: 'video/webm', m4a: 'audio/mp4' };
@@ -2162,6 +2189,10 @@ function blendSwitchStream(streamUrl, ext) {
   // Show video, hide loading
   if (loading) loading.style.display = 'none';
   video.style.display = 'block';
+  
+  if (overlay) {
+     overlay.style.display = (type === 'audio') ? 'flex' : 'none';
+  }
 
   const currentTime = video.currentTime || 0;
   video.dataset.streamUrl = streamUrl;

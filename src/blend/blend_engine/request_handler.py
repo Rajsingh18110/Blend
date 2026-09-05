@@ -32,7 +32,7 @@ class SearchRequestHandler:
             "Sec-Fetch-User": "?1"
         }
 
-    async def fetch(self, url: str, session: aiohttp.ClientSession, use_tor: bool = False) -> str:
+    async def fetch(self, url: str, session: aiohttp.ClientSession, use_tor: bool = False, timeout: int | None = None) -> str:
         """
         Fetch a URL asynchronously. 
         Integrates Tor proxy for Ghost and Deep modes.
@@ -41,7 +41,7 @@ class SearchRequestHandler:
         
         proxy = None 
         if use_tor:
-            from privacy.tor_manager import TorManager
+            from blend.privacy.tor_manager import TorManager
             tor = TorManager()
             proxy = tor.get_proxy_url()
 
@@ -56,23 +56,25 @@ class SearchRequestHandler:
                 from aiohttp_socks import ProxyConnector
                 # rdns=True ensures DNS resolution happens remotely via Tor, preventing leaks
                 connector = ProxyConnector.from_url(proxy, rdns=True)
+                tor_timeout = aiohttp.ClientTimeout(total=timeout if timeout is not None else 10)
                 async with aiohttp.ClientSession(connector=connector) as tor_session:
-                    async with tor_session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=15)) as response:
+                    async with tor_session.get(url, headers=headers, timeout=tor_timeout) as response:
                         if response.status == 200:
                             return await response.text()
                         return ""
             else:
-                async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                normal_timeout = aiohttp.ClientTimeout(total=timeout if timeout is not None else 5)
+                async with session.get(url, headers=headers, timeout=normal_timeout) as response:
                     if response.status == 200:
                         return await response.text()
                     return ""
         except Exception:
             return ""
 
-    async def execute_parallel_requests(self, urls: List[str], use_tor: bool = False) -> List[str]:
+    async def execute_parallel_requests(self, urls: List[str], use_tor: bool = False, timeout: int | None = None) -> List[str]:
         """Execute multiple requests in parallel (Fast Mode default behavior)."""
         async with aiohttp.ClientSession(
             cookie_jar=aiohttp.DummyCookieJar() # Never store cookies
         ) as session:
-            tasks = [self.fetch(url, session, use_tor) for url in urls]
+            tasks = [self.fetch(url, session, use_tor, timeout=timeout) for url in urls]
             return await asyncio.gather(*tasks)
