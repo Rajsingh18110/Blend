@@ -123,8 +123,12 @@ def main():
         else:
             kwargs['start_new_session'] = True
             
-        proc = subprocess.Popen([sys.executable, "-m", "blend.cli", "--daemon-worker"],
-                         stdout=f, stderr=subprocess.STDOUT, **kwargs)
+        if getattr(sys, 'frozen', False):
+            cmd = [sys.executable, "--daemon-worker"]
+        else:
+            cmd = [sys.executable, "-m", "blend.cli", "--daemon-worker"]
+            
+        proc = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, **kwargs)
 
     if not args.no_browser:
         import time
