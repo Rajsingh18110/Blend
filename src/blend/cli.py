@@ -51,45 +51,28 @@ def kill_running():
                 pass
         os.remove(pid_file)
 
-def update_binary():
-    import urllib.request
-    import platform
-    print("Fetching latest release information...")
-    # Assuming GitHub releases are uploaded with these names
-    base_url = "https://github.com/Rajsingh18110/Blend/releases/latest/download"
-    os_name = platform.system().lower()
-    if os_name == "windows":
-        file_name = "blend-windows.zip"
-    elif os_name == "darwin":
-        file_name = "blend-macos.tar.gz"
-    else:
-        file_name = "blend-linux.tar.gz"
-    
-    download_url = f"{base_url}/{file_name}"
-    print(f"Downloading {file_name} from {download_url} ...")
-    try:
-        urllib.request.urlretrieve(download_url, file_name)
-        print(f"✅ Update downloaded successfully as {file_name}!")
-        print("Please extract and replace your current executable.")
-    except Exception as e:
-        print(f"❌ Failed to download update: {e}")
-        print("Make sure a release exists on GitHub.")
-
-def update_code():
+def update_blend():
     import subprocess
-    print("Pulling latest source code from GitHub...")
+    import sys
+    import os
+    print("Fetching the latest Blend code from GitHub...")
     try:
-        # Check if we are in a git repository
         if os.path.exists(".git"):
             subprocess.check_call(["git", "pull"])
             print("✅ Source code updated successfully using git pull!")
         else:
-            # If not a git repo, upgrade via pip from main branch
-            print("Not a git repository. Upgrading via pip...")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "git+https://github.com/Rajsingh18110/Blend.git"])
-            print("✅ Package updated successfully from GitHub main branch!")
+            print("Downloading and installing latest version...")
+            zip_url = "https://github.com/Rajsingh18110/Blend/archive/refs/heads/main.zip"
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", zip_url])
+            print("✅ Blend updated successfully from GitHub!")
     except Exception as e:
-        print(f"❌ Failed to update code: {e}")
+        print(f"❌ Failed to update Blend: {e}")
+
+def update_binary():
+    update_blend()
+
+def update_code():
+    update_blend()
 
 def main():
     parser = argparse.ArgumentParser(description="Blend Search CLI")
@@ -134,8 +117,14 @@ def main():
 
     log_path = os.path.join(user_data_dir("blend", "markanm"), "server_log.txt")
     with open(log_path, 'a') as f:
+        kwargs = {}
+        if os.name == 'nt':
+            kwargs['creationflags'] = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
+        else:
+            kwargs['start_new_session'] = True
+            
         proc = subprocess.Popen([sys.executable, "-m", "blend.cli", "--daemon-worker"],
-                         stdout=f, stderr=subprocess.STDOUT, start_new_session=True)
+                         stdout=f, stderr=subprocess.STDOUT, **kwargs)
 
     if not args.no_browser:
         import time
