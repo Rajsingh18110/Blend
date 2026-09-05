@@ -43,7 +43,10 @@ Implementation
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
-import isodate
+try:
+    import isodate
+except Exception:
+    isodate = None
 
 about = {
     "website": "https://stock.adobe.com/",
@@ -177,7 +180,7 @@ def parse_video_item(item):
         "title": title,
         "content": content,
         # https://en.wikipedia.org/wiki/ISO_8601#Durations
-        "length": isodate.parse_duration(item["time_duration"]),
+        "length": isodate.parse_duration(item["time_duration"]) if isodate else None,
         "publishedDate": datetime.fromisoformat(item["creation_date"]),
         "thumbnail": item["thumbnail_url"],
         "iframe_src": item["video_small_preview_url"],
