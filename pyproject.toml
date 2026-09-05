@@ -1,6 +1,6 @@
 [project]
 name = "blend-search"
-version = "0.1.4"
+version = "0.1.5"
 description = "Blend — privacy-first multi-engine search, by MarkanM"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -30,3 +30,12 @@ redis
 MarkupSafe
 Jinja2
 certifi
+python-dotenv
+valkey
+PySocks
+isodate
+markdown-it-py
+bleach
+packaging
+cloudscraper
+typing_extensions
