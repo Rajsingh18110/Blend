@@ -51,12 +51,57 @@ def kill_running():
                 pass
         os.remove(pid_file)
 
+def update_binary():
+    import urllib.request
+    import platform
+    print("Fetching latest release information...")
+    # Assuming GitHub releases are uploaded with these names
+    base_url = "https://github.com/Rajsingh18110/Blend/releases/latest/download"
+    os_name = platform.system().lower()
+    if os_name == "windows":
+        file_name = "blend-windows.zip"
+    elif os_name == "darwin":
+        file_name = "blend-macos.tar.gz"
+    else:
+        file_name = "blend-linux.tar.gz"
+    
+    download_url = f"{base_url}/{file_name}"
+    print(f"Downloading {file_name} from {download_url} ...")
+    try:
+        urllib.request.urlretrieve(download_url, file_name)
+        print(f"✅ Update downloaded successfully as {file_name}!")
+        print("Please extract and replace your current executable.")
+    except Exception as e:
+        print(f"❌ Failed to download update: {e}")
+        print("Make sure a release exists on GitHub.")
+
+def update_code():
+    import subprocess
+    print("Pulling latest source code from GitHub...")
+    try:
+        # Check if we are in a git repository
+        if os.path.exists(".git"):
+            subprocess.check_call(["git", "pull"])
+            print("✅ Source code updated successfully using git pull!")
+        else:
+            # If not a git repo, upgrade via pip from main branch
+            print("Not a git repository. Upgrading via pip...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "git+https://github.com/Rajsingh18110/Blend.git"])
+            print("✅ Package updated successfully from GitHub main branch!")
+    except Exception as e:
+        print(f"❌ Failed to update code: {e}")
+
 def main():
     parser = argparse.ArgumentParser(description="Blend Search CLI")
     parser.add_argument('command', nargs='?', choices=['stop'], help="Stop the background server")
     parser.add_argument('--no-browser', action='store_true', help="Don't open browser")
+    parser.add_argument('-update', '--update', action='store_true', help="Download the latest binary update")
     parser.add_argument('--daemon-worker', action='store_true', help=argparse.SUPPRESS)
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
+
+    if getattr(args, 'update', False) or '-update' in sys.argv:
+        update_binary()
+        sys.exit(0)
 
     if args.command == 'stop':
         kill_running()
@@ -94,6 +139,14 @@ def main():
     with open(log_path, 'a') as f:
         proc = subprocess.Popen([sys.executable, "-m", "blend.cli", "--daemon-worker"],
                          stdout=f, stderr=subprocess.STDOUT, start_new_session=True)
-    
+
+def code_updater():
+    if '-update' in sys.argv or '--update' in sys.argv:
+        update_code()
+    else:
+        print("Usage: blendcode -update")
+        sys.exit(1)
+
 if __name__ == '__main__':
     main()
+
