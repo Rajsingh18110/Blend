@@ -49,4 +49,4 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.package-data]
-blend = ["templates/**/*", "static/**/*", "blend_core/data/*", "blend_core/*.yml", "blend_core/*.toml", "blend_core/assets/**/*", "blend_core/views/**/*", "blend_core/infopage/**/*", "blend_core/translations/**/*", "blend_core/botdetection/**/*"]
+blend = ["templates/**/*", "static/**/*", "blend_core/**/*.yml", "blend_core/**/*.toml", "blend_core/**/*.json", "blend_core/**/*.msg", "blend_core/data/**/*", "blend_core/assets/**/*", "blend_core/views/**/*", "blend_core/infopage/**/*", "blend_core/translations/**/*", "blend_core/botdetection/**/*", "blend_core/favicons/**/*"]
