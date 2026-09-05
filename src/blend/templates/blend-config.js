@@ -14,6 +14,9 @@
   } else if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '5000') {
     // Allows UI development on a different port (like Live Server 5500) to still connect to the Python backend
     defaultBackend = 'http://127.0.0.1:5000';
+  } else {
+    // For production (Render, etc.), use the same origin as the frontend
+    defaultBackend = `${window.location.protocol}//${window.location.host}`;
   }
   const savedBackend = localStorage.getItem('blend_backend_url');
 
