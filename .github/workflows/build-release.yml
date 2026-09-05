@@ -56,6 +56,8 @@ jobs:
             --clean `
             --add-data "src/blend/templates${{ matrix.sep }}blend/templates" `
             --add-data "src/blend/static${{ matrix.sep }}blend/static" `
+            --add-data "src/blend/blend_core/assets${{ matrix.sep }}blend/blend_core/assets" `
+            --add-data "src/blend/blend_core/views${{ matrix.sep }}blend/blend_core/views" `
             --add-data "src/blend/blend_core/data/*.json${{ matrix.sep }}blend/blend_core/data" `
             --add-data "src/blend/blend_core/data/*.txt${{ matrix.sep }}blend/blend_core/data" `
             --add-data "src/blend/blend_core/blend_config.yml${{ matrix.sep }}blend/blend_core" `
@@ -75,6 +77,8 @@ jobs:
             --clean \
             --add-data "src/blend/templates${{ matrix.sep }}blend/templates" \
             --add-data "src/blend/static${{ matrix.sep }}blend/static" \
+            --add-data "src/blend/blend_core/assets${{ matrix.sep }}blend/blend_core/assets" \
+            --add-data "src/blend/blend_core/views${{ matrix.sep }}blend/blend_core/views" \
             --add-data "src/blend/blend_core/data/*.json${{ matrix.sep }}blend/blend_core/data" \
             --add-data "src/blend/blend_core/data/*.txt${{ matrix.sep }}blend/blend_core/data" \
             --add-data "src/blend/blend_core/blend_config.yml${{ matrix.sep }}blend/blend_core" \
