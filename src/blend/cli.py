@@ -128,9 +128,6 @@ def main():
     print("  Admin panel:  http://127.0.0.1:5000/admin")
     print("\n  🚀 Running in background! (Type 'blend stop' to shut down)")
 
-    if not args.no_browser:
-        webbrowser.open("http://127.0.0.1:5000")
-
     pid_file = get_pid_file()
     if os.path.exists(pid_file):
         os.remove(pid_file)
@@ -139,6 +136,15 @@ def main():
     with open(log_path, 'a') as f:
         proc = subprocess.Popen([sys.executable, "-m", "blend.cli", "--daemon-worker"],
                          stdout=f, stderr=subprocess.STDOUT, start_new_session=True)
+
+    if not args.no_browser:
+        import time
+        time.sleep(1.5)  # Give the server a moment to start
+        try:
+            webbrowser.open("http://127.0.0.1:5000")
+        except Exception:
+            print("Could not open the browser automatically.")
+            print("Please click or copy-paste this link: http://127.0.0.1:5000")
 
 def code_updater():
     if '-update' in sys.argv or '--update' in sys.argv:
