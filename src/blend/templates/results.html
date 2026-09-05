@@ -1841,6 +1841,36 @@ function closeLightbox(e) {
   }
 }
 
+function fallbackToIframe(ytId) {
+    const container = document.getElementById('bp-video-container');
+    const loading = document.getElementById('bp-loading');
+    if (loading) loading.style.display = 'none';
+    
+    // Hide native elements
+    const nativeVideo = document.getElementById('bp-video');
+    const nativeOverlay = document.getElementById('bp-audio-overlay');
+    if (nativeVideo) nativeVideo.style.display = 'none';
+    if (nativeOverlay) nativeOverlay.style.display = 'none';
+    
+    // Inject iframe
+    let iframe = document.getElementById('bp-iframe');
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'bp-iframe';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        iframe.style.position = 'absolute';
+        iframe.style.inset = '0';
+        iframe.style.zIndex = '3';
+        iframe.allowFullscreen = true;
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        container.appendChild(iframe);
+    }
+    iframe.src = `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1`;
+    iframe.style.display = 'block';
+}
+
 async function fallbackPipedApi(ytId, type = 'video') {
   const apis = ['https://api.piped.private.coffee', 'https://pipedapi.kavin.rocks', 'https://pipedapi.ducks.party', 'https://piped-api.lunar.icu'];
   for (const api of apis) {
@@ -2131,11 +2161,8 @@ async function blendFetchStream(url, ytId) {
        const fallbackUrl = await fallbackPipedApi(window.BLEND_PLAYER.ytId, 'video');
        if (fallbackUrl) {
            blendSwitchStream(fallbackUrl, 'mp4', 'video');
-       } else if (bestUrl) {
-           const isAudio = data.is_audio_only || (streams[0]?.type === 'audio');
-           blendSwitchStream(bestUrl, streams[0]?.ext || 'mp4', isAudio ? 'audio' : (streams[0]?.type || 'video'));
        } else {
-           throw new Error('No playable stream found');
+           fallbackToIframe(window.BLEND_PLAYER.ytId);
        }
     } else if (bestUrl) {
       const isAudio = data.is_audio_only || (streams[0]?.type === 'audio');
@@ -2160,13 +2187,7 @@ async function blendFetchStream(url, ytId) {
         return;
       }
       
-      if (loading) loading.style.display = 'none';
-      if (errorEl) {
-          errorEl.style.display = 'block';
-          errorEl.style.padding = '10px';
-          errorEl.style.marginTop = '10px';
-      }
-      if (errorMsg) errorMsg.innerHTML = `<span>Direct stream blocked by YouTube.</span> <a href="https://youtube.com/watch?v=${ytId}" target="_blank" style="margin-left:10px;padding:6px 12px;background:#ff0000;color:white;border-radius:4px;text-decoration:none;font-weight:bold;display:inline-block;">▶ Play on YouTube</a>`;
+      fallbackToIframe(ytId);
     } else {
       const errFallback = document.getElementById('bp-yt-fallback');
       if (loading) loading.style.display = 'none';
@@ -2207,6 +2228,8 @@ function blendSwitchStream(streamUrl, ext, type) {
       video.load();
       video.currentTime = 0;
       video.play().catch(() => {});
+    } else {
+      fallbackToIframe(window.BLEND_PLAYER.ytId);
     }
   };
 

@@ -13,6 +13,7 @@ dependencies = [
     "gunicorn>=22.0",
     "crawl4ai",
     "yt-dlp>=2024.12.13",
+    "quickjs>=1.19.0",
     "openai",
     "anthropic",
     "google-genai",
