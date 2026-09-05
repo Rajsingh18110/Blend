@@ -1,0 +1,132 @@
+name: Build and Release Executables
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: blend-windows
+            asset_name: blend-windows.exe
+            sep: ';'
+          - os: ubuntu-latest
+            artifact_name: blend-linux
+            asset_name: blend-linux
+            sep: ':'
+          - os: macos-latest
+            artifact_name: blend-macos
+            asset_name: blend-macos
+            sep: ':'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+          pip install pyinstaller
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --name ${{ matrix.asset_name }} `
+            --onefile `
+            --clean `
+            --add-data "src/blend/templates${{ matrix.sep }}blend/templates" `
+            --add-data "src/blend/static${{ matrix.sep }}blend/static" `
+            --add-data "src/blend/blend_core${{ matrix.sep }}blend/blend_core" `
+            --hidden-import "flask" `
+            --hidden-import "gunicorn.glogging" `
+            --hidden-import "gunicorn.workers.sync" `
+            run_blend.py
+        if: matrix.os == 'windows-latest'
+
+      - name: Build with PyInstaller (Linux/macOS)
+        run: |
+          pyinstaller --name ${{ matrix.asset_name }} \
+            --onefile \
+            --clean \
+            --add-data "src/blend/templates${{ matrix.sep }}blend/templates" \
+            --add-data "src/blend/static${{ matrix.sep }}blend/static" \
+            --add-data "src/blend/blend_core${{ matrix.sep }}blend/blend_core" \
+            --hidden-import "flask" \
+            --hidden-import "gunicorn.glogging" \
+            --hidden-import "gunicorn.workers.sync" \
+            run_blend.py
+        if: matrix.os != 'windows-latest'
+
+      - name: Compress Windows Artifact
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd dist
+          Compress-Archive -Path ${{ matrix.asset_name }} -DestinationPath blend-windows.zip
+
+      - name: Compress Linux Artifact
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd dist
+          tar -czvf blend-linux.tar.gz ${{ matrix.asset_name }}
+
+      - name: Compress macOS Artifact
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd dist
+          tar -czvf blend-macos.tar.gz ${{ matrix.asset_name }}
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            dist/*.zip
+            dist/*.tar.gz
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist-artifacts
+
+      - name: Prepare assets for release
+        run: |
+          mkdir release-assets
+          find dist-artifacts -type f \( -name "*.zip" -o -name "*.tar.gz" \) -exec cp {} release-assets/ \;
+
+      - name: Update or Create 'latest' Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Latest Release
+          tag_name: latest
+          files: release-assets/*
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
