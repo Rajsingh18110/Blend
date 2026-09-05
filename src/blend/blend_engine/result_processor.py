@@ -85,8 +85,9 @@ class ResultProcessor:
                 cluster['source_confidence'] = max(cluster.get('source_confidence', 0), res.get('source_confidence', 0))
                 
                 engine_name = res.get('engine') or res.get('source', '')
-                if engine_name and engine_name not in cluster.get('source', ''):
-                    cluster['source'] = cluster.get('source', '') + f", {engine_name}"
+                cluster_source = cluster.get('source') or ''
+                if engine_name and engine_name not in cluster_source:
+                    cluster['source'] = cluster_source + f", {engine_name}"
             else:
                 # New URL -> Keep
                 res['cross_source_agreement'] = 1.0
