@@ -43,6 +43,7 @@ dependencies = [
 
 [project.scripts]
 blend = "blend.cli:main"
+blendcode = "blend.cli:code_updater"
 
 [build-system]
 requires = ["setuptools>=68", "wheel"]
