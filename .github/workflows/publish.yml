@@ -1,9 +1,10 @@
 name: Publish to PyPI
 
 on:
-  release:
-    types: [published]
-  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   pypi-publish:
