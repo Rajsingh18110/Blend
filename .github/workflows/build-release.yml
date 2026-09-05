@@ -21,15 +21,15 @@ jobs:
         include:
           - os: windows-latest
             artifact_name: blend-windows
-            asset_name: blend-windows.exe
+            asset_name: blend.exe
             sep: ';'
           - os: ubuntu-latest
             artifact_name: blend-linux
-            asset_name: blend-linux
+            asset_name: blend
             sep: ':'
           - os: macos-latest
             artifact_name: blend-macos
-            asset_name: blend-macos
+            asset_name: blend
             sep: ':'
 
     steps:
@@ -50,7 +50,7 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --name ${{ matrix.asset_name }} `
+          pyinstaller --name blend `
             --onefile `
             --clean `
             --add-data "src/blend/templates${{ matrix.sep }}blend/templates" `
@@ -64,7 +64,7 @@ jobs:
 
       - name: Build with PyInstaller (Linux/macOS)
         run: |
-          pyinstaller --name ${{ matrix.asset_name }} \
+          pyinstaller --name blend \
             --onefile \
             --clean \
             --add-data "src/blend/templates${{ matrix.sep }}blend/templates" \
