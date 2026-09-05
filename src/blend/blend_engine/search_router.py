@@ -5,6 +5,34 @@ from .provider_manager import ProviderManager
 from .ranking_engine import RankingEngine
 from .result_processor import ResultProcessor
 
+import time
+from collections import OrderedDict
+
+class SimpleTTLCache:
+    def __init__(self, maxsize=500, ttl=60):
+        self.cache = OrderedDict()
+        self.maxsize = maxsize
+        self.ttl = ttl
+
+    def get(self, key):
+        if key in self.cache:
+            val, expiry = self.cache[key]
+            if time.time() < expiry:
+                self.cache.move_to_end(key)
+                return val
+            else:
+                del self.cache[key]
+        return None
+
+    def put(self, key, value):
+        if key in self.cache:
+            del self.cache[key]
+        elif len(self.cache) >= self.maxsize:
+            self.cache.popitem(last=False)
+        self.cache[key] = (value, time.time() + self.ttl)
+
+FAST_SEARCH_CACHE = SimpleTTLCache(maxsize=500, ttl=60)
+
 class SearchRouter:
     def __init__(self):
         self.provider_manager = ProviderManager()
@@ -14,12 +42,18 @@ class SearchRouter:
 
     async def route(self, query: str, category: str = "general", mode: str = "fast", engines: str = "", use_tor: bool = False, language: str = "all", pageno: int = 1) -> Dict[str, Any]:
         """Routes the search request to the appropriate providers."""
+        cache_key = f"{category}:{query}:{use_tor}:{language}:{pageno}:{engines}"
+        if mode == "fast":
+            cached_res = FAST_SEARCH_CACHE.get(cache_key)
+            if cached_res:
+                return cached_res
+                
         providers = self.provider_manager.get_providers(category, engines)
         
         # Execute providers with a LATENCY BUDGET
-        # fast=15.0s: VPS latency + rate limits mean fallbacks need more time
+        # fast=4.0s: aggressively cut off slow providers for fast search
         # deep=25.0s: allow slower providers + Crawl4AI time
-        budget = 15.0 if mode == "fast" else 25.0
+        budget = 4.0 if mode == "fast" else 25.0
         
         import time
         async def _time_provider(p, kwargs):
@@ -122,7 +156,7 @@ class SearchRouter:
         print(telemetry_msg)
         logger.info(telemetry_msg)
         
-        return {
+        payload = {
             "query": query,
             "number_of_results": len(ranked_results),
             "results": ranked_results,
@@ -130,6 +164,9 @@ class SearchRouter:
             "suggestions": [],
             "errors": errors
         }
+        if mode == "fast" and len(ranked_results) > 0:
+            FAST_SEARCH_CACHE.put(cache_key, payload)
+        return payload
 
     async def _crawl_recursive(self, crawler, rate_limiter, visited: set, url: str, depth: int, budget: dict, max_depth: int = 2, max_budget: int = 5) -> Dict[str, Any]:
         if depth > max_depth or budget['count'] >= max_budget:

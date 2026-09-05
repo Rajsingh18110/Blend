@@ -99,7 +99,7 @@ class FastMode:
         urls = self._build_search_urls(query)
         
         # Parallel Async Fetch
-        html_responses = await self.handler.execute_parallel_requests(urls, use_tor=False)
+        html_responses = await self.handler.execute_parallel_requests(urls, use_tor=False, timeout=4.0)
         
         # Parallel Async Parsing / Extraction
         parse_tasks = []
