@@ -45,7 +45,8 @@ class BingImageProvider(BaseProvider):
             async with aiohttp.ClientSession(headers=headers) as session:
                 async with session.get(url, timeout=aiohttp.ClientTimeout(total=25)) as resp:
                     html = await resp.text(errors='replace')
-        except Exception:
+        except Exception as e:
+            print(f"BingImageProvider error: {e}")
             return []
 
         results = []

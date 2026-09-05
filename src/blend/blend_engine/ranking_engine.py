@@ -51,7 +51,7 @@ class RankingEngine:
         return max(0.1, trust_multiplier)
 
     def _compute_contradiction_penalty(self, result: Dict[str, Any]) -> float:
-        content = result.get('content', '').lower()
+        content = (result.get('content') or '').lower()
         penalty = 0.0
         content_len = len(content)
         if content_len < 30:
