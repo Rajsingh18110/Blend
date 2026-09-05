@@ -143,29 +143,53 @@ are unavailable.
 - Optional: Valkey/Redis if you enable external caching
 - Optional: `yt-dlp` features are installed through `backend/requirements.txt`
 
-## Local Development
+## Quickstart
 
-From the project root:
+Run via our hosted version:
+
+🔗 **[search.markanm.xyz](https://search.markanm.xyz)**
+
+## Installation
+
+The easiest way to install and run Blend Search is using `pip`. We've designed a **Smart Launcher** architecture so the PyPI package installs in fractions of a second without bloated dependencies, and automatically pulls the latest optimized binary for your OS.
 
 ```bash
-cp .env.example .env
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-./start_backend.sh
+pip install blend-search
 ```
 
-The backend starts on:
+### 1. Start the Search Engine
 
+Once installed, simply type:
+
+```bash
+blend
+```
+
+* **First run:** The smart launcher will automatically detect your OS (Windows, macOS, or Linux), download the latest compiled executable (around 60MB) from GitHub Releases directly to your local system, and run it. You will see a real-time progress bar.
+* **Subsequent runs:** It starts instantly in the background and opens your browser.
+
+Blend will print a code-style banner to your terminal showing the Localhost URL and Admin panel URL:
 ```text
-http://127.0.0.1:8081
+  Local:        http://127.0.0.1:5000
+  Admin panel:  http://127.0.0.1:5000/admin
+
+  🚀 Running in background! (Type 'blend stop' to shut down)
 ```
 
-You can also run the app directly from `backend/`:
+### 2. Stop the Search Engine
+
+Since Blend runs securely in the background, you can close your terminal and it will keep working. To stop it, run:
 
 ```bash
-python app.py
+blend stop
+```
+
+### 3. Update to the Latest Version
+
+To download the latest binary from GitHub without reinstalling via pip, just run:
+
+```bash
+blend -update
 ```
 
 ## Configuration

@@ -10,13 +10,23 @@ def get_binary_path():
     
     if os_name == "windows":
         data_dir = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")), "Blend")
-        bin_name = "blend.exe"
+        bin_name = "blend-bin.exe"
     else:
         data_dir = os.path.join(os.path.expanduser("~"), ".local", "bin")
-        bin_name = "blend"
+        bin_name = "blend-bin"
         
     os.makedirs(data_dir, exist_ok=True)
     return os.path.join(data_dir, bin_name)
+
+def report_progress(block_num, block_size, total_size):
+    downloaded = block_num * block_size
+    if total_size > 0:
+        percent = downloaded * 100 / total_size
+        sys.stdout.write(f"\r📥 Downloading Blend: {percent:.1f}% ({downloaded / (1024*1024):.1f} MB / {total_size / (1024*1024):.1f} MB)")
+        sys.stdout.flush()
+    else:
+        sys.stdout.write(f"\r📥 Downloading Blend: {downloaded / (1024*1024):.1f} MB downloaded...")
+        sys.stdout.flush()
 
 def download_binary(binary_path):
     os_name = platform.system().lower()
@@ -29,12 +39,11 @@ def download_binary(binary_path):
     else:
         url = f"{base_url}/blend-linux"
         
-    print(f"Downloading Blend Search for {os_name}...")
-    print(f"Fetching from: {url}")
+    print(f"Fetching updates for {os_name} from GitHub...")
     
     try:
-        urllib.request.urlretrieve(url, binary_path)
-        print("✅ Download successful!")
+        urllib.request.urlretrieve(url, binary_path, reporthook=report_progress)
+        print("\n✅ Download successful!")
         
         # Set executable permissions on Linux/macOS
         if os_name != "windows":
@@ -42,7 +51,7 @@ def download_binary(binary_path):
             os.chmod(binary_path, st.st_mode | stat.S_IEXEC)
             
     except Exception as e:
-        print(f"❌ Failed to download Blend. Error: {e}")
+        print(f"\n❌ Failed to download Blend. Error: {e}")
         sys.exit(1)
 
 def main():
