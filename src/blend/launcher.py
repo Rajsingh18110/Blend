@@ -47,6 +47,13 @@ def download_binary(binary_path):
     print(f"Fetching updates for {os_name} from GitHub...")
     
     try:
+        # Delete existing binary before downloading the new one
+        if os.path.exists(binary_path):
+            try:
+                os.remove(binary_path)
+            except Exception as e:
+                print(f"\n⚠️ Warning: Could not delete old binary: {e}")
+
         urllib.request.urlretrieve(url, binary_path, reporthook=report_progress)
         print("\n✅ Download successful!")
         
@@ -55,6 +62,14 @@ def download_binary(binary_path):
             st = os.stat(binary_path)
             os.chmod(binary_path, st.st_mode | stat.S_IEXEC)
             
+    except KeyboardInterrupt:
+        print("\n\n❌ Download cancelled by user.")
+        if os.path.exists(binary_path):
+            try:
+                os.remove(binary_path)
+            except OSError:
+                pass
+        sys.exit(1)
     except Exception as e:
         print(f"\n❌ Failed to download Blend. Error: {e}")
         sys.exit(1)
