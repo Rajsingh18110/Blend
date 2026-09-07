@@ -10,7 +10,9 @@ import abc
 import importlib
 import logging
 import pathlib
+import pkgutil
 import warnings
+import blend.blend_core.answerers
 
 from dataclasses import dataclass
 
@@ -105,22 +107,28 @@ class AnswerStorage(dict):  # type: ignore
         :origin:`blend/answerers`.  The python modules are wrapped by
         :py:obj:`ModuleAnswerer`."""
 
-        for f in _default.iterdir():
-            if f.name.startswith("_"):
+        import sys
+        answerers_pkg_path = sys.modules['blend.blend_core.answerers'].__path__
+        for _, module_name, ispkg in pkgutil.iter_modules(answerers_pkg_path):
+            if module_name.startswith("_"):
                 continue
 
-            if f.is_file() and f.suffix == ".py":
-                self.register_by_fqn(f"blend.blend_core.answerers.{f.stem}.BlendAnswerer")
+            if not ispkg:
+                self.register_by_fqn(f"blend.blend_core.answerers.{module_name}.BlendAnswerer")
                 continue
 
-            # for backward compatibility (if a fork has additional answerers)
+        # for backward compatibility (if a fork has additional answerers)
+        if _default.exists() and _default.is_dir():
+            for f in _default.iterdir():
+                if f.name.startswith("_"):
+                    continue
 
-            if f.is_dir() and (f / "answerer.py").exists():
-                warnings.warn(
-                    f"answerer module {f} is deprecated / migrate to blend_core.answerers.Answerer", DeprecationWarning
-                )
-                mod = load_module("answerer.py", str(f))
-                self.register(ModuleAnswerer(mod))
+                if f.is_dir() and (f / "answerer.py").exists():
+                    warnings.warn(
+                        f"answerer module {f} is deprecated / migrate to blend_core.answerers.Answerer", DeprecationWarning
+                    )
+                    mod = load_module("answerer.py", str(f))
+                    self.register(ModuleAnswerer(mod))
 
     def register_by_fqn(self, fqn: str):
         """Register a :py:obj:`Answerer` via its fully qualified class namen(FQN)."""
