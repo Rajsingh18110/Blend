@@ -46,33 +46,51 @@ def download_binary(binary_path):
         
     print(f"Fetching updates for {os_name} from GitHub...")
     
-    try:
-        # Delete existing binary before downloading the new one
-        if os.path.exists(binary_path):
-            try:
-                os.remove(binary_path)
-            except Exception as e:
-                print(f"\n⚠️ Warning: Could not delete old binary: {e}")
+    import time
+    
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            # Delete existing binary before downloading the new one
+            if os.path.exists(binary_path):
+                try:
+                    os.remove(binary_path)
+                except Exception as e:
+                    print(f"\n⚠️ Warning: Could not delete old binary: {e}")
 
-        urllib.request.urlretrieve(url, binary_path, reporthook=report_progress)
-        print("\n✅ Download successful!")
-        
-        # Set executable permissions on Linux/macOS
-        if os_name != "windows":
-            st = os.stat(binary_path)
-            os.chmod(binary_path, st.st_mode | stat.S_IEXEC)
+            urllib.request.urlretrieve(url, binary_path, reporthook=report_progress)
+            print("\n✅ Download successful!")
             
-    except KeyboardInterrupt:
-        print("\n\n❌ Download cancelled by user.")
-        if os.path.exists(binary_path):
-            try:
-                os.remove(binary_path)
-            except OSError:
-                pass
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n❌ Failed to download Blend. Error: {e}")
-        sys.exit(1)
+            # Set executable permissions on Linux/macOS
+            if os_name != "windows":
+                st = os.stat(binary_path)
+                os.chmod(binary_path, st.st_mode | stat.S_IEXEC)
+            
+            # Download succeeded, break the retry loop
+            break
+                
+        except KeyboardInterrupt:
+            print("\n\n❌ Download cancelled by user.")
+            if os.path.exists(binary_path):
+                try:
+                    os.remove(binary_path)
+                except OSError:
+                    pass
+            sys.exit(1)
+        except Exception as e:
+            # Clean up the corrupted partial file
+            if os.path.exists(binary_path):
+                try:
+                    os.remove(binary_path)
+                except OSError:
+                    pass
+            
+            if attempt < max_retries - 1:
+                print(f"\n⚠️ Download failed: {e}. Retrying in 3 seconds... ({attempt+1}/{max_retries})")
+                time.sleep(3)
+            else:
+                print(f"\n❌ Failed to download Blend after {max_retries} attempts. Error: {e}")
+                sys.exit(1)
 
 def main():
     binary_path = get_binary_path()
