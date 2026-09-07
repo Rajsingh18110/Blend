@@ -89,6 +89,9 @@ def main():
     # Execute the downloaded binary
     try:
         if platform.system().lower() != "windows":
+            # Ensure executable permissions are set in case it was interrupted before
+            st = os.stat(binary_path)
+            os.chmod(binary_path, st.st_mode | stat.S_IEXEC)
             # On POSIX systems, replace the current process (more native feel)
             os.execv(binary_path, [binary_path] + sys.argv[1:])
         else:
