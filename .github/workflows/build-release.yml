@@ -62,6 +62,9 @@ jobs:
             --add-data "src/blend/blend_core/data${{ matrix.sep }}blend/blend_core/data" `
             --add-data "src/blend/blend_core/blend_config.yml${{ matrix.sep }}blend/blend_core" `
             --collect-all lxml `
+            --hidden-import "lxml.etree" `
+            --hidden-import "lxml._elementpath" `
+            --hidden-import "lxml.html" `
             --hidden-import "flask" `
             --hidden-import "gunicorn.glogging" `
             --hidden-import "gunicorn.workers.sync" `
@@ -83,6 +86,9 @@ jobs:
             --add-data "src/blend/blend_core/data${{ matrix.sep }}blend/blend_core/data" \
             --add-data "src/blend/blend_core/blend_config.yml${{ matrix.sep }}blend/blend_core" \
             --collect-all lxml \
+            --hidden-import "lxml.etree" \
+            --hidden-import "lxml._elementpath" \
+            --hidden-import "lxml.html" \
             --hidden-import "flask" \
             --hidden-import "gunicorn.glogging" \
             --hidden-import "gunicorn.workers.sync" \
