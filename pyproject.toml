@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
 authors = [{name = "MarkanM"}]
-dependencies = []
+dynamic = ["dependencies"]
 
 [project.scripts]
 blend = "blend.launcher:main"
@@ -17,3 +17,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.package-data]
 blend = ["templates/**/*", "static/**/*", "blend_core/**/*.yml", "blend_core/**/*.toml", "blend_core/**/*.json", "blend_core/**/*.msg", "blend_core/data/**/*", "blend_core/assets/**/*", "blend_core/views/**/*", "blend_core/infopage/**/*", "blend_core/translations/**/*", "blend_core/botdetection/**/*", "blend_core/favicons/**/*"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}

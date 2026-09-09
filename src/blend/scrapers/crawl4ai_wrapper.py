@@ -23,7 +23,8 @@ class Crawl4AIWrapper:
                 self.crawler = AsyncWebCrawler(proxy="http://127.0.0.1:8888", verbose=False)
                 await self.crawler.start()
         except ImportError:
-            print("Crawl4AI not installed. Fallback to basic extraction.")
+            from ..utils.logger import get_logger
+            get_logger("crawl4ai").warning("Crawl4AI not installed. Fallback to basic extraction.")
             self.crawler = None
 
     async def extract(self, url: str) -> Dict[str, Any]:
