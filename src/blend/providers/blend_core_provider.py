@@ -77,12 +77,8 @@ class BlendCoreProvider(BaseProvider):
 
         try:
             if req_obj:
-                from flask import current_app
-                app_obj = current_app._get_current_object()
-                def _run_search_ctx():
-                    # req_obj.environ is the original WSGI environ
-                    with app_obj.request_context(req_obj.environ):
-                        return _run_search()
+                from flask import copy_current_request_context
+                _run_search_ctx = copy_current_request_context(_run_search)
                 native_results = await loop.run_in_executor(None, _run_search_ctx)
             else:
                 from flask import Flask

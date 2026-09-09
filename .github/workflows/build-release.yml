@@ -61,7 +61,10 @@ jobs:
             --add-data "src/blend/blend_core/translations${{ matrix.sep }}blend/blend_core/translations" `
             --add-data "src/blend/blend_core/data${{ matrix.sep }}blend/blend_core/data" `
             --add-data "src/blend/blend_core/blend_config.yml${{ matrix.sep }}blend/blend_core" `
+            --add-data "src/blend/blend_core/limiter.toml${{ matrix.sep }}blend/blend_core" `
+            --add-data "src/blend/blend_core/sources${{ matrix.sep }}blend/blend_core/sources" `
             --collect-all lxml `
+            --collect-all blend.blend_core.extensions `
             --hidden-import "lxml.etree" `
             --hidden-import "lxml._elementpath" `
             --hidden-import "lxml.html" `
@@ -85,7 +88,10 @@ jobs:
             --add-data "src/blend/blend_core/translations${{ matrix.sep }}blend/blend_core/translations" \
             --add-data "src/blend/blend_core/data${{ matrix.sep }}blend/blend_core/data" \
             --add-data "src/blend/blend_core/blend_config.yml${{ matrix.sep }}blend/blend_core" \
+            --add-data "src/blend/blend_core/limiter.toml${{ matrix.sep }}blend/blend_core" \
+            --add-data "src/blend/blend_core/sources${{ matrix.sep }}blend/blend_core/sources" \
             --collect-all lxml \
+            --collect-all blend.blend_core.extensions \
             --hidden-import "lxml.etree" \
             --hidden-import "lxml._elementpath" \
             --hidden-import "lxml.html" \

@@ -66,19 +66,19 @@ and knowledge-base responses where available.
 
 ### Multi-Engine Search
 
-The standalone search path in `backend/app.py` uses `SearchRouter` and
+The standalone search path in `src/blend/app.py` uses `SearchRouter` and
 `ProviderManager` to select the active providers. In the current code, general
 web search uses Google/Brave providers, image search uses the Bing image
 provider, video and music search use the YouTube music provider, and news uses
 a Google News RSS path in the Flask launcher.
 
-The repository also contains SearxNG-derived `backend/blend_core/` modules and
+The repository also contains SearxNG-derived `src/blend/blend_core/` modules and
 configuration for compatibility, but the custom frontend primarily talks to the
 standalone `/api/search` route.
 
 ### Custom Frontend
 
-The `frontend/` directory contains the public Blend UI. It is dark-first,
+The `src/blend/static/` and `src/blend/templates/` directories contain the public Blend UI. It is dark-first,
 mobile-friendly, and focused on practical search workflows:
 
 - Home page with shortcuts, categories, privacy widgets, and search entry.
@@ -86,11 +86,11 @@ mobile-friendly, and focused on practical search workflows:
   social results, and AI chat. Some tabs are frontend workflows over the shared
   search API rather than separate fully independent backend engines.
 - Privacy, about, and settings pages.
-- Frontend configuration in `frontend/templates/blend-config.js`.
+- Frontend configuration in `src/blend/templates/blend-config.js`.
 
 ### Local-Friendly Backend
 
-`backend/start_backend.sh` starts the app in embedded/offline-friendly mode so
+`src/blend/start_backend.sh` starts the app in embedded/offline-friendly mode so
 local startup does not fail just because remote search engines or network probes
 are unavailable.
 
@@ -98,15 +98,15 @@ are unavailable.
 
 ```text
 .
-├── backend/
-│   ├── app.py                    # Standalone Blend web/API launcher
-│   ├── start_backend.sh           # Local startup script
+├── src/blend/
+│   ├── app.py                     # Standalone Blend web/API launcher
+│   ├── server.py                  # Gunicorn server wrapped interface
+│   ├── cli.py                     # Command line interface for Blend
+│   ├── launcher.py                # Smart launcher for auto-fetching binaries
+│   ├── start_backend.sh           # Local development startup script
 │   ├── navar.py                   # Navar assistant and intent routing
 │   ├── navar_knowledge.py         # Markanm/Blend knowledge responses
 │   ├── ytdl_downloader.py         # Optional media metadata helpers
-│   ├── requirements.txt           # Backend dependencies
-│   ├── setup.py                   # Python package metadata
-│   ├── blend/                     # Compatibility webapp package
 │   ├── blend_core/                # Search core, engines, settings, web app
 │   │   ├── sources/               # Search source adapters
 │   │   ├── extensions/            # Optional search/result extensions
@@ -115,13 +115,10 @@ are unavailable.
 │   │   ├── result_types/          # Structured result models
 │   │   ├── data/                  # Engine metadata and local datasets
 │   │   └── views/                 # Backend-rendered template assets
-│   ├── blend_extras/              # Update and maintenance helpers
-│   ├── blendsearch/               # External bang/search helpers
-│   └── tools/                     # Validation and maintenance scripts
-├── frontend/
-│   ├── static/
+│   ├── providers/                 # Search provider abstraction layer
+│   ├── static/                    # Frontend static assets
 │   │   └── style.css              # Main public UI stylesheet
-│   └── templates/
+│   └── templates/                 # Frontend HTML templates
 │       ├── index.html             # Home page
 │       ├── results.html           # Search results and AI chat UI
 │       ├── about.html
@@ -131,7 +128,7 @@ are unavailable.
 ├── .env.example                   # Public environment template
 ├── admin_config.example.json      # Public API config template
 ├── LICENSE                        # License summary and component notices
-├── LICENSES/                       # AGPL-3.0-or-later notice and Apache-2.0 text
+├── LICENSES/                      # AGPL-3.0-or-later notice and Apache-2.0 text
 ├── README.md                      # This file
 └── README.rst                     # Package/readme compatibility file
 ```
@@ -141,7 +138,7 @@ are unavailable.
 - Python 3.10 or newer
 - `pip`
 - Optional: Valkey/Redis if you enable external caching
-- Optional: `yt-dlp` features are installed through `backend/requirements.txt`
+- Optional: `yt-dlp` features are installed through `src/requirements.txt`
 
 ## Quickstart
 
@@ -245,8 +242,8 @@ admin configuration, or secret-looking default values.
 
 ## Development Notes
 
-- Keep user-facing UI changes in `frontend/`.
-- Keep search source behavior in `backend/blend_core/sources/`.
+- Keep user-facing UI changes in `src/blend/templates/` and `src/blend/static/`.
+- Keep search source behavior in `src/blend/blend_core/sources/`.
 - Keep runtime-only secrets in `.env` or ignored local config files.
 - Prefer environment variables for keys, hostnames, ports, and provider tokens.
 - Do not commit generated caches, virtual environments, or local admin config.
