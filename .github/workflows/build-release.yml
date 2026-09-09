@@ -63,8 +63,11 @@ jobs:
             --add-data "src/blend/blend_core/blend_config.yml${{ matrix.sep }}blend/blend_core" `
             --add-data "src/blend/blend_core/limiter.toml${{ matrix.sep }}blend/blend_core" `
             --add-data "src/blend/blend_core/sources${{ matrix.sep }}blend/blend_core/sources" `
+            --add-data "src/blend/blend_core/favicons${{ matrix.sep }}blend/blend_core/favicons" `
             --collect-all lxml `
             --collect-all blend.blend_core.extensions `
+            --collect-all blend.blend_core.sources `
+            --hidden-import "cloudscraper" `
             --hidden-import "lxml.etree" `
             --hidden-import "lxml._elementpath" `
             --hidden-import "lxml.html" `
@@ -90,8 +93,11 @@ jobs:
             --add-data "src/blend/blend_core/blend_config.yml${{ matrix.sep }}blend/blend_core" \
             --add-data "src/blend/blend_core/limiter.toml${{ matrix.sep }}blend/blend_core" \
             --add-data "src/blend/blend_core/sources${{ matrix.sep }}blend/blend_core/sources" \
+            --add-data "src/blend/blend_core/favicons${{ matrix.sep }}blend/blend_core/favicons" \
             --collect-all lxml \
             --collect-all blend.blend_core.extensions \
+            --collect-all blend.blend_core.sources \
+            --hidden-import "cloudscraper" \
             --hidden-import "lxml.etree" \
             --hidden-import "lxml._elementpath" \
             --hidden-import "lxml.html" \
