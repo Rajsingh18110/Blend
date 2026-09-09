@@ -124,11 +124,21 @@ def main():
             kwargs['start_new_session'] = True
             
         if getattr(sys, 'frozen', False):
+            meipass = getattr(sys, '_MEIPASS', None)
+            from blend import __version__ as blend_version
+            persistent_meipass = os.path.join(user_data_dir("blend", "markanm"), f"meipass_cache_{blend_version}")
+            
+            if meipass and not os.path.exists(persistent_meipass):
+                import shutil
+                shutil.copytree(meipass, persistent_meipass)
+                
             cmd = [sys.executable, "--daemon-worker"]
             env = os.environ.copy()
-            for k in list(env.keys()):
-                if k.startswith('_MEIPASS') or k.startswith('_PYI_'):
-                    env.pop(k, None)
+            env['_MEIPASS2'] = persistent_meipass
+            env['_MEIPASS'] = persistent_meipass
+            env['_PYI_APPLICATION_HOME_DIR'] = persistent_meipass
+            if 'LD_LIBRARY_PATH' in env and meipass:
+                env['LD_LIBRARY_PATH'] = env['LD_LIBRARY_PATH'].replace(meipass, persistent_meipass)
             kwargs['env'] = env
         else:
             cmd = [sys.executable, "-m", "blend.cli", "--daemon-worker"]
