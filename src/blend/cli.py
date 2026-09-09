@@ -126,8 +126,9 @@ def main():
         if getattr(sys, 'frozen', False):
             cmd = [sys.executable, "--daemon-worker"]
             env = os.environ.copy()
-            env.pop('_MEIPASS2', None)
-            env.pop('_MEIPASS', None)
+            for k in list(env.keys()):
+                if k.startswith('_MEIPASS') or k.startswith('_PYI_'):
+                    env.pop(k, None)
             kwargs['env'] = env
         else:
             cmd = [sys.executable, "-m", "blend.cli", "--daemon-worker"]
