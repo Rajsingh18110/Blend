@@ -715,7 +715,25 @@ def pre_request():
     blend_request.timings = []  # pylint: disable=assigning-non-slot
     blend_request.errors = []  # pylint: disable=assigning-non-slot
 
-    client_pref = ClientPref.from_http_request(blend_request)
+    # Build client preferences from the incoming HTTP request. In some
+    # deployment scenarios (packaged/frozen binaries or incomplete PyInstaller
+    # extracts) Babel's locale data may be unavailable which raises
+    # FileNotFoundError during locale parsing. Guard against that so the
+    # server doesn't crash on every request — fall back to defaults.
+    try:
+        client_pref = ClientPref.from_http_request(blend_request)
+    except FileNotFoundError as e:
+        logger.warning("Could not build ClientPref due missing locale data: %s", e)
+        # fallback to an empty/default ClientPref so the request can proceed
+        try:
+            client_pref = ClientPref()
+        except Exception:
+            # Last resort: create a minimal object with expected attributes
+            class _Dummy:
+                locale_tag = 'en'
+
+            client_pref = _Dummy()
+
     # pylint: disable=redefined-outer-name
     preferences = Preferences(themes, list(categories.keys()), engines, blend_core.extensions.STORAGE, client_pref)
 

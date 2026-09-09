@@ -4,6 +4,9 @@ import platform
 import urllib.request
 import subprocess
 import stat
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_binary_path():
     os_name = platform.system().lower()
@@ -44,7 +47,7 @@ def download_binary(binary_path):
     else:
         url = f"{base_url}/blend-linux"
         
-    print(f"Fetching updates for {os_name} from GitHub...")
+    logger.info(f"Fetching updates for {os_name} from GitHub...")
     
     import time
     
@@ -56,10 +59,10 @@ def download_binary(binary_path):
                 try:
                     os.remove(binary_path)
                 except Exception as e:
-                    print(f"\n⚠️ Warning: Could not delete old binary: {e}")
+                    logger.warning(f"\n⚠️ Warning: Could not delete old binary: {e}")
 
             urllib.request.urlretrieve(url, binary_path, reporthook=report_progress)
-            print("\n✅ Download successful!")
+            logger.info("\n✅ Download successful!")
             
             # Set executable permissions on Linux/macOS
             if os_name != "windows":
@@ -70,7 +73,7 @@ def download_binary(binary_path):
             break
                 
         except KeyboardInterrupt:
-            print("\n\n❌ Download cancelled by user.")
+            logger.info("\n\n❌ Download cancelled by user.")
             if os.path.exists(binary_path):
                 try:
                     os.remove(binary_path)
@@ -86,10 +89,10 @@ def download_binary(binary_path):
                     pass
             
             if attempt < max_retries - 1:
-                print(f"\n⚠️ Download failed: {e}. Retrying in 3 seconds... ({attempt+1}/{max_retries})")
+                logger.warning(f"\n⚠️ Download failed: {e}. Retrying in 3 seconds... ({attempt+1}/{max_retries})")
                 time.sleep(3)
             else:
-                print(f"\n❌ Failed to download Blend after {max_retries} attempts. Error: {e}")
+                logger.error(f"\n❌ Failed to download Blend after {max_retries} attempts. Error: {e}")
                 sys.exit(1)
 
 def main():
@@ -101,7 +104,7 @@ def main():
         sys.exit(0)
         
     if not os.path.exists(binary_path):
-        print("Blend executable not found locally. Initializing...")
+        logger.info("Blend executable not found locally. Initializing...")
         download_binary(binary_path)
         
     # Execute the downloaded binary
@@ -116,7 +119,7 @@ def main():
             # On Windows, os.execv doesn't work perfectly with child lifecycles
             sys.exit(subprocess.call([binary_path] + sys.argv[1:]))
     except Exception as e:
-        print(f"❌ Failed to execute Blend binary: {e}")
+        logger.error(f"❌ Failed to execute Blend binary: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

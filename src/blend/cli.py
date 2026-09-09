@@ -122,7 +122,17 @@ def main():
             kwargs['creationflags'] = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
         else:
             kwargs['start_new_session'] = True
-            
+        
+        # Ensure the spawned subprocess inherits the local `src` package path
+        # so `import blend` resolves to the working tree when running from
+        # source. Also set a sensible working directory (repo root) so relative
+        # template/resource paths resolve in the child.
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        src_dir = os.path.join(repo_root, 'src')
+        env = os.environ.copy()
+        prev_pp = env.get('PYTHONPATH', '')
+        env['PYTHONPATH'] = src_dir + (':' + prev_pp if prev_pp else '')
+
         if getattr(sys, 'frozen', False):
             meipass = getattr(sys, '_MEIPASS', None)
             from blend import __version__ as blend_version
@@ -133,16 +143,24 @@ def main():
                 shutil.copytree(meipass, persistent_meipass)
                 
             cmd = [sys.executable, "--daemon-worker"]
-            env = os.environ.copy()
+            # ensure the frozen child also gets the persistent meipass and
+            # a PYTHONPATH that includes the extracted directory (best-effort)
             env['_MEIPASS2'] = persistent_meipass
             env['_MEIPASS'] = persistent_meipass
             env['_PYI_APPLICATION_HOME_DIR'] = persistent_meipass
             if 'LD_LIBRARY_PATH' in env and meipass:
                 env['LD_LIBRARY_PATH'] = env['LD_LIBRARY_PATH'].replace(meipass, persistent_meipass)
+            # point PYTHONPATH to the persistent meipass so packages in the
+            # extracted bundle can be imported if needed
+            env['PYTHONPATH'] = persistent_meipass + (':' + env.get('PYTHONPATH', '') if env.get('PYTHONPATH') else '')
             kwargs['env'] = env
         else:
             cmd = [sys.executable, "-m", "blend.cli", "--daemon-worker"]
-            
+            # pass our prepared env so the child resolves the local `src` tree
+            kwargs['env'] = env
+            # ensure the child runs with the repo root as cwd so relative file
+            # accesses (templates/static) work as expected
+            kwargs['cwd'] = repo_root
         proc = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, **kwargs)
 
     if not args.no_browser:

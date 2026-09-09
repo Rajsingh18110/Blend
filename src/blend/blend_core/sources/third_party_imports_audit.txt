@@ -1,0 +1,127 @@
+Engines with non-stdlib/top-level imports (generated):
+
+src/blend/blend_core/sources/lemmy.py: flask_babel
+src/blend/blend_core/sources/karmasearch.py: babel, dateutil, lxml
+src/blend/blend_core/sources/bing_images.py: lxml
+src/blend/blend_core/sources/piped.py: dateutil
+src/blend/blend_core/sources/soundcloud.py: dateutil, lxml
+src/blend/blend_core/sources/ollama.py: lxml
+src/blend/blend_core/sources/pixabay.py: dateutil
+src/blend/blend_core/sources/goodreads.py: lxml
+src/blend/blend_core/sources/braveapi.py: dateutil
+src/blend/blend_core/sources/yandex.py: lxml
+src/blend/blend_core/sources/qwant.py: babel, flask_babel, lxml
+src/blend/blend_core/sources/bt4g.py: lxml
+src/blend/blend_core/sources/devicons.py: extended_types, search
+src/blend/blend_core/sources/postgresql.py: psycopg2
+src/blend/blend_core/sources/pdbe.py: flask_babel
+src/blend/blend_core/sources/mariadb_server.py: mariadb
+src/blend/blend_core/sources/youtube_api.py: dateutil
+src/blend/blend_core/sources/google_news.py: babel, base64, lxml
+src/blend/blend_core/sources/pypi.py: dateutil, lxml
+src/blend/blend_core/sources/imgur.py: lxml
+src/blend/blend_core/sources/pkg_go_dev.py: babel, dateutil, flask_babel, lxml
+src/blend/blend_core/sources/pexels.py: cloudscraper, lxml
+src/blend/blend_core/sources/valkey_server.py: valkey
+src/blend/blend_core/sources/openstreetmap.py: flask_babel
+src/blend/blend_core/sources/discourse.py: dateutil, flask_babel
+src/blend/blend_core/sources/archlinux.py: babel, lxml
+src/blend/blend_core/sources/destatis.py: lxml
+src/blend/blend_core/sources/semantic_scholar.py: flask_babel, lxml
+src/blend/blend_core/sources/hex.py: dateutil
+src/blend/blend_core/sources/btdigg.py: lxml
+src/blend/blend_core/sources/xpath.py: lxml
+src/blend/blend_core/sources/bing_videos.py: lxml
+src/blend/blend_core/sources/sourcehut.py: lxml
+src/blend/blend_core/sources/apple_app_store.py: dateutil
+src/blend/blend_core/sources/nyaa.py: lxml
+src/blend/blend_core/sources/google_scholar.py: httpx, lxml
+src/blend/blend_core/sources/sogou.py: lxml
+src/blend/blend_core/sources/zlibrary.py: babel, flask_babel, lxml
+src/blend/blend_core/sources/yahoo.py: lxml
+src/blend/blend_core/sources/wikidata.py: babel, dateutil
+src/blend/blend_core/sources/aol.py: dateutil, lxml
+src/blend/blend_core/sources/radio_browser.py: babel, flask_babel
+src/blend/blend_core/sources/alpinelinux.py: dateutil, lxml
+src/blend/blend_core/sources/peertube.py: babel, dateutil
+src/blend/blend_core/sources/dailymotion.py: babel
+src/blend/blend_core/sources/duckduckgo_weather.py: dateutil
+src/blend/blend_core/sources/github.py: dateutil
+src/blend/blend_core/sources/svgrepo.py: lxml
+src/blend/blend_core/sources/boardreader.py: babel, gettext
+src/blend/blend_core/sources/wikipedia.py: babel, lxml
+src/blend/blend_core/sources/docker_hub.py: dateutil
+src/blend/blend_core/sources/ccc_media.py: dateutil
+src/blend/blend_core/sources/tubearchivist.py: dateutil
+src/blend/blend_core/sources/gitea.py: dateutil
+src/blend/blend_core/sources/uxwing.py: lxml
+src/blend/blend_core/sources/reuters.py: dateutil
+src/blend/blend_core/sources/adobe_stock.py: isodate
+src/blend/blend_core/sources/360search.py: lxml
+src/blend/blend_core/sources/seznam.py: lxml
+src/blend/blend_core/sources/ahmia.py: lxml
+src/blend/blend_core/sources/selfhst.py: dateutil
+src/blend/blend_core/sources/fdroid.py: lxml
+src/blend/blend_core/sources/mixcloud.py: dateutil
+src/blend/blend_core/sources/openclipart.py: lxml
+src/blend/blend_core/sources/1337x.py: lxml
+src/blend/blend_core/sources/deviantart.py: lxml
+src/blend/blend_core/sources/mysql_server.py: mysql
+src/blend/blend_core/sources/google_play.py: lxml
+src/blend/blend_core/sources/command.py: shlex
+src/blend/blend_core/sources/dictzone.py: lxml
+src/blend/blend_core/sources/wordnik.py: lxml
+src/blend/blend_core/sources/sogou_wechat.py: lxml
+src/blend/blend_core/sources/kickass.py: lxml
+src/blend/blend_core/sources/lucide.py: extended_types, search
+src/blend/blend_core/sources/digbt.py: lxml
+src/blend/blend_core/sources/www1x.py: lxml
+src/blend/blend_core/sources/annas_archive.py: babel, lxml
+src/blend/blend_core/sources/brave.py: babel, dateutil, lxml
+src/blend/blend_core/sources/niconico.py: lxml
+src/blend/blend_core/sources/ask.py: dateutil, lxml
+src/blend/blend_core/sources/mongodb.py: pymongo
+src/blend/blend_core/sources/bing_news.py: lxml
+src/blend/blend_core/sources/pubmed.py: lxml
+src/blend/blend_core/sources/emojipedia.py: lxml
+src/blend/blend_core/sources/gitlab.py: dateutil
+src/blend/blend_core/sources/torznab.py: lxml
+src/blend/blend_core/sources/yacy.py: dateutil, httpx
+src/blend/blend_core/sources/lib_rs.py: lxml
+src/blend/blend_core/sources/duckduckgo.py: babel, lxml
+src/blend/blend_core/sources/google_videos.py: lxml
+src/blend/blend_core/sources/chinaso.py: base64, secrets
+src/blend/blend_core/sources/ansa.py: lxml
+src/blend/blend_core/sources/bandcamp.py: dateutil, lxml
+src/blend/blend_core/sources/acfun.py: lxml
+src/blend/blend_core/sources/tineye.py: flask_babel
+src/blend/blend_core/sources/base.py: lxml
+src/blend/blend_core/sources/wolframalpha_api.py: lxml
+src/blend/blend_core/sources/npm.py: dateutil
+src/blend/blend_core/sources/yahoo_news.py: dateutil, lxml
+src/blend/blend_core/sources/arxiv.py: lxml
+src/blend/blend_core/sources/ina.py: lxml
+src/blend/blend_core/sources/ebay.py: lxml
+src/blend/blend_core/sources/google.py: babel, lxml
+src/blend/blend_core/sources/vimeo.py: dateutil
+src/blend/blend_core/sources/bing.py: babel, base64, lxml
+src/blend/blend_core/sources/ipernity.py: lxml
+src/blend/blend_core/sources/odysee.py: babel
+src/blend/blend_core/sources/invidious.py: dateutil
+src/blend/blend_core/sources/startpage.py: babel, dateutil, lxml
+src/blend/blend_core/sources/rumble.py: lxml
+src/blend/blend_core/sources/naver.py: lxml
+src/blend/blend_core/sources/apkmirror.py: lxml
+src/blend/blend_core/sources/mojeek.py: babel, dateutil, lxml
+src/blend/blend_core/sources/opensemantic.py: dateutil
+src/blend/blend_core/sources/doku.py: lxml
+src/blend/blend_core/sources/duckduckgo_definitions.py: lxml
+src/blend/blend_core/sources/crates.py: dateutil
+src/blend/blend_core/sources/geizhals.py: lxml
+src/blend/blend_core/sources/hackernews.py: dateutil, flask_babel
+src/blend/blend_core/sources/duden.py: lxml
+src/blend/blend_core/sources/tokyotoshokan.py: lxml
+src/blend/blend_core/sources/spotify.py: base64
+src/blend/blend_core/sources/rottentomatoes.py: lxml
+src/blend/blend_core/sources/solidtorrents.py: lxml
+src/blend/blend_core/sources/openlibrary.py: dateutil
