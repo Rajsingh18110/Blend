@@ -1152,6 +1152,25 @@ def autocompleter():
     return Response(suggestions, mimetype=mimetype)
 
 
+@app.route('/debug_thread')
+def debug_thread():
+    from flask import copy_current_request_context
+    import threading
+    result = []
+    
+    @copy_current_request_context
+    def worker():
+        try:
+            from blend.blend_core.extended_types import blend_request
+            result.append(str(hasattr(blend_request, 'preferences')))
+        except Exception as e:
+            result.append("ERROR:" + str(e))
+            
+    t = threading.Thread(target=worker)
+    t.start()
+    t.join()
+    return "THREAD HAS PREFS: " + result[0]
+
 @app.route('/preferences', methods=['GET', 'POST'])
 def preferences():
     """Render preferences page && save user preferences"""
