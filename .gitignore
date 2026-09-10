@@ -31,6 +31,10 @@ env/
 dist/
 build/
 .eggs/
+*.spec
+pyinstxtractor.py
+requirements.detected.txt
+requirements.merged.txt
 
 # IDE
 .vscode/
@@ -50,3 +54,4 @@ local_settings.py
 # OS generated files
 Thumbs.db
 blend-linux
+test.js
