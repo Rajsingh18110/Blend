@@ -1,10 +1,12 @@
 import argparse
+import json
 import os
 import socket
 import webbrowser
 import sys
 import signal
 import subprocess
+import urllib.request
 from platformdirs import user_data_dir
 
 BANNER = r"""
@@ -17,11 +19,34 @@ BANNER = r"""
  Blend — made by MarkanM
 """
 
+def get_blend_version():
+    try:
+        import blend as blend_pkg
+        return getattr(blend_pkg, "__version__", "unknown")
+    except Exception:
+        return "unknown"
+
+
+def get_backend_port():
+    return int(os.environ.get("BLEND_PORT", "5000"))
+
+
 def is_port_in_use(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('127.0.0.1', port)) == 0
 
-def check_if_running():
+
+def check_if_running(port=None):
+    port = port or get_backend_port()
+    if is_port_in_use(port):
+        try:
+            with urllib.request.urlopen(f"http://127.0.0.1:{port}/ping", timeout=1) as response:
+                payload = json.loads(response.read().decode('utf-8'))
+            if payload.get("server") == "blend_server" or payload.get("status") == "ok":
+                return True
+        except Exception:
+            pass
+
     data_dir = user_data_dir("blend", "markanm")
     pid_file = os.path.join(data_dir, "blend.pid")
     if os.path.exists(pid_file):
@@ -30,7 +55,7 @@ def check_if_running():
                 pid = int(f.read().strip())
                 os.kill(pid, 0)
                 return True
-            except:
+            except Exception:
                 pass
     return False
 
@@ -90,25 +115,28 @@ def main():
         kill_running()
         sys.exit(0)
 
+    port = get_backend_port()
+
     if args.daemon_worker:
         with open(get_pid_file(), 'w') as f:
             f.write(str(os.getpid()))
         os.environ['BLEND_EMBEDDED_BACKEND'] = '1'
+        os.environ['BLEND_PORT'] = str(port)
         from blend.app import app
         import logging
         logging.getLogger('werkzeug').disabled = True
-        app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False)
+        app.run(host='127.0.0.1', port=port, debug=False, use_reloader=False)
         sys.exit(0)
 
-    if check_if_running():
-        print("Blend server is already running in the background.")
+    if check_if_running(port):
+        print(f"Blend server is already running in the background on http://127.0.0.1:{port}.")
         if not args.no_browser:
-            webbrowser.open("http://127.0.0.1:5000")
+            webbrowser.open(f"http://127.0.0.1:{port}")
         sys.exit(0)
 
     print(BANNER)
-    print("  Local:        http://127.0.0.1:5000")
-    print("  Admin panel:  http://127.0.0.1:5000/admin")
+    print(f"  Local:        http://127.0.0.1:{port}")
+    print(f"  Admin panel:  http://127.0.0.1:{port}/admin")
     print("\n  🚀 Running in background! (Type 'blend stop' to shut down)")
 
     pid_file = get_pid_file()
@@ -130,12 +158,13 @@ def main():
         repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         src_dir = os.path.join(repo_root, 'src')
         env = os.environ.copy()
+        env['BLEND_PORT'] = str(port)
         prev_pp = env.get('PYTHONPATH', '')
         env['PYTHONPATH'] = src_dir + (':' + prev_pp if prev_pp else '')
 
         if getattr(sys, 'frozen', False):
             meipass = getattr(sys, '_MEIPASS', None)
-            from blend import __version__ as blend_version
+            blend_version = get_blend_version()
             persistent_meipass = os.path.join(user_data_dir("blend", "markanm"), f"meipass_cache_{blend_version}")
             
             if meipass and not os.path.exists(persistent_meipass):

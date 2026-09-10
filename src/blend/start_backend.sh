@@ -23,7 +23,7 @@ fi
 # on external engine network probes.
 export BLEND_EMBEDDED_BACKEND=1
 BLEND_HOST="${BLEND_HOST:-127.0.0.1}"
-BLEND_PORT="${BLEND_PORT:-8081}"
+BLEND_PORT="${BLEND_PORT:-5000}"
 export PORT="${PORT:-$BLEND_PORT}"
 if [ -n "${BLEND_SECRET_KEY:-}" ] && [ -z "${MARKANM_SECRET:-}" ]; then
   export MARKANM_SECRET="$BLEND_SECRET_KEY"

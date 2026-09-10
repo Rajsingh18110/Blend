@@ -5,8 +5,19 @@ import urllib.request
 import subprocess
 import stat
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
+
+def should_use_local_repo():
+    try:
+        current_file = Path(__file__).resolve()
+        repo_root = current_file.parents[2]
+        candidate = repo_root / 'src' / 'blend' / '__init__.py'
+        return candidate.exists() and candidate.is_file()
+    except Exception:
+        return False
 
 def get_binary_path():
     os_name = platform.system().lower()
@@ -96,17 +107,26 @@ def download_binary(binary_path):
                 sys.exit(1)
 
 def main():
+    # Prefer the local source checkout when the user is running from a repo.
+    # This avoids stale PyInstaller builds from ~/.local/bin or other cached binaries.
+    if should_use_local_repo():
+        repo_root = Path(__file__).resolve().parents[2]
+        src_dir = repo_root / 'src'
+        env = os.environ.copy()
+        env['PYTHONPATH'] = str(src_dir) + (os.pathsep + env['PYTHONPATH'] if env.get('PYTHONPATH') else '')
+        os.execvpe(sys.executable, [sys.executable, '-m', 'blend.cli', *sys.argv[1:]], env)
+
     binary_path = get_binary_path()
-    
+
     # Check if user explicitly asked for an update
     if "-update" in sys.argv or "--update" in sys.argv:
         download_binary(binary_path)
         sys.exit(0)
-        
+
     if not os.path.exists(binary_path):
         logger.info("Blend executable not found locally. Initializing...")
         download_binary(binary_path)
-        
+
     # Execute the downloaded binary
     try:
         if platform.system().lower() != "windows":
