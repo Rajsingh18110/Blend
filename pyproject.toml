@@ -10,6 +10,7 @@ dynamic = ["dependencies"]
 
 [project.scripts]
 blend = "blend.launcher:main"
+blendcode = "blend.cli:code_main"
 
 [build-system]
 requires = ["setuptools>=68", "wheel"]
