@@ -1,12 +1,18 @@
 import argparse
+import itertools
 import json
 import os
+import shutil
 import socket
+import threading
+import time
 import webbrowser
 import sys
 import signal
 import subprocess
 import urllib.request
+import zipfile
+from pathlib import Path
 from platformdirs import user_data_dir
 
 BANNER = r"""
@@ -29,6 +35,23 @@ def get_blend_version():
 
 def get_backend_port():
     return int(os.environ.get("BLEND_PORT", "5000"))
+
+
+def find_available_port(start_port=5000, max_attempts=50):
+    """Return the first free localhost port starting from start_port."""
+    port = int(start_port)
+    for offset in range(max_attempts):
+        candidate = port + offset
+        if candidate > 65535:
+            break
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                sock.bind(('127.0.0.1', candidate))
+                return candidate
+            except OSError:
+                continue
+    raise RuntimeError(f"No free localhost port found from {start_port} to {start_port + max_attempts - 1}.")
 
 
 def is_port_in_use(port):
@@ -116,6 +139,11 @@ def main():
         sys.exit(0)
 
     port = get_backend_port()
+    if is_port_in_use(port) and not check_if_running(port):
+        next_port = find_available_port(start_port=port + 1)
+        print(f"⚠️ Port {port} is already in use by another process. Using port {next_port} for Blend instead.")
+        port = next_port
+        os.environ['BLEND_PORT'] = str(port)
 
     if args.daemon_worker:
         with open(get_pid_file(), 'w') as f:
@@ -195,11 +223,151 @@ def main():
     if not args.no_browser:
         import time
         time.sleep(1.5)  # Give the server a moment to start
+        target_url = f"http://127.0.0.1:{port}"
         try:
-            webbrowser.open("http://127.0.0.1:5000")
+            webbrowser.open(target_url)
         except Exception:
             print("Could not open the browser automatically.")
-            print("Please click or copy-paste this link: http://127.0.0.1:5000")
+            print(f"Please click or copy-paste this link: {target_url}")
+
+def parse_code_install_args(argv=None):
+    parser = argparse.ArgumentParser(description="Download and install the Blend source code from GitHub.")
+    parser.add_argument('mode', nargs='?', choices=['all', 'clone', 'install', 'download'], help="Code install mode")
+    parser.add_argument('-all', '--all', dest='all', action='store_true', help="Download the full source code and install requirements")
+    parser.add_argument('--target-dir', default=str(Path.cwd() / 'Blend'), help="Target folder for the source checkout")
+    parser.add_argument('--skip-requirements', action='store_true', help="Skip installing requirements.txt")
+    parser.add_argument('--no-animation', action='store_true', help="Disable the animated installer output")
+    args = parser.parse_args(argv)
+    if args.mode is None and not args.all:
+        args.all = True
+    elif args.mode == 'all' or args.all:
+        args.all = True
+    return args
+
+
+def run_with_spinner(command, message, cwd=None, env=None):
+    if env is None:
+        env = os.environ.copy()
+
+    if cwd is not None:
+        cwd = str(cwd)
+
+    proc = subprocess.Popen(command, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    spinner = itertools.cycle(['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'])
+    stop_event = threading.Event()
+
+    def animate():
+        while not stop_event.is_set():
+            sys.stdout.write(f"\r{next(spinner)} {message}")
+            sys.stdout.flush()
+            time.sleep(0.08)
+        sys.stdout.write(f"\r✓ {message}\n")
+        sys.stdout.flush()
+
+    thread = threading.Thread(target=animate, daemon=True)
+    thread.start()
+    try:
+        output, _ = proc.communicate()
+    finally:
+        stop_event.set()
+        thread.join()
+
+    if output:
+        print(output.rstrip())
+    return proc.returncode
+
+
+def install_source_tree(target_dir=None, include_requirements=True, show_animation=True):
+    repo_url = "https://github.com/Rajsingh18110/Blend.git"
+    target_dir = Path(target_dir or Path.cwd() / 'Blend').expanduser().resolve()
+    repo_root = target_dir
+
+    print(f"\n📦 Preparing Blend source install in {target_dir}\n")
+
+    if target_dir.exists() and (target_dir / '.git').exists():
+        print("🔄 Repository already exists; pulling latest code...")
+        git_cmd = ['git', '-C', str(target_dir), 'pull', '--ff-only']
+        git_rc = run_with_spinner(git_cmd, 'Updating source code...') if show_animation else subprocess.run(git_cmd, capture_output=True, text=True).returncode
+        if git_rc != 0:
+            print("⚠️ Git pull failed. Re-cloning the repository...")
+            shutil.rmtree(target_dir, ignore_errors=True)
+            return install_source_tree(target_dir=target_dir, include_requirements=include_requirements, show_animation=show_animation)
+        repo_root = target_dir
+    else:
+        if target_dir.exists() and not target_dir.is_dir():
+            raise ValueError(f"Target path is not a directory: {target_dir}")
+
+        if target_dir.exists() and any(target_dir.iterdir()):
+            print(f"⚠️ Directory exists and is not an empty git checkout: {target_dir}")
+            print("Using the existing folder as the project root.")
+            repo_root = target_dir
+        else:
+            print("⬇️ Cloning the repository from GitHub...")
+            clone_cmd = ['git', 'clone', '--depth', '1', repo_url, str(target_dir)]
+            if show_animation:
+                clone_rc = run_with_spinner(clone_cmd, 'Cloning repository from GitHub...')
+            else:
+                clone_rc = subprocess.run(clone_cmd, capture_output=True, text=True).returncode
+            if clone_rc != 0:
+                print("⚠️ Git clone failed. Falling back to the GitHub ZIP download...")
+                zip_url = "https://github.com/Rajsingh18110/Blend/archive/refs/heads/main.zip"
+                zip_path = target_dir.parent / 'Blend-main.zip'
+                try:
+                    if zip_path.exists():
+                        zip_path.unlink()
+                    urllib.request.urlretrieve(zip_url, zip_path)
+                    with zipfile.ZipFile(zip_path) as zf:
+                        zf.extractall(str(target_dir.parent))
+                    extracted_dir = target_dir.parent / 'Blend-main'
+                    if extracted_dir.exists() and target_dir.exists() is False:
+                        extracted_dir.rename(target_dir)
+                except Exception as exc:
+                    print(f"❌ Source download failed: {exc}")
+                    print("Manual fallback: download the ZIP from GitHub and extract it into a local folder.")
+                    return 1
+                repo_root = target_dir
+
+    if include_requirements:
+        req_path = repo_root / 'requirements.txt'
+        if not req_path.exists():
+            print(f"⚠️ requirements.txt not found in {repo_root}.")
+            print("Skipping dependency installation because the repo layout does not include the file.")
+            return 0
+
+        print("📦 Installing Python dependencies from requirements.txt...")
+        pip_cmd = [sys.executable, '-m', 'pip', 'install', '-r', str(req_path)]
+        pip_rc = run_with_spinner(pip_cmd, 'Installing project requirements...', cwd=str(repo_root)) if show_animation else subprocess.run(pip_cmd, cwd=str(repo_root), capture_output=True, text=True).returncode
+
+        if pip_rc != 0:
+            print("⚠️ Dependency installation failed.")
+            print("Manual fallback commands:")
+            print(f"  cd \"{repo_root}\"")
+            print("  python -m venv .venv")
+            print("  . .venv/bin/activate")
+            print("  python -m pip install --upgrade pip")
+            print("  python -m pip install -r requirements.txt")
+            print("  python -m blend.cli")
+            return 1
+
+    print("\n✅ Blend source is ready.")
+    print(f"Run it with: cd \"{repo_root}\" && python -m blend.cli")
+    return 0
+
+
+def code_main(argv=None):
+    args = parse_code_install_args(argv)
+    if args.mode in {'all', 'clone', 'install', 'download'} or args.all or args.mode is None:
+        return install_source_tree(target_dir=args.target_dir, include_requirements=not args.skip_requirements, show_animation=not args.no_animation)
+
+    print("Usage: blendcode [all|clone|install|download] [--all] [--target-dir PATH]")
+    print("Examples:")
+    print("  blendcode")
+    print("  blendcode --all")
+    print("  blendcode all")
+    print("  blendcode -all")
+    print("  blendcode --target-dir ~/Blend")
+    return 0
+
 
 def code_updater():
     if '-update' in sys.argv or '--update' in sys.argv:

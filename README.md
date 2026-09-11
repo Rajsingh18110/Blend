@@ -148,11 +148,57 @@ Run via our hosted version:
 
 ## Installation
 
-The easiest way to install and run Blend Search is using `pip`. We've designed a **Smart Launcher** architecture so the PyPI package installs in fractions of a second without bloated dependencies, and automatically pulls the latest optimized binary for your OS.
+There are two supported installation paths:
+
+### Option A: Source-first install from GitHub
+
+If you want the latest code and automatic dependency installation in one step, run:
+
+```bash
+blendcode
+```
+
+This will:
+- clone the Blend repository from GitHub
+- update it if it already exists locally
+- install all dependencies from `requirements.txt`
+- leave you ready to run the project from source
+
+For an explicit full setup command, use:
+
+```bash
+blendcode --all
+```
+
+or:
+
+```bash
+blendcode -all
+```
+
+You can also target a custom folder:
+
+```bash
+blendcode --target-dir ~/Blend
+```
+
+If dependency installation fails, the command prints manual fallback commands so you can complete the setup manually.
+
+### Option B: PyPI package install
+
+If you just want the installed launcher entry point:
 
 ```bash
 pip install blend-search
 ```
+
+Then start the app with:
+
+```bash
+blend
+```
+
+The launcher prefers the local source checkout when you are running inside the repo, and only falls back to a downloaded binary when needed.
 
 ### 1. Start the Search Engine
 
@@ -161,9 +207,6 @@ Once installed, simply type:
 ```bash
 blend
 ```
-
-* **First run:** The smart launcher will automatically detect your OS (Windows, macOS, or Linux), download the latest compiled executable (around 60MB) from GitHub Releases directly to your local system, and run it. You will see a real-time progress bar.
-* **Subsequent runs:** It starts instantly in the background and opens your browser.
 
 Blend will print a code-style banner to your terminal showing the Localhost URL and Admin panel URL:
 ```text
@@ -183,11 +226,36 @@ blend stop
 
 ### 3. Update to the Latest Version
 
-To download the latest binary from GitHub without reinstalling via pip, just run:
+To fetch the latest source code and reinstall requirements from the project repo, run:
+
+```bash
+blendcode --all
+```
+
+To update the downloaded binary path instead, use:
 
 ```bash
 blend -update
 ```
+
+## Manual Binary Build
+
+If you want to build the standalone Linux binary yourself, do not use the static-only Python in the project `.venv` created earlier. PyInstaller requires a Python build with a shared library, usually the distro Python at `/usr/bin/python3`.
+
+```bash
+cd /home/kali/Blend
+chmod +x build_binary.sh
+./build_binary.sh
+```
+
+This script does the following:
+- validates that the selected Python is shared-library capable
+- creates a dedicated build venv
+- installs requirements and the project
+- runs PyInstaller with the required data files and hidden imports
+- emits the final binary at `dist/blend-linux`
+
+If the selected Python is static-only, the script exits with a clear message instead of failing deep in PyInstaller.
 
 ## Configuration
 
