@@ -219,10 +219,7 @@ class SQLiteAppl(abc.ABC):
                 f"SQLite library is compiled with {self.SQLITE_THREADING_MODE} mode,"
                 " read https://docs.python.org/3/library/sqlite3.html#sqlite3.threadsafety"
             )
-            if threading.active_count() > 1:
-                logger.error(msg)
-            else:
-                logger.warning(msg)
+            logger.debug(msg)
 
         if sqlite3.sqlite_version_info <= (3, 35):
             # See "Generalize UPSERT:" in https://sqlite.org/releaselog/3_35_0.html

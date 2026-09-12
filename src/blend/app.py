@@ -462,11 +462,15 @@ def api_ai():
     mode = data.get("mode") or "fast"
     current_tab = data.get("current_tab", "web")
     current_url = data.get("current_url", "")
+    section_cache = data.get("section_cache") or {}
     try:
         from flask import stream_with_context
         def generate():
-            for event in build_ai_response(query, results, shortcuts, mode, current_tab=current_tab, current_url=current_url):
-                yield f"data: {json.dumps(event)}\n\n"
+            try:
+                for event in build_ai_response(query, results, shortcuts, mode, current_tab=current_tab, current_url=current_url, section_cache=section_cache):
+                    yield f"data: {json.dumps(event)}\n\n"
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'message': f'Server Error: {str(e)}'})}\n\n"
         
         return Response(stream_with_context(generate()), mimetype='text/event-stream', headers={
             'Cache-Control': 'no-cache',

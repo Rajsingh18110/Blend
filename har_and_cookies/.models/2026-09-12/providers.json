@@ -1,0 +1,199 @@
+{
+    "providers": {
+        "default": {
+            "label": "default",
+            "backupUrl": "https://g4f.space/v1",
+            "quotaEndpoint": null
+        },
+        "pollinations": {
+            "id": "srv_mp5miql908c8738d71be",
+            "backupUrl": "https://g4f.space/api/pollinations",
+            "label": "pollinations",
+            "tags": "\ud83c\udf38",
+            "provider": "Pollinations"
+        },
+        "airforce": {
+            "id": "srv_mp3lmkuad07322459f47",
+            "baseUrl": "https://api.airforce/v1",
+            "backupUrl": "https://g4f.space/api/api.airforce",
+            "label": "airforce",
+            "tags": "\u2708\ufe0f"
+        },
+        "community": {
+            "id": "srv_mrdypihj16e8b1776409",
+            "backupUrl": "https://g4f.space/api/community",
+            "tags": "\ud83e\udd1d"
+        },
+        "audio": {
+            "id": "srv_mkoqob5pfb6ff5ec61c2",
+            "label": "audio by g4f.dev",
+            "baseUrl": "https://g4f.space/api/audio",
+            "backupUrl": "https://g4f.space/api/audio",
+            "tags": "\ud83c\udfa7",
+            "sleep": 10000
+        },
+        "deepinfra": {
+            "id": "srv_mp2huzrg06e426ad12f3",
+            "baseUrl": "https://api.deepinfra.com/v1/openai",
+            "backupUrl": "https://g4f.space/api/deepinfra",
+            "tags": "\ud83c\udfa8 \ud83d\udc53",
+            "modelsEndpoint": "https://api.deepinfra.com/models/featured"
+        },
+        "gemini": {
+            "id": "srv_mrgy0nmbc8a86c407f17",
+            "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
+            "backupUrl": "https://g4f.space/api/gemini",
+            "tags": "\ud83d\udc53"
+        },
+        "huggingface": {
+            "id": "srv_msgedz8l7ac2d35fc7b7",
+            "baseUrl": "https://router.huggingface.co/v1",
+            "tags": "\ud83e\udd17",
+            "provider": "HuggingFace"
+        },
+        "nvidia": {
+            "id": "srv_mkombumpae45db46dcb8",
+            "baseUrl": "https://integrate.api.nvidia.com/v1",
+            "backupUrl": "https://g4f.space/api/nvidia",
+            "tags": "\ud83d\udcdf"
+        },
+        "ollama": {
+            "id": "srv_mrgykg8eea645e7bb006",
+            "baseUrl": "https://ollama.g4f-dev.workers.dev",
+            "backupUrl": "https://g4f.space/api/ollama",
+            "tags": "\ud83e\udd99"
+        },
+        "ollama.swarm": {
+            "id": "srv_mrgxy5xec5aa99a83657",
+            "backupUrl": "https://g4f.space/api/ollama.swarm",
+            "tags": "\ud83d\udc1d"
+        },
+        "openrouter": {
+            "id": "srv_monk1pkz433a519ff2be",
+            "baseUrl": "https://openrouter.ai/api/v1",
+            "backupUrl": "https://g4f.space/api/openrouter",
+            "tags": "\ud83d\udc53"
+        },
+        "puter": {
+            "baseUrl": "https://puter.g4f-dev.workers.dev",
+            "tags": "\ud83d\udc53",
+            "provider": "Puter"
+        },
+        "groq": {
+            "id": "srv_mkom688d57c76d8a3542",
+            "baseUrl": "https://api.groq.com/openai/v1",
+            "backupUrl": "https://g4f.space/api/groq",
+            "tags": "\ud83e\uddbe"
+        },
+        "qwen": {
+            "id": "srv_mrgymq8534d9ea96920d",
+            "backupUrl": "https://g4f.space/api/qwen",
+            "tags": "\ud83d\udca1",
+            "provider": "Qwen"
+        },
+        "crowllm": {
+            "id": "srv_mrgynwuz08a167112109",
+            "backupUrl": "https://g4f.space/custom/srv_mrgynwuz08a167112109",
+            "tags": "\ud83d\udc26\u200d\u2b1b"
+        },
+        "eaon": {
+            "id": "srv_mrtd0gge48cb809ab7eb",
+            "backupUrl": "https://g4f.space/custom/srv_mrtd0gge48cb809ab7eb",
+            "tags": "\u26a1"
+        },
+        "opencode": {
+            "id": "srv_mrgy4bjz6a85b485d663",
+            "backupUrl": "https://g4f.space/custom/srv_mrgy4bjz6a85b485d663",
+            "tags": "\ud83e\udd84"
+        },
+        "orcarouter": {
+            "id": "srv_msoxsh206cb0d89eca32",
+            "baseUrl": "https://api.orcarouter.ai/v1",
+            "backupUrl": "https://g4f.space/api/orcarouter",
+            "tags": "\ud83d\udc33"
+        },
+        "relayrouter": {
+            "id": "srv_mt1wbaxgf9c946af0c58",
+            "backupUrl": "https://g4f.space/api/relayrouter",
+            "tags": "\ud83d\udd17"
+        }
+    },
+    "defaultModels": {
+        "default": "auto",
+        "puter": "anthropic:anthropic/claude-opus-4-7"
+    },
+    "serverDefaultModels": {
+        "srv_mp5miql908c8738d71be": "openai-fast",
+        "srv_mp3lmkuad07322459f47": "unmoderated-gpt",
+        "srv_mkom688d57c76d8a3542": "openai/gpt-oss-120b",
+        "srv_mkombumpae45db46dcb8": "nvidia/nemotron-3-super-120b-a12b",
+        "srv_mrgykg8eea645e7bb006": "nemotron-3-nano:30b",
+        "srv_mq7ktfibad45c29f3839": "deepseek-v4-pro:cloud",
+        "srv_mm0u9cua212491d78695": "openrouter/free",
+        "srv_monk1pkz433a519ff2be": "openrouter/free",
+        "srv_mjlq1ncq8a3f7fe0aea0": "turbo",
+        "srv_mrgy0nmbc8a86c407f17": "models/gemini-flash-latest",
+        "srv_mkoloq41e34074b6133e": "openai-fast",
+        "srv_mkomfko63371049b6da6": "deepseek-v3.2:free",
+        "srv_mrdypihj16e8b1776409": "openai",
+        "srv_msoxsh206cb0d89eca32": "deepseek/deepseek-v4-pro-free",
+        "srv_mrgy4bjz6a85b485d663": "glm-5.2",
+        "srv_mrtd0gge48cb809ab7eb": "auto",
+        "srv_mrgynwuz08a167112109": "glm-5.2",
+        "srv_mp2huzrg06e426ad12f3": "zai-org/GLM-5.2",
+        "srv_mrgymq8534d9ea96920d": "qwen3.8-max",
+        "srv_mrgypezt91a1a4a8ea7f": "glm-5.2-venice",
+        "srv_mt4quyfw26b0a700926a": "nemotron-3.5-lightning-30b",
+        "srv_mt1wbaxgf9c946af0c58": "glm-5-2"
+    },
+    "providerLocalStorage": {
+        "airforce": "Airforce-api_key",
+        "deepinfra": "DeepInfra-api_key",
+        "huggingface": "HuggingFace-api_key",
+        "gemini": "GeminiPro-api_key",
+        "nvidia": "Nvidia-api_key",
+        "ollama": "Ollama-api_key",
+        "ollama.pro": "Ollama-api_key",
+        "openrouter": "OpenRouter-api_key",
+        "pollinations": "Pollinations-api_key",
+        "together": "Together-api_key",
+        "puter": "puter.auth.token",
+        "custom": "Custom-api_key"
+    },
+    "checkUrls": {
+        "pollinations": "https://gen.pollinations.ai/account/balance",
+        "gemini": "https://generativelanguage.googleapis.com/v1beta/models",
+        "puter": "https://api.puter.com/metering/usage",
+        "huggingface": "https://huggingface.co/api/whoami-v2",
+        "groq": "https://api.groq.com/openai/v1/models",
+        "openrouter": "https://openrouter.ai/api/v1/key"
+    },
+    "loginButtons": {
+        "huggingface": "huggingface",
+        "airforce": "airforce",
+        "pollinations": "pollinations"
+    },
+    "autoProviders": {
+        "srv_mkombumpae45db46dcb8": "nvidia",
+        "srv_mrgykg8eea645e7bb006": "ollama",
+        "srv_mrgy0nmbc8a86c407f17": "gemini",
+        "srv_monk1pkz433a519ff2be": "openrouter",
+        "srv_mt1wbaxgf9c946af0c58": "relayrouter"
+    },
+    "hiddenServers": [
+        "srv_mkoloq41e34074b6133e",
+        "srv_mp7i458w1b1b1f3920b3",
+        "srv_msgba2af3938f6f6b015",
+        "srv_mksdsdwy7c6526ebabc3",
+        "srv_mrgy4bjz6a85b485d663",
+        "srv_mkopv2kp2e0038cdf550",
+        "srv_mrgymq8534d9ea96920d",
+        "srv_mopbu0vw54d4bd38c759",
+        "srv_msid853o6b44a3306e8e",
+        "srv_mrgxthn5dfa6e2f0a5b6",
+        "srv_mp2i8rco3148dd85bec1",
+        "srv_moq5r1ml3707f99a9858",
+        "srv_msu3va4tcf8317f9af58",
+        "srv_msoxsh206cb0d89eca32"
+    ]
+}

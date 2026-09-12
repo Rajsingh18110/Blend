@@ -42,7 +42,6 @@ stem
 tomli
 typer<0.13
 typing_extensions
-uvloop
 valkey
 Werkzeug
 whitenoise

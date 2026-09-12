@@ -1814,6 +1814,7 @@ function switchTab(tab, btn) {
   if (tab === 'music') renderMusic(q);
   if (tab === 'files') renderFiles(q);
   if (tab === 'social') renderSocial(q);
+  if (tab === 'ai') renderAI(q);
 
   // If the user opened the All/web tab, start background sequential loads
   // of other sections (only if we are still on the same query).
@@ -2481,10 +2482,27 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') { closeLightbox
 })();
 
 /* ── AI CHAT LOGIC ── */
-async function sendAiMessage() {
+let currentAiRequest = null;
+let aiIsGenerating = false;
+
+function renderAI(q) {
+  const messagesBox = document.getElementById('ai-chat-messages');
+  if (messagesBox) {
+      messagesBox.innerHTML = '';
+  }
+  sendAiMessage(q);
+}
+
+async function sendAiMessage(initialText = null) {
+  if (aiIsGenerating) return;
+  
   const input = document.getElementById('ai-chat-input');
-  const text = input.value.trim();
+  const sendBtn = document.querySelector('.ai-chat-send'); // Ensure button exists
+  const text = initialText || input.value.trim();
   if (!text) return;
+  
+  aiIsGenerating = true;
+  if (sendBtn) sendBtn.disabled = true;
   
   const messagesBox = document.getElementById('ai-chat-messages');
   
@@ -2523,11 +2541,22 @@ async function sendAiMessage() {
     const statusDiv = aiMsg.querySelector('.ai-status-bar');
     const textDiv = aiMsg.querySelector('.ai-text-content');
     
+    const controller = new AbortController();
+    currentAiRequest = controller;
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+
     const res = await fetch(API('/api/ai'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bodyData)
+      body: JSON.stringify(bodyData),
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
+    
+    if (!res.ok) {
+        throw new Error(`Server returned ${res.status}`);
+    }
     
     const reader = res.body.getReader();
     const decoder = new TextDecoder('utf-8');
@@ -2585,7 +2614,12 @@ async function sendAiMessage() {
       document.head.appendChild(style);
     }
   } catch (err) {
-    aiMsg.textContent = "Error connecting to Navar AI backend.";
+    aiMsg.innerHTML = `<span style="color:red">Error: ${err.message || 'Could not connect to Navar AI backend.'}</span>`;
+  } finally {
+    aiIsGenerating = false;
+    currentAiRequest = null;
+    const sendBtn = document.querySelector('.ai-chat-send');
+    if (sendBtn) sendBtn.disabled = false;
   }
   smoothScrollBottom();
 }

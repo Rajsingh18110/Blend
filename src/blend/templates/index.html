@@ -6,240 +6,386 @@
   <title>Blend</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    :root {
+      --glass-bg: rgba(15, 20, 35, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      --text-main: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.6);
+      --neon-blue: #3b82f6;
+      --neon-purple: #8b5cf6;
+    }
+
     body {
-      background-color: var(--bg);
       margin: 0;
       height: 100vh;
+      background-image: url('/static/bg.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       display: flex;
       flex-direction: column;
-      font-family: Arial, sans-serif;
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow: hidden;
+      color: var(--text-main);
     }
-    
-    .top-nav {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 15px 20px;
-      gap: 15px;
-    }
-    .top-nav a {
-      color: var(--text);
-      text-decoration: none;
-      font-size: 13px;
-      opacity: 0.9;
-    }
-    .top-nav a:hover { opacity: 1; text-decoration: underline; }
-    .nav-icon { width: 24px; height: 24px; fill: var(--text); cursor: pointer; border-radius: 50%; padding: 8px; transition: background 0.2s; }
-    .nav-icon:hover { background: var(--bg3); }
-    .profile-icon { width: 32px; height: 32px; border-radius: 50%; background: #8ab4f8; color: #000; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; }
 
-    .main-content {
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.8) 100%);
+    }
+
+    /* Top Bar */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      z-index: 10;
+      background: transparent !important;
+      border: none !important;
+      backdrop-filter: none !important;
+    }
+    .topbar-left .logo-small {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .logo-icon {
+      background: #fff;
+      color: #000;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .topbar-right a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .topbar-right a:hover { color: var(--text-main); }
+    .icon-btn { cursor: pointer; color: var(--text-muted); font-size: 18px; }
+    .icon-btn:hover { color: var(--text-main); }
+    
+    .divider { width: 1px; height: 16px; background: rgba(255,255,255,0.2); }
+
+    /* Main Layout */
+    .main-layout {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      z-index: 10;
+    }
+
+    /* Widgets Shared */
+    .widget {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
+      width: 260px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .sidebar-left {
+      align-self: flex-start;
+      margin-top: 10px;
+    }
+
+    /* Left Sidebar: Weather */
+    .weather-widget {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .weather-header { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .weather-main { display: flex; align-items: center; gap: 12px; font-size: 32px; font-weight: 600; margin: 4px 0; }
+    .weather-desc { font-size: 13px; color: var(--text-muted); }
+    .weather-hl { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+    /* Right Sidebar: Quick Actions */
+    .qa-header { font-size: 13px; color: var(--text-main); font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .qa-list { display: flex; flex-direction: column; gap: 12px; }
+    .qa-item { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
+    .qa-item:hover { color: var(--text-main); }
+    .qa-shortcut { margin-left: auto; font-size: 11px; color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
+    .qa-icon-wrapper { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+
+    /* Center Content */
+    .center-content {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-top: 10vh;
+      max-width: 800px;
+      margin: 0 auto;
+      transform: translateY(-5vh);
     }
 
+    .greeting-widget { text-align: center; margin-bottom: 30px; }
+    #greeting-text { font-size: 16px; color: var(--text-muted); margin-bottom: 4px; }
+    #time-text { font-size: 36px; font-weight: 300; letter-spacing: -1px; }
+    #date-text { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
+
+    .google-logo-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; }
     .google-logo {
-      font-family: 'Syne', sans-serif;
-      font-size: 80px;
-      font-weight: 700;
-      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 64px;
+      font-weight: 800;
       letter-spacing: -2px;
-      margin-bottom: 30px;
       user-select: none;
+      line-height: 1;
+    }
+    .main-logo-icon {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      font-size: 40px;
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+    }
+    .powered-by {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 4px;
+      margin-top: 10px;
+      margin-left: 5px;
     }
 
-    .search-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 584px;
-      z-index: 100;
-    }
-
+    /* Search Bar */
+    .search-wrapper { position: relative; width: 100%; max-width: 700px; z-index: 100; }
     .search-bar {
       display: flex;
       align-items: center;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 0 14px 0 14px;
-      height: 48px;
+      background: rgba(10, 15, 30, 0.5);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 30px;
+      padding: 0 24px;
+      height: 60px;
       width: 100%;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2), inset 0 0 10px rgba(59, 130, 246, 0.1);
+      transition: all 0.3s ease;
+      box-sizing: border-box;
     }
-    .search-bar:hover, .search-bar.active {
-      background: var(--bg3);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    .search-bar:hover, .search-bar:focus-within {
+      border-color: rgba(59, 130, 246, 0.8);
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.4), inset 0 0 15px rgba(59, 130, 246, 0.2);
     }
-    .search-bar.active {
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      border-color: transparent;
-    }
-
-    .search-icon { font-size: 18px; color: var(--text3); margin-right: 10px; }
+    .search-icon { font-size: 20px; color: var(--text-muted); margin-right: 16px; }
     .search-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text);
-      font-size: 16px;
-      height: 100%;
+      flex: 1; background: transparent; border: none; outline: none;
+      color: #fff; font-size: 16px; height: 100%; font-family: inherit;
     }
-    .search-right-icons {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .mic-icon, .lens-icon { font-size: 18px; color: var(--text3); cursor: pointer; }
-    .ai-mode-btn {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      padding: 4px 10px;
-      border-radius: 16px;
-      font-size: 12px;
-      color: var(--text);
-      cursor: pointer;
-    }
-
+    .search-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+    .search-actions { display: flex; gap: 16px; color: var(--text-muted); font-size: 18px; }
+    
+    /* Search Dropdown */
     .search-dropdown {
-      position: absolute;
-      top: 48px;
-      left: 0;
-      right: 0;
-      background: var(--bg3);
-      border-bottom-left-radius: 24px;
-      border-bottom-right-radius: 24px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      display: none;
-      flex-direction: column;
-      padding: 10px 0 15px 0;
+      position: absolute; top: 60px; left: 0; right: 0;
+      background: rgba(15, 20, 35, 0.9); backdrop-filter: blur(20px);
+      border: 1px solid rgba(59, 130, 246, 0.3); border-top: none;
+      border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; padding: 10px 0 15px 0;
     }
     .search-wrapper.active .search-dropdown { display: flex; }
-    
-    .dropdown-item {
-      display: flex;
-      align-items: center;
-      padding: 8px 20px;
-      cursor: pointer;
-      color: var(--text);
-      font-size: 15px;
-    }
-    .dropdown-item:hover { background: rgba(255,255,255,0.05); }
-    .dropdown-icon { margin-right: 14px; color: var(--text3); font-size: 16px; }
-    .dropdown-remove { margin-left: auto; color: var(--text3); font-size: 14px; display: none; }
+    .dropdown-item { display: flex; align-items: center; padding: 10px 24px; cursor: pointer; color: var(--text-muted); font-size: 15px; transition: background 0.2s; }
+    .dropdown-item:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+    .dropdown-icon { margin-right: 14px; color: rgba(255, 255, 255, 0.4); font-size: 16px; }
+    .dropdown-remove { margin-left: auto; color: rgba(255, 255, 255, 0.3); font-size: 13px; display: none; }
     .dropdown-item:hover .dropdown-remove { display: block; }
-    .dropdown-remove:hover { color: var(--text); }
-
-    .shortcuts-container {
-      margin-top: 30px;
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 600px;
-    }
-    .shortcut-btn {
-      position: relative;
-      width: 88px;
-      height: 88px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s;
-    }
-    .shortcut-btn:hover { background: rgba(255,255,255,0.08); }
-    .shortcut-icon-wrapper {
-      width: 44px;
-      height: 44px;
-      background: var(--surface);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 8px;
-    }
-    .shortcut-icon-wrapper img { width: 24px; height: 24px; border-radius: 4px; }
-    .shortcut-label {
-      font-size: 13px;
-      color: var(--text);
-      text-align: center;
-      width: 88px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
     
-    .shortcut-menu-btn {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: transparent;
-      border: none;
-      color: var(--text);
-      font-size: 14px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+    /* Shortcuts */
+    .shortcuts-container { margin-top: 40px; display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+    .shortcut-btn {
+      position: relative; width: 64px; height: 95px; display: flex; flex-direction: column; align-items: center;
+      cursor: pointer; text-decoration: none; transition: transform 0.2s; background: transparent !important; border: none !important;
     }
-    .shortcut-menu-btn:hover { background: rgba(255,255,255,0.2); }
+    .shortcut-btn:hover { transform: translateY(-4px); box-shadow: none !important; }
+    .shortcut-icon-wrapper {
+      width: 56px; height: 56px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: background 0.3s;
+    }
+    .shortcut-btn:hover .shortcut-icon-wrapper { background: rgba(255, 255, 255, 0.1); }
+    .shortcut-icon-wrapper img { width: 28px; height: 28px; border-radius: 6px; }
+    .shortcut-label { font-size: 12px; font-weight: 500; color: var(--text-main) !important; text-align: center; width: 80px; white-space: nowrap; overflow: visible; text-overflow: ellipsis; line-height: 1.2; }
+    .shortcut-menu-btn { position: absolute; top: 2px; right: -4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,0.6); color: #fff; font-size: 12px; display: none; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); }
     .shortcut-btn:hover .shortcut-menu-btn { display: flex; }
+
+    /* Bottom Bar */
+    .bottombar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; z-index: 10; background: transparent !important; border: none !important; }
+    .bottom-left { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+    .bottom-right { font-size: 13px; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+    .keyboard-hint { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); font-weight: 600; }
+    .hint-text { color: var(--text-muted); font-weight: 400; }
+
+    /* Modal */
+    #add-shortcut-modal .modal-content { background: rgba(20, 25, 40, 0.95) !important; backdrop-filter: blur(24px) !important; padding: 30px !important; border-radius: 20px !important; width: 320px !important; border: 1px solid rgba(255, 255, 255, 0.15) !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important; }
+    #add-shortcut-modal input { width: 100% !important; margin-bottom: 16px !important; padding: 12px 16px !important; background: rgba(0, 0, 0, 0.3) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; color: #fff !important; border-radius: 10px !important; box-sizing: border-box !important; font-size: 14px !important; }
+    #add-shortcut-modal input:focus { outline: none !important; border-color: #3b82f6 !important; }
+    #add-shortcut-modal button { padding: 10px 20px !important; border-radius: 20px !important; font-size: 14px !important; font-weight: 600 !important; cursor: pointer !important; border: none !important; }
+    #add-shortcut-modal button.cancel-btn { background: transparent !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; color: var(--text-muted) !important; }
+    #add-shortcut-modal button.done-btn { background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important; color: #fff !important; }
 
   </style>
 </head>
 <body>
 
-  <div class="top-nav">
-    <a href="about.html">About</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="settings.html">Settings</a>
-
-  </div>
-
-  <div class="main-content">
-    <div class="google-logo">Blend</div>
-    
-    <div class="search-wrapper" id="search-wrapper">
-      <form class="search-bar" id="search-bar" onsubmit="doSearch(event)">
-        <span class="search-icon">⌕</span>
-        <input type="text" id="hero-input" class="search-input" placeholder="Search the web or type a URL" autocomplete="off" />
-      </form>
-      
-      <div class="search-dropdown" id="search-dropdown"></div>
-    </div>
-
-    <div class="shortcuts-container" id="shortcuts-grid"></div>
-  </div>
-
-
+<div class="app-container">
   
-  <div id="add-shortcut-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
-    <div style="background:var(--surface);padding:24px;border-radius:12px;width:300px;border:1px solid var(--border);">
-      <h3 style="margin-top:0;margin-bottom:16px;color:var(--text);font-weight:500;">Add shortcut</h3>
-      <input type="text" id="shortcut-name" placeholder="Name" style="width:100%;margin-bottom:12px;padding:10px;background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:6px;box-sizing:border-box;" />
-      <input type="text" id="shortcut-url" placeholder="URL" style="width:100%;margin-bottom:20px;padding:10px;background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:6px;box-sizing:border-box;" />
-      <div style="display:flex;justify-content:flex-end;gap:10px;">
-        <button type="button" onclick="closeShortcutModal()" style="padding:8px 16px;background:transparent;border:1px solid var(--border);color:var(--text);border-radius:20px;cursor:pointer;">Cancel</button>
-        <button type="button" onclick="saveShortcut()" style="padding:8px 16px;background:var(--accent);color:#000;border:none;border-radius:20px;cursor:pointer;font-weight:bold;">Done</button>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo-small">
+        <span class="logo-text">Blend</span>
       </div>
     </div>
-  </div>
+    <div class="topbar-right">
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <div class="divider"></div>
+      <div class="icon-btn">⚙️</div>
+      <div class="icon-btn">🌙</div>
+    </div>
+  </header>
+
+  <main class="main-layout">
+    <aside class="sidebar-left">
+      <div class="widget weather-widget" style="background: rgba(10, 15, 30, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+        <div class="weather-header" style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span style="font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.9);">New Delhi</span>
+        </div>
+        <div class="weather-main" style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+          <img src="https://cdn.weatherapi.com/weather/64x64/night/116.png" alt="Partly cloudy" style="width: 48px; height: 48px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); margin-left: -4px;" />
+          <span class="weather-temp" style="font-size: 38px; font-weight: 600; color: #fff; letter-spacing: -1px; line-height: 1;">28°C</span>
+        </div>
+        <div class="weather-desc" style="font-size: 14px; color: rgba(255,255,255,0.9); font-weight: 500; margin-bottom: 10px;">Clear sky</div>
+        <div class="weather-hl" style="font-size: 14px; color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.5px;">H: 34°&nbsp;&nbsp;L: 24°</div>
+      </div>
+    </aside>
+
+    <section class="center-content">
+      <div class="greeting-widget">
+        <div id="greeting-text">Good evening,</div>
+        <div id="time-text">5:42 PM</div>
+        <div id="date-text">Saturday</div>
+      </div>
+
+      <div class="google-logo-container">
+        <div class="google-logo">
+           <span>Blend</span>
+        </div>
+        <div class="powered-by">POWERED BY MARKANM</div>
+      </div>
+      
+      <div class="search-wrapper" id="search-wrapper">
+        <form class="search-bar" id="search-bar" onsubmit="doSearch(event)">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="hero-input" class="search-input" placeholder="Search the web or enter a URL..." autocomplete="off" />
+          <div class="search-actions">
+            <span class="mic-icon" style="cursor: pointer;">🎤</span>
+            <span class="sparkle-icon" style="cursor: pointer;">✨</span>
+          </div>
+        </form>
+        <div class="search-dropdown" id="search-dropdown"></div>
+      </div>
+
+      <div class="shortcuts-container" id="shortcuts-grid"></div>
+    </section>
+
+    <aside class="sidebar-right">
+      <div class="widget quick-actions-widget">
+        <div class="qa-header">⚡ Quick Actions</div>
+        <div class="qa-list">
+          <div class="qa-item"><div class="qa-icon-wrapper">▶️</div> Search on YouTube <span class="qa-shortcut">/yt</span></div>
+          <div class="qa-item"><div class="qa-icon-wrapper">📧</div> Open Gmail <span class="qa-shortcut">/gm</span></div>
+          <div class="qa-item"><div class="qa-icon-wrapper">🐙</div> Search GitHub <span class="qa-shortcut">/gh</span></div>
+          <div class="qa-item"><div class="qa-icon-wrapper">🌍</div> Translate text <span class="qa-shortcut">/tr</span></div>
+          <div class="qa-item"><div class="qa-icon-wrapper">🧮</div> Open Calculator <span class="qa-shortcut">/calc</span></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="bottombar">
+    <div class="bottom-left">✨ Make it simple. Make it yours.</div>
+    <div class="bottom-right">
+      <div class="keyboard-hint">⌨️ Ctrl + L <span class="hint-text">to search</span></div>
+    </div>
+  </footer>
+
+</div>
+
+<div id="add-shortcut-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);z-index:9999;align-items:center;justify-content:center;">
+    <div class="modal-content">
+      <h3 style="margin-top:0;margin-bottom:20px;color:#fff;font-weight:600;font-size:18px;">Add shortcut</h3>
+      <input type="text" id="shortcut-name" placeholder="Name" />
+      <input type="text" id="shortcut-url" placeholder="URL" />
+      <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:8px;">
+        <button type="button" class="cancel-btn" onclick="closeShortcutModal()">Cancel</button>
+        <button type="button" class="done-btn" onclick="saveShortcut()">Done</button>
+      </div>
+    </div>
+
+<script>
+  // Update time dynamically
+  function updateTime() {
+    const timeEl = document.getElementById('time-text');
+    const greetingEl = document.getElementById('greeting-text');
+    const dateEl = document.getElementById('date-text');
+    
+    if (timeEl && greetingEl) {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      timeEl.innerText = hours + ':' + minutes + ' ' + ampm;
+
+      const currentHour = now.getHours();
+      if (currentHour < 12) greetingEl.innerText = "Good morning,";
+      else if (currentHour < 18) greetingEl.innerText = "Good afternoon,";
+      else greetingEl.innerText = "Good evening,";
+      
+      if (dateEl) {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        dateEl.innerText = days[now.getDay()];
+      }
+    }
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+</script>
 
 <script src="blend-config.js"></script>
 <script>
@@ -425,4 +571,3 @@
   
 </script>
 </body>
-</html>

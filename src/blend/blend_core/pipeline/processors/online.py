@@ -225,8 +225,18 @@ class OnlineProcessor(EngineProcessor):
 
         return response
 
-    def _search_basic(self, query: str, params: OnlineParams) -> "SourceResults|None":
-        # update request parameters dependent on
+    def _search_basic(self, query: str, params: "OnlineParams") -> "SourceResults | None":
+        if self.engine.name == "duckduckgo":
+            from duckduckgo_search import DDGS
+            try:
+                out = []
+                results = DDGS().text(query, max_results=20, backend='lite')
+                for r in results:
+                    out.append({'url': r.get('href'), 'title': r.get('title'), 'content': r.get('body')})
+                return out
+            except Exception as e:
+                self.logger.error(f"DDGS override failed: {e}")
+                
         # search-engine (contained in engines folder)
         self.engine.request(query, params)
 

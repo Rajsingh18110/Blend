@@ -1,0 +1,1717 @@
+{
+    "text_models": {
+        "chigwell/llm7-fast": {
+            "id": "chigwell/llm7-fast",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "chigwell/llm7-fast",
+            "aliases": [
+                "community/chigwell/llm7-fast"
+            ],
+            "category": "text",
+            "publisher": "LLM7.io",
+            "brand_url": "https://llm7.io/",
+            "community": true,
+            "per_user_rpm": 300,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "llm7-fast Free",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [],
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1786780077000,
+            "requests": 31
+        },
+        "Catniti/deepseek-r1-free": {
+            "id": "Catniti/deepseek-r1-free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "Catniti/deepseek-r1-free",
+            "aliases": [
+                "community/Catniti/deepseek-r1-free"
+            ],
+            "category": "text",
+            "publisher": "Catniti AI",
+            "brand_url": "https://t.me/CatnitiAI_bot",
+            "community": true,
+            "per_user_rpm": null,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Deepseek r1",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [],
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1789106123000
+        },
+        "MarcosFRG/north-mini-code": {
+            "id": "MarcosFRG/north-mini-code",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "MarcosFRG/north-mini-code",
+            "aliases": [
+                "community/MarcosFRG/north-mini-code"
+            ],
+            "category": "text",
+            "publisher": "JankRouter",
+            "brand_url": "https://jankrouter.waifly.com/",
+            "community": true,
+            "per_user_rpm": 20,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "North Mini Code",
+            "description": "Agentic coding MoE with 3B active parameters \u2014 powerful software engineering on minimal hardware",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "context_length": 262144,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788805008000
+        },
+        "YoannDev90/poolside-laguna-s-2.1:free": {
+            "id": "YoannDev90/poolside-laguna-s-2.1:free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "YoannDev90/poolside-laguna-s-2.1:free",
+            "aliases": [
+                "community/YoannDev90/poolside-laguna-s-2.1:free"
+            ],
+            "category": "text",
+            "publisher": "Free AI API",
+            "brand_url": "https://github.com/YoannDev90/awesome-free-ai-api",
+            "community": true,
+            "per_user_rpm": 30,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Laguna S 2.1",
+            "description": "Open-weight Mixture-of-Experts model built for agentic coding and long-running tasks",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "context_length": 262000,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788189088000
+        },
+        "AkshayCoder48/kilo-auto-free": {
+            "id": "AkshayCoder48/kilo-auto-free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/kilo-auto-free",
+            "aliases": [
+                "community/AkshayCoder48/kilo-auto-free"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 10,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Kilo Auto (free)",
+            "description": "Kilo Auto (free): Kilo Code's auto-router that picks the best model for each request, free to call. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023729000
+        },
+        "AkshayCoder48/cohere-north-mini-code:free": {
+            "id": "AkshayCoder48/cohere-north-mini-code:free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/cohere-north-mini-code:free",
+            "aliases": [
+                "community/AkshayCoder48/cohere-north-mini-code:free"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 10,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Cohere North Mini Code",
+            "description": "Cohere North Mini Code: small, fast code model for completions, edits and tests. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023726000
+        },
+        "AkshayCoder48/poolside-laguna-s-2.1:free": {
+            "id": "AkshayCoder48/poolside-laguna-s-2.1:free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/poolside-laguna-s-2.1:free",
+            "aliases": [
+                "community/AkshayCoder48/poolside-laguna-s-2.1:free"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 10,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Laguna S 2.1",
+            "description": "Poolside Laguna S 2.1: the Poolside team's code model for long-context agentic coding. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023723000
+        },
+        "AkshayCoder48/midnight-rose": {
+            "id": "AkshayCoder48/midnight-rose",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/midnight-rose",
+            "aliases": [
+                "community/AkshayCoder48/midnight-rose"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Midnight Rose",
+            "description": "Midnight Rose: a creative roleplay and storytelling model with a strong sense of character. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023691000
+        },
+        "AkshayCoder48/L3-70B-Euryale-v2.1": {
+            "id": "AkshayCoder48/L3-70B-Euryale-v2.1",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/L3-70B-Euryale-v2.1",
+            "aliases": [
+                "community/AkshayCoder48/L3-70B-Euryale-v2.1"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "L3-70B Euryale v2.1",
+            "description": "L3-70B Euryale v2.1: 70B roleplay fine-tune known for vivid, in-character storytelling. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023688000
+        },
+        "AkshayCoder48/gemini-3.6-flash": {
+            "id": "AkshayCoder48/gemini-3.6-flash",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/gemini-3.6-flash",
+            "aliases": [
+                "community/AkshayCoder48/gemini-3.6-flash"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Gemini 3.6 Flash",
+            "description": "Google Gemini 3.6 Flash: newest Gemini flash \u2014 strong agentic coding and long-horizon tasks. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023670000
+        },
+        "AkshayCoder48/gemini-3.1-flash-lite": {
+            "id": "AkshayCoder48/gemini-3.1-flash-lite",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/gemini-3.1-flash-lite",
+            "aliases": [
+                "community/AkshayCoder48/gemini-3.1-flash-lite"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Gemini 3.1 Flash Lite",
+            "description": "Google Gemini 3.1 Flash Lite: the most cost-efficient Gemini 3 model for high-volume workloads. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023664000
+        },
+        "AkshayCoder48/gemini-3-flash": {
+            "id": "AkshayCoder48/gemini-3-flash",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/gemini-3-flash",
+            "aliases": [
+                "community/AkshayCoder48/gemini-3-flash"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Gemini 3 Flash",
+            "description": "Google Gemini 3 Flash: Gemini-3 intelligence at flash speed, built for agentic workflows. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023662000
+        },
+        "AkshayCoder48/gemini-2.5-flash": {
+            "id": "AkshayCoder48/gemini-2.5-flash",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/gemini-2.5-flash",
+            "aliases": [
+                "community/AkshayCoder48/gemini-2.5-flash"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Gemini 2.5 Flash",
+            "description": "Google Gemini 2.5 Flash: fast thinking model for high-volume chat, code and agents. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023656000
+        },
+        "AkshayCoder48/gpt-4o-latest": {
+            "id": "AkshayCoder48/gpt-4o-latest",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/gpt-4o-latest",
+            "aliases": [
+                "community/AkshayCoder48/gpt-4o-latest"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "GPT-4o (latest)",
+            "description": "OpenAI GPT-4o (latest): the all-round workhorse for chat, writing and coding. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023647000
+        },
+        "morriszdweck/osaii-swarm": {
+            "id": "morriszdweck/osaii-swarm",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "morriszdweck/osaii-swarm",
+            "aliases": [
+                "community/morriszdweck/osaii-swarm"
+            ],
+            "category": "text",
+            "publisher": "OSAII",
+            "brand_url": "https://osaii.wyvernhub.net/",
+            "community": true,
+            "agent": true,
+            "per_user_rpm": null,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "OSAII Swarm",
+            "description": "Multi Agent team",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}",
+                "/v1/responses"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "pollinations_models",
+                "web_search"
+            ],
+            "tools": true,
+            "context_length": 262144,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1787276615000,
+            "base_model": "morriszdweck/osaii-api-smart"
+        },
+        "Spit-fires/muse-glimmer": {
+            "id": "Spit-fires/muse-glimmer",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "Spit-fires/muse-glimmer",
+            "aliases": [
+                "community/Spit-fires/muse-glimmer"
+            ],
+            "category": "text",
+            "publisher": "Community",
+            "community": true,
+            "per_user_rpm": null,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Muse Glimmer Free",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [],
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1787064353000
+        },
+        "YoannDev90/muse-glimmer-30b:free": {
+            "id": "YoannDev90/muse-glimmer-30b:free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "YoannDev90/muse-glimmer-30b:free",
+            "aliases": [
+                "community/YoannDev90/muse-glimmer-30b:free"
+            ],
+            "category": "text",
+            "publisher": "Free AI API",
+            "brand_url": "https://github.com/YoannDev90/awesome-free-ai-api",
+            "community": true,
+            "per_user_rpm": 10,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Muse Glimmer 30B",
+            "description": "Multimodal reasoning model  by Meta",
+            "input_modalities": [
+                "text",
+                "image"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "context_length": 131000,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1786463585000
+        },
+        "morriszdweck/osaii-api-smart": {
+            "id": "morriszdweck/osaii-api-smart",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "morriszdweck/osaii-api-smart",
+            "aliases": [
+                "community/morriszdweck/osaii-api-smart"
+            ],
+            "category": "text",
+            "publisher": "OSAII",
+            "brand_url": "https://osaii.wyvernhub.net/",
+            "community": true,
+            "per_user_rpm": 15,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "OSAII Smart",
+            "description": "Smart; free model for everyday agentic work and coding tasks.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "context_length": 262144,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1785636118000
+        },
+        "morriszdweck/osaii-api-fast": {
+            "id": "morriszdweck/osaii-api-fast",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "morriszdweck/osaii-api-fast",
+            "aliases": [
+                "community/morriszdweck/osaii-api-fast"
+            ],
+            "category": "text",
+            "publisher": "OSAII",
+            "brand_url": "https://osaii.wyvernhub.net/",
+            "community": true,
+            "per_user_rpm": 30,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "OSAII Fast",
+            "description": "Fast model with great agentic capability for everyday tasks",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "context_length": 262144,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1785635986000
+        },
+        "vendouple/muse-glimmer-30b:free": {
+            "id": "vendouple/muse-glimmer-30b:free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "vendouple/muse-glimmer-30b:free",
+            "aliases": [
+                "community/vendouple/muse-glimmer-30b:free"
+            ],
+            "category": "text",
+            "publisher": "OrchidLLM Proxy",
+            "brand_url": "https://nobindes.work.gd/docs",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Muse Glimmer (Free)",
+            "input_modalities": [
+                "text",
+                "image"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [],
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1784372748000
+        }
+    },
+    "image_models": {
+        "sana": {
+            "id": "sana"
+        }
+    },
+    "video_models": [],
+    "audio_models": {},
+    "vision_models": [
+        "YoannDev90/muse-glimmer-30b:free",
+        "vendouple/muse-glimmer-30b:free",
+        "amazon/nova-reel-v1"
+    ],
+    "model_aliases": {
+        "gpt-4.1-nano": "openai-fast",
+        "llama-4-scout": "llamascout",
+        "deepseek-r1": "deepseek-reasoning",
+        "mistral-small-3.1-24b": "mistral-small",
+        "qwen-2.5-coder-32b": "qwen-3-coder",
+        "sdxl-turbo": "turbo",
+        "gpt-image": "gptimage",
+        "flux-dev": "flux",
+        "flux-schnell": "flux",
+        "flux-pro": "flux",
+        "flux": "flux",
+        "flux-kontext": "kontext",
+        "community/chigwell/llm7-fast": "chigwell/llm7-fast",
+        "community/Catniti/deepseek-r1-free": "Catniti/deepseek-r1-free",
+        "community/MarcosFRG/north-mini-code": "MarcosFRG/north-mini-code",
+        "community/YoannDev90/poolside-laguna-s-2.1:free": "YoannDev90/poolside-laguna-s-2.1:free",
+        "community/AkshayCoder48/kilo-auto-free": "AkshayCoder48/kilo-auto-free",
+        "community/AkshayCoder48/cohere-north-mini-code:free": "AkshayCoder48/cohere-north-mini-code:free",
+        "community/AkshayCoder48/poolside-laguna-s-2.1:free": "AkshayCoder48/poolside-laguna-s-2.1:free",
+        "community/AkshayCoder48/midnight-rose": "AkshayCoder48/midnight-rose",
+        "community/AkshayCoder48/L3-70B-Euryale-v2.1": "AkshayCoder48/L3-70B-Euryale-v2.1",
+        "community/AkshayCoder48/gemini-3.6-flash": "AkshayCoder48/gemini-3.6-flash",
+        "community/AkshayCoder48/gemini-3.1-flash-lite": "AkshayCoder48/gemini-3.1-flash-lite",
+        "community/AkshayCoder48/gemini-3-flash": "AkshayCoder48/gemini-3-flash",
+        "community/AkshayCoder48/gemini-2.5-flash": "AkshayCoder48/gemini-2.5-flash",
+        "community/AkshayCoder48/gpt-4o-latest": "AkshayCoder48/gpt-4o-latest",
+        "community/morriszdweck/osaii-swarm": "morriszdweck/osaii-swarm",
+        "community/Spit-fires/muse-glimmer": "Spit-fires/muse-glimmer",
+        "community/YoannDev90/muse-glimmer-30b:free": "YoannDev90/muse-glimmer-30b:free",
+        "community/morriszdweck/osaii-api-smart": "morriszdweck/osaii-api-smart",
+        "community/morriszdweck/osaii-api-fast": "morriszdweck/osaii-api-fast",
+        "community/vendouple/muse-glimmer-30b:free": "vendouple/muse-glimmer-30b:free",
+        "amazon-nova-reel": "amazon/nova-reel-v1",
+        "nova-reel": "amazon/nova-reel-v1",
+        "community/NamanSoni78/Seedance-2.5": "NamanSoni78/Seedance-2.5",
+        "community/NamanSoni78/Imagine-4": "NamanSoni78/Imagine-4",
+        "community/NamanSoni78/Z-Image-Turbo": "NamanSoni78/Z-Image-Turbo"
+    },
+    "models": {
+        "chigwell/llm7-fast": {
+            "id": "chigwell/llm7-fast",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "chigwell/llm7-fast",
+            "aliases": [
+                "community/chigwell/llm7-fast"
+            ],
+            "category": "text",
+            "publisher": "LLM7.io",
+            "brand_url": "https://llm7.io/",
+            "community": true,
+            "per_user_rpm": 300,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "llm7-fast Free",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [],
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1786780077000,
+            "requests": 31
+        },
+        "Catniti/deepseek-r1-free": {
+            "id": "Catniti/deepseek-r1-free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "Catniti/deepseek-r1-free",
+            "aliases": [
+                "community/Catniti/deepseek-r1-free"
+            ],
+            "category": "text",
+            "publisher": "Catniti AI",
+            "brand_url": "https://t.me/CatnitiAI_bot",
+            "community": true,
+            "per_user_rpm": null,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Deepseek r1",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [],
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1789106123000
+        },
+        "MarcosFRG/north-mini-code": {
+            "id": "MarcosFRG/north-mini-code",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "MarcosFRG/north-mini-code",
+            "aliases": [
+                "community/MarcosFRG/north-mini-code"
+            ],
+            "category": "text",
+            "publisher": "JankRouter",
+            "brand_url": "https://jankrouter.waifly.com/",
+            "community": true,
+            "per_user_rpm": 20,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "North Mini Code",
+            "description": "Agentic coding MoE with 3B active parameters \u2014 powerful software engineering on minimal hardware",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "context_length": 262144,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788805008000
+        },
+        "YoannDev90/poolside-laguna-s-2.1:free": {
+            "id": "YoannDev90/poolside-laguna-s-2.1:free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "YoannDev90/poolside-laguna-s-2.1:free",
+            "aliases": [
+                "community/YoannDev90/poolside-laguna-s-2.1:free"
+            ],
+            "category": "text",
+            "publisher": "Free AI API",
+            "brand_url": "https://github.com/YoannDev90/awesome-free-ai-api",
+            "community": true,
+            "per_user_rpm": 30,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Laguna S 2.1",
+            "description": "Open-weight Mixture-of-Experts model built for agentic coding and long-running tasks",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "context_length": 262000,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788189088000
+        },
+        "AkshayCoder48/kilo-auto-free": {
+            "id": "AkshayCoder48/kilo-auto-free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/kilo-auto-free",
+            "aliases": [
+                "community/AkshayCoder48/kilo-auto-free"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 10,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Kilo Auto (free)",
+            "description": "Kilo Auto (free): Kilo Code's auto-router that picks the best model for each request, free to call. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023729000
+        },
+        "AkshayCoder48/cohere-north-mini-code:free": {
+            "id": "AkshayCoder48/cohere-north-mini-code:free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/cohere-north-mini-code:free",
+            "aliases": [
+                "community/AkshayCoder48/cohere-north-mini-code:free"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 10,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Cohere North Mini Code",
+            "description": "Cohere North Mini Code: small, fast code model for completions, edits and tests. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023726000
+        },
+        "AkshayCoder48/poolside-laguna-s-2.1:free": {
+            "id": "AkshayCoder48/poolside-laguna-s-2.1:free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/poolside-laguna-s-2.1:free",
+            "aliases": [
+                "community/AkshayCoder48/poolside-laguna-s-2.1:free"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 10,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Laguna S 2.1",
+            "description": "Poolside Laguna S 2.1: the Poolside team's code model for long-context agentic coding. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023723000
+        },
+        "AkshayCoder48/midnight-rose": {
+            "id": "AkshayCoder48/midnight-rose",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/midnight-rose",
+            "aliases": [
+                "community/AkshayCoder48/midnight-rose"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Midnight Rose",
+            "description": "Midnight Rose: a creative roleplay and storytelling model with a strong sense of character. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023691000
+        },
+        "AkshayCoder48/L3-70B-Euryale-v2.1": {
+            "id": "AkshayCoder48/L3-70B-Euryale-v2.1",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/L3-70B-Euryale-v2.1",
+            "aliases": [
+                "community/AkshayCoder48/L3-70B-Euryale-v2.1"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "L3-70B Euryale v2.1",
+            "description": "L3-70B Euryale v2.1: 70B roleplay fine-tune known for vivid, in-character storytelling. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023688000
+        },
+        "AkshayCoder48/gemini-3.6-flash": {
+            "id": "AkshayCoder48/gemini-3.6-flash",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/gemini-3.6-flash",
+            "aliases": [
+                "community/AkshayCoder48/gemini-3.6-flash"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Gemini 3.6 Flash",
+            "description": "Google Gemini 3.6 Flash: newest Gemini flash \u2014 strong agentic coding and long-horizon tasks. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023670000
+        },
+        "AkshayCoder48/gemini-3.1-flash-lite": {
+            "id": "AkshayCoder48/gemini-3.1-flash-lite",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/gemini-3.1-flash-lite",
+            "aliases": [
+                "community/AkshayCoder48/gemini-3.1-flash-lite"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Gemini 3.1 Flash Lite",
+            "description": "Google Gemini 3.1 Flash Lite: the most cost-efficient Gemini 3 model for high-volume workloads. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023664000
+        },
+        "AkshayCoder48/gemini-3-flash": {
+            "id": "AkshayCoder48/gemini-3-flash",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/gemini-3-flash",
+            "aliases": [
+                "community/AkshayCoder48/gemini-3-flash"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Gemini 3 Flash",
+            "description": "Google Gemini 3 Flash: Gemini-3 intelligence at flash speed, built for agentic workflows. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023662000
+        },
+        "AkshayCoder48/gemini-2.5-flash": {
+            "id": "AkshayCoder48/gemini-2.5-flash",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/gemini-2.5-flash",
+            "aliases": [
+                "community/AkshayCoder48/gemini-2.5-flash"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Gemini 2.5 Flash",
+            "description": "Google Gemini 2.5 Flash: fast thinking model for high-volume chat, code and agents. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023656000
+        },
+        "AkshayCoder48/gpt-4o-latest": {
+            "id": "AkshayCoder48/gpt-4o-latest",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "AkshayCoder48/gpt-4o-latest",
+            "aliases": [
+                "community/AkshayCoder48/gpt-4o-latest"
+            ],
+            "category": "text",
+            "publisher": "FreeAIXYZ",
+            "brand_url": "https://freeaixyz4all.vercel.app/",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "GPT-4o (latest)",
+            "description": "OpenAI GPT-4o (latest): the all-round workhorse for chat, writing and coding. Tool calling.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1788023647000
+        },
+        "morriszdweck/osaii-swarm": {
+            "id": "morriszdweck/osaii-swarm",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "morriszdweck/osaii-swarm",
+            "aliases": [
+                "community/morriszdweck/osaii-swarm"
+            ],
+            "category": "text",
+            "publisher": "OSAII",
+            "brand_url": "https://osaii.wyvernhub.net/",
+            "community": true,
+            "agent": true,
+            "per_user_rpm": null,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "OSAII Swarm",
+            "description": "Multi Agent team",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}",
+                "/v1/responses"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "pollinations_models",
+                "web_search"
+            ],
+            "tools": true,
+            "context_length": 262144,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1787276615000,
+            "base_model": "morriszdweck/osaii-api-smart"
+        },
+        "Spit-fires/muse-glimmer": {
+            "id": "Spit-fires/muse-glimmer",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "Spit-fires/muse-glimmer",
+            "aliases": [
+                "community/Spit-fires/muse-glimmer"
+            ],
+            "category": "text",
+            "publisher": "Community",
+            "community": true,
+            "per_user_rpm": null,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Muse Glimmer Free",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [],
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1787064353000
+        },
+        "YoannDev90/muse-glimmer-30b:free": {
+            "id": "YoannDev90/muse-glimmer-30b:free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "YoannDev90/muse-glimmer-30b:free",
+            "aliases": [
+                "community/YoannDev90/muse-glimmer-30b:free"
+            ],
+            "category": "text",
+            "publisher": "Free AI API",
+            "brand_url": "https://github.com/YoannDev90/awesome-free-ai-api",
+            "community": true,
+            "per_user_rpm": 10,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Muse Glimmer 30B",
+            "description": "Multimodal reasoning model  by Meta",
+            "input_modalities": [
+                "text",
+                "image"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling",
+                "reasoning"
+            ],
+            "tools": true,
+            "reasoning": true,
+            "context_length": 131000,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1786463585000
+        },
+        "morriszdweck/osaii-api-smart": {
+            "id": "morriszdweck/osaii-api-smart",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "morriszdweck/osaii-api-smart",
+            "aliases": [
+                "community/morriszdweck/osaii-api-smart"
+            ],
+            "category": "text",
+            "publisher": "OSAII",
+            "brand_url": "https://osaii.wyvernhub.net/",
+            "community": true,
+            "per_user_rpm": 15,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "OSAII Smart",
+            "description": "Smart; free model for everyday agentic work and coding tasks.",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "context_length": 262144,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1785636118000
+        },
+        "morriszdweck/osaii-api-fast": {
+            "id": "morriszdweck/osaii-api-fast",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "morriszdweck/osaii-api-fast",
+            "aliases": [
+                "community/morriszdweck/osaii-api-fast"
+            ],
+            "category": "text",
+            "publisher": "OSAII",
+            "brand_url": "https://osaii.wyvernhub.net/",
+            "community": true,
+            "per_user_rpm": 30,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "OSAII Fast",
+            "description": "Fast model with great agentic capability for everyday tasks",
+            "input_modalities": [
+                "text"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [
+                "tool_calling"
+            ],
+            "tools": true,
+            "context_length": 262144,
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1785635986000
+        },
+        "vendouple/muse-glimmer-30b:free": {
+            "id": "vendouple/muse-glimmer-30b:free",
+            "object": "model",
+            "created": 0,
+            "owned_by": "pollinations",
+            "pollen_cost": 0,
+            "name": "vendouple/muse-glimmer-30b:free",
+            "aliases": [
+                "community/vendouple/muse-glimmer-30b:free"
+            ],
+            "category": "text",
+            "publisher": "OrchidLLM Proxy",
+            "brand_url": "https://nobindes.work.gd/docs",
+            "community": true,
+            "per_user_rpm": 5,
+            "pricing": {
+                "currency": "pollen"
+            },
+            "title": "Muse Glimmer (Free)",
+            "input_modalities": [
+                "text",
+                "image"
+            ],
+            "output_modalities": [
+                "text"
+            ],
+            "required_safety": [],
+            "supported_endpoints": [
+                "/v1/chat/completions",
+                "/text",
+                "/text/{prompt}"
+            ],
+            "capabilities": [],
+            "paid_only": false,
+            "alpha": true,
+            "added_date": 1784372748000
+        },
+        "sana": {
+            "id": "sana"
+        }
+    },
+    "swap_model_aliases": {
+        "openai-fast": "gpt-4.1-nano",
+        "llamascout": "llama-4-scout",
+        "deepseek-reasoning": "deepseek-r1",
+        "mistral-small": "mistral-small-3.1-24b",
+        "qwen-3-coder": "qwen-2.5-coder-32b",
+        "turbo": "sdxl-turbo",
+        "gptimage": "gpt-image",
+        "flux": "flux",
+        "kontext": "flux-kontext",
+        "chigwell/llm7-fast": "community/chigwell/llm7-fast",
+        "Catniti/deepseek-r1-free": "community/Catniti/deepseek-r1-free",
+        "MarcosFRG/north-mini-code": "community/MarcosFRG/north-mini-code",
+        "YoannDev90/poolside-laguna-s-2.1:free": "community/YoannDev90/poolside-laguna-s-2.1:free",
+        "AkshayCoder48/kilo-auto-free": "community/AkshayCoder48/kilo-auto-free",
+        "AkshayCoder48/cohere-north-mini-code:free": "community/AkshayCoder48/cohere-north-mini-code:free",
+        "AkshayCoder48/poolside-laguna-s-2.1:free": "community/AkshayCoder48/poolside-laguna-s-2.1:free",
+        "AkshayCoder48/midnight-rose": "community/AkshayCoder48/midnight-rose",
+        "AkshayCoder48/L3-70B-Euryale-v2.1": "community/AkshayCoder48/L3-70B-Euryale-v2.1",
+        "AkshayCoder48/gemini-3.6-flash": "community/AkshayCoder48/gemini-3.6-flash",
+        "AkshayCoder48/gemini-3.1-flash-lite": "community/AkshayCoder48/gemini-3.1-flash-lite",
+        "AkshayCoder48/gemini-3-flash": "community/AkshayCoder48/gemini-3-flash",
+        "AkshayCoder48/gemini-2.5-flash": "community/AkshayCoder48/gemini-2.5-flash",
+        "AkshayCoder48/gpt-4o-latest": "community/AkshayCoder48/gpt-4o-latest",
+        "morriszdweck/osaii-swarm": "community/morriszdweck/osaii-swarm",
+        "Spit-fires/muse-glimmer": "community/Spit-fires/muse-glimmer",
+        "YoannDev90/muse-glimmer-30b:free": "community/YoannDev90/muse-glimmer-30b:free",
+        "morriszdweck/osaii-api-smart": "community/morriszdweck/osaii-api-smart",
+        "morriszdweck/osaii-api-fast": "community/morriszdweck/osaii-api-fast",
+        "vendouple/muse-glimmer-30b:free": "community/vendouple/muse-glimmer-30b:free",
+        "amazon/nova-reel-v1": "nova-reel",
+        "NamanSoni78/Seedance-2.5": "community/NamanSoni78/Seedance-2.5",
+        "NamanSoni78/Imagine-4": "community/NamanSoni78/Imagine-4",
+        "NamanSoni78/Z-Image-Turbo": "community/NamanSoni78/Z-Image-Turbo"
+    }
+}

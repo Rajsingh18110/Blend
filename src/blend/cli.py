@@ -188,7 +188,7 @@ def main():
         env = os.environ.copy()
         env['BLEND_PORT'] = str(port)
         prev_pp = env.get('PYTHONPATH', '')
-        env['PYTHONPATH'] = src_dir + (':' + prev_pp if prev_pp else '')
+        env['PYTHONPATH'] = src_dir + (os.pathsep + prev_pp if prev_pp else '')
 
         if getattr(sys, 'frozen', False):
             meipass = getattr(sys, '_MEIPASS', None)

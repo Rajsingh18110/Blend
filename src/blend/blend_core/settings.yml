@@ -521,7 +521,7 @@ engines:
     engine: wikipedia
     shortcut: wp
     # add "list" to the array to get results in the results list
-    display_type: ["infobox"]
+    display_type: ["infobox", "list"]
     categories: [general]
 
   - name: bilibili

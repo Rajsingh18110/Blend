@@ -41,6 +41,8 @@ def subprocess_run(args: str | list[str] | tuple[str], **kwargs) -> str:  # type
     kwargs["stderr"] = subprocess.PIPE
     # raise CalledProcessError if returncode is non-zero
     kwargs["check"] = True
+    if os.name == 'nt':
+        kwargs["creationflags"] = kwargs.get("creationflags", 0) | getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
     # pylint: disable=subprocess-run-check
     proc = subprocess.run(args, **kwargs)  # type: ignore
     return proc.stdout.strip()  # type: ignore

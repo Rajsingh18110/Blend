@@ -357,7 +357,7 @@ def _call_llm_stream(messages: list[dict]):
             sarvam_error = str(e)
             print(f"Sarvam API streaming failed: {e}")
             
-    # Fallback to g4f streaming
+    # Fallback to g4f
     try:
         import g4f
         response = g4f.ChatCompletion.create(
@@ -367,7 +367,8 @@ def _call_llm_stream(messages: list[dict]):
         )
         for chunk in response:
             if chunk:
-                yield str(chunk)
+                yield chunk
+
     except Exception as e:
         print(f"g4f streaming failed: {e}")
         err_msg = "Error: Could not connect to AI provider."
@@ -375,7 +376,7 @@ def _call_llm_stream(messages: list[dict]):
             err_msg += f" (Sarvam: {sarvam_error}, g4f: {e})"
         else:
             err_msg += f" (g4f: {e})"
-        yield err_msg
+        yield {"type": "error", "message": err_msg}
 
 # ─────────────────────────────────────────────
 #  SCORE / RANK
@@ -399,7 +400,8 @@ def _score(q: str, r: dict) -> float:
 
 def build_ai_response(query: str, results: list[dict],
                       shortcuts: list[dict] = None, mode: str = "fast",
-                      current_tab: str = "web", current_url: str = ""):
+                      current_tab: str = "web", current_url: str = "",
+                      section_cache: dict = None):
     q = query.strip()
     q_lower = q.lower()
     intents = detect_intents(q)
@@ -456,7 +458,10 @@ def build_ai_response(query: str, results: list[dict],
         {"role": "system", "content": sys_prompt},
         {"role": "user", "content": f"User query: {q}\n\nSearch context:\n{context}\n\nProvide a concise, direct, and structured summary answering the user's query. Use markdown."}
     ]):
-        yield {"type": "text", "chunk": _clean_llm_text(chunk)}
+        if isinstance(chunk, dict) and chunk.get("type") == "error":
+            yield chunk
+        else:
+            yield {"type": "text", "chunk": _clean_llm_text(chunk)}
 
     # Proactive Search Guidance
     filters = []
