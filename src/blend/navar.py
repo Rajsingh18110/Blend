@@ -43,7 +43,7 @@ except Exception:
     def is_markanm_query(query: str) -> bool: return "markanm" in query.lower()
     def answer_markanm_query() -> str: return "**MarkanM** is the organisation behind Blend Search. Founder: **Raj Singh**."
 
-_PORT = os.environ.get("PORT", "8081")
+_PORT = os.environ.get("BLEND_PORT", "5000")
 BASE_SEARCH_URL = os.path.expandvars(os.environ.get("BLEND_BASE_URL", f"http://127.0.0.1:{_PORT}")).rstrip("/")
 
 # ─────────────────────────────────────────────
@@ -357,25 +357,48 @@ def _call_llm_stream(messages: list[dict]):
             sarvam_error = str(e)
             print(f"Sarvam API streaming failed: {e}")
             
-    # Fallback to g4f streaming
-    try:
-        import g4f
-        response = g4f.ChatCompletion.create(
-            model="gpt-4o-mini",
-            messages=messages,
-            stream=True
-        )
-        for chunk in response:
-            if chunk:
-                yield str(chunk)
-    except Exception as e:
-        print(f"g4f streaming failed: {e}")
-        err_msg = "Error: Could not connect to AI provider."
-        if sarvam_key:
-            err_msg += f" (Sarvam: {sarvam_error}, g4f: {e})"
-        else:
-            err_msg += f" (g4f: {e})"
-        yield err_msg
+    # Fallback to Groq API if GROQ_API_KEY is available
+    groq_key = os.environ.get("GROQ_API_KEY")
+    groq_error = None
+    if groq_key:
+        try:
+            import requests
+            headers = {"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"}
+            payload = {
+                "model": "llama-3.1-70b-versatile",
+                "messages": messages,
+                "stream": True
+            }
+            resp = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, stream=True, timeout=10)
+            if resp.status_code == 200:
+                for line in resp.iter_lines():
+                    if line:
+                        line = line.decode('utf-8')
+                        if line.startswith("data: "):
+                            data_str = line[6:]
+                            if data_str == "[DONE]":
+                                break
+                            try:
+                                chunk = json.loads(data_str)
+                                content = chunk["choices"][0]["delta"].get("content", "")
+                                if content:
+                                    yield content
+                            except:
+                                pass
+                return
+            else:
+                groq_error = f"HTTP {resp.status_code}: {resp.text}"
+        except Exception as e:
+            groq_error = str(e)
+            print(f"Groq API streaming failed: {e}")
+
+    # Option C: Inform the user clearly if no valid keys are found or if they failed
+    err_msg = "Please configure a valid API key (Sarvam/Groq/OpenAI) in settings to enable AI features."
+    if sarvam_error:
+        err_msg += f" [Sarvam error: {sarvam_error}]"
+    if groq_error:
+        err_msg += f" [Groq error: {groq_error}]"
+    yield err_msg
 
 # ─────────────────────────────────────────────
 #  SCORE / RANK
