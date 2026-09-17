@@ -100,33 +100,36 @@ def _search(q: str, categories: str = "general", pageno: int = 1) -> list[dict]:
 def _domain_boosted_search(q: str, categories: str = "general") -> list[dict]:
     """Search with domain boost: also does site:q.com search and merges results."""
     import re
-    base = q.strip().lower().split()[0]  # first word as potential domain
+    base = q.strip().lower()
     tlds = [".com", ".in", ".org", ".net", ".io"]
+    stopwords = {"hello", "what", "where", "how", "can", "show", "is", "a", "the", "me", "hi", "hey"}
+    is_domain_candidate = re.match(r'^[a-zA-Z0-9\-]+$', base) and len(base) >= 3 and base not in stopwords
     
-    # Run main search + site-specific searches in parallel
+    # Run main search
     main_results = _search(q, categories)
     
-    # Only do domain-specific search for single-word queries (likely a brand/domain)
-    if re.match(r'^[a-zA-Z0-9\-]+$', base) and len(base) >= 3:
+    if is_domain_candidate:
         site_queries = " OR ".join(f"site:{base}{t}" for t in tlds[:3])
         site_results = _search(site_queries, "general")
         
         # Merge: site results first, then main (deduped)
         site_urls = {r.get("url", "") for r in site_results}
         deduped_main = [r for r in main_results if r.get("url") not in site_urls]
-        return site_results + deduped_main
-    
-    # Boost: move any result whose domain matches the query to top
-    def domain_matches(result):
-        url = result.get("url", "").lower()
-        for tld in tlds:
-            if f"{base}{tld}" in url or f"/{base}." in url:
-                return True
-        return False
-    
-    official = [r for r in main_results if domain_matches(r)]
-    rest = [r for r in main_results if not domain_matches(r)]
-    return official + rest
+        main_results = site_results + deduped_main
+        
+        # Boost: move any result whose domain matches the query to top
+        def domain_matches(result):
+            url = result.get("url", "").lower()
+            for tld in tlds:
+                if f"{base}{tld}" in url or f"/{base}." in url:
+                    return True
+            return False
+        
+        official = [r for r in main_results if domain_matches(r)]
+        rest = [r for r in main_results if not domain_matches(r)]
+        return official + rest
+
+    return main_results
 
 # ─────────────────────────────────────────────
 #  URL SCAN TOOL
@@ -283,9 +286,9 @@ You can route queries to Web, Images, Videos, News, Maps, and Social.
 """
 
 LANG_INSTRUCTIONS = {
-    "hindi": "\n\nजरूरी: User ने हिंदी में पूछा है। पूरा जवाब हिंदी में दो।",
-    "hinglish": "\n\nIMPORTANT: User ne Hinglish mein pucha hai. Hinglish mein reply karo, Roman script mein Hindi words English ke saath.",
-    "english": "",
+    "hindi": "\n\nIMPORTANT: User has explicitly used Hindi. You MUST reply completely in Hindi script.",
+    "hinglish": "\n\nIMPORTANT: User used Hinglish. Reply in Roman script with Hindi words mixed with English.",
+    "english": "\n\nCRITICAL: You MUST reply entirely in English. DO NOT use Hindi or any other language.",
 }
 
 
@@ -302,6 +305,7 @@ def detect_language(text: str) -> str:
     count = sum(1 for word in re.findall(r"[a-zA-Z]+", text.lower()) if word in hinglish_words)
     if count >= 2:
         return "hinglish"
+    # Fallback to English by default unless explicitly asked for Hindi/Hinglish
     return "english"
 
 
@@ -503,22 +507,37 @@ def build_ai_response(query: str, results: list[dict],
 
     # Fetch live semantic data
     live_results = _domain_boosted_search(q, "general")[:3]
-    all_res = live_results + results
-    if not all_res:
-        all_res = results
+    if not results:
+        all_res = _domain_boosted_search(q, "general")[:5]
+    else:
+        all_res = live_results + results
         
     ranked = sorted(all_res, key=lambda r: _score(q, r), reverse=True)[:4]
+
+    # Emit sources
+    sources_data = [{"title": r.get('title',''), "url": r.get('url','')} for r in ranked]
+    yield {"type": "sources", "sources": sources_data}
+    
+    # Emit images if requested
+    if "images" in intents or "photo" in q_lower or "image" in q_lower:
+        img_q = re.sub(r"\b(hello|can|you|show|me|the|a|photo|photos|image|images|of|with|please|give|find|some)\b", "", q_lower, flags=re.IGNORECASE).strip()
+        img_q = img_q or q
+        img_res = _search(img_q, "images", 1)
+        if img_res:
+            yield {"type": "status", "message": "[...] 🖼️ Fetching relevant images..."}
+            images = [{"src": img.get("img_src",""), "title": img.get("title","")} for img in img_res[:6]]
+            yield {"type": "action", "action": "render_images", "images": images}
 
     context = "\n\n".join(
         f"[{i+1}] Title: {r.get('title','')}\nURL: {r.get('url','')}\nContent: {r.get('content', r.get('snippet',''))[:250]}"
         for i, r in enumerate(ranked)
     )
 
-    sys_prompt = _system_for(q, current_tab, current_url) + "\n\nYou are the Core Orchestrator of the Navar Search Engine. Synthesize the aggregated data into a final response, citing sources as [1], [2]."
+    sys_prompt = _system_for(q, current_tab, current_url) + "\n\nYou are the Core Orchestrator of the Navar Search Engine. Synthesize the aggregated data into a final response, citing sources as [1], [2]. Always format your text with markdown."
     
     for chunk in _call_llm_stream([
         {"role": "system", "content": sys_prompt},
-        {"role": "user", "content": f"User query: {q}\n\nSearch context:\n{context}\n\nProvide a concise, direct, and structured summary answering the user's query. Use markdown."}
+        {"role": "user", "content": f"User query: {q}\n\nSearch context:\n{context}\n\nProvide a concise, direct, and structured summary answering the user's query."}
     ]):
         yield {"type": "text", "chunk": _clean_llm_text(chunk)}
 

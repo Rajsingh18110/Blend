@@ -100,28 +100,28 @@
     </div>
 
     <!-- AI TAB -->
-    <div id="tab-ai" class="tab-content" style="display:none;">
-      <div class="ai-overview-container">
-        <div class="ai-main-column">
-          <div class="ai-header">
-            <div style="font-size:24px;">🤖</div>
+    <div id="tab-ai" class="tab-content" style="display:none; padding-top: 10px;">
+      <div class="ai-canvas">
+        <div class="glass-panel ai-main-canvas">
+          <div class="ai-header" style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
+            <div style="font-size:28px;">✨</div>
             <div>
-              <div style="font-weight:600;font-size:16px;">Navar AI Overview</div>
-              <div style="font-size:12px;color:var(--text3);">Synthesizing from multiple sources</div>
+              <div style="font-weight:700;font-size:18px; color: #fff;">Navar AI Canvas</div>
+              <div style="font-size:13px;color:var(--text3);">Dynamic Multi-modal Engine</div>
             </div>
           </div>
-          <div id="ai-chat-messages" class="ai-chat-messages">
+          <div id="ai-chat-messages" class="ai-chat-messages" style="flex:1; overflow-y:auto; padding-right:10px;">
             <div class="ai-answer-panel">
-              Generating an AI overview for your query...
+              Ready. Enter a query above or ask a follow-up below.
             </div>
           </div>
-          <div class="ai-input-area">
-            <input type="text" id="ai-chat-input" placeholder="Ask a follow-up..." onkeydown="if(event.key==='Enter') sendAiMessage()" />
-            <button onclick="sendAiMessage()">Send</button>
+          <div class="ai-input-area" style="margin-top:20px;">
+            <input type="text" id="ai-chat-input" placeholder="Ask a follow-up..." onkeydown="if(event.key==='Enter') sendAiMessage()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff;" />
+            <button onclick="sendAiMessage()" style="background: var(--accent); color: #000; font-weight: bold; border-radius: 8px;">Send</button>
           </div>
         </div>
-        <div class="ai-source-column" id="ai-source-column">
-          <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text2);">Sources</div>
+        <div class="glass-panel ai-sources-canvas" id="ai-source-column">
+          <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:#fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">Sources</div>
           <div id="ai-source-cards" style="display:flex;flex-direction:column;gap:12px;">
             <!-- Source cards injected here -->
           </div>
@@ -2501,27 +2501,43 @@ async function sendAiMessage() {
   const aiMsg = document.createElement('div');
   aiMsg.className = 'ai-msg-container';
   aiMsg.style.cssText = 'position:relative; align-self:flex-start;background:var(--surface-hover);padding:12px 16px;border-radius:12px;max-width:80%;font-size:14px;line-height:1.5;';
-  aiMsg.innerHTML = 'Thinking...';
+  
+  aiMsg.innerHTML = '';
+  const statusDiv = document.createElement('div');
+  statusDiv.className = 'ai-status-bar';
+  statusDiv.style.cssText = 'font-size:12px; color:#06d6a0; margin-bottom:12px; font-weight:600; font-family: monospace;';
+  statusDiv.textContent = '[ ] Initializing orchestrator...';
+
+  const mediaDiv = document.createElement('div');
+  const textDiv = document.createElement('div');
+  textDiv.className = 'ai-text-content';
+  textDiv.style.cssText = 'position:relative;width:100%;word-wrap:break-word;user-select:text;';
+
+  aiMsg.appendChild(statusDiv);
+  aiMsg.appendChild(mediaDiv);
+  aiMsg.appendChild(textDiv);
   messagesBox.appendChild(aiMsg);
   messagesBox.scrollTop = messagesBox.scrollHeight;
 
   try {
-    const mode = document.getElementById('mode-select').value;
+    const mode = document.getElementById('mode-select')?.value || 'fast';
     const shortcuts = localStorage.getItem('blend_shortcuts') || '[]';
+    
+    // Check if AI query differs from main page search query
+    const currentQ = document.getElementById('top-search')?.value?.trim() || '';
+    const isNewQuery = text.trim().toLowerCase() !== currentQ.toLowerCase();
+
     const bodyData = { 
       query: text, 
       mode: mode, 
-      results: window.CURRENT_RESULTS, 
+      results: isNewQuery ? [] : (window.CURRENT_RESULTS || []), 
       section_cache: window.SECTION_CACHE || {},
       shortcuts: JSON.parse(shortcuts),
       current_tab: new URLSearchParams(window.location.search).get('tab') || 'web',
       current_url: window.location.href
     };
     
-    // Create a container for the status and text
-    aiMsg.innerHTML = '<div class="ai-status-bar" style="font-size:12px; color:#06d6a0; margin-bottom:12px; font-weight:600; font-family: monospace;">[ ] Initializing orchestrator...</div><div class="ai-text-content" style="position:relative;width:100%;word-wrap:break-word;user-select:text;"></div>';
-    const statusDiv = aiMsg.querySelector('.ai-status-bar');
-    const textDiv = aiMsg.querySelector('.ai-text-content');
+    // Elements are already created above (statusDiv, mediaDiv, textDiv).
     
     const res = await fetch(API('/api/ai'), {
       method: 'POST',
@@ -2550,19 +2566,38 @@ async function sendAiMessage() {
                textDiv.rawText = (textDiv.rawText || '') + data.chunk;
                textDiv.innerHTML = formatAiText(textDiv.rawText);
                messagesBox.scrollTop = messagesBox.scrollHeight;
-             } else if (data.type === 'action') {
-               if (data.action === 'render_map') {
-                  const mapId = 'map-' + Math.random().toString(36).substring(7);
-                  textDiv.innerHTML += `<div style="margin:16px 0; border-radius:12px; overflow:hidden; border:1px solid var(--border2);"><div id="${mapId}" style="height:250px; width:100%; background:#e0e0e0; z-index:0;"></div></div>`;
-                  if (typeof L !== 'undefined') {
-                    setTimeout(() => {
-                      const map = L.map(mapId).setView(data.coords, 13);
-                      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-                      L.marker(data.coords).addTo(map).bindPopup(data.place).openPopup();
-                    }, 100);
-                  }
-               }
-             } else if (data.type === 'suggested_filters') {
+               } else if (data.type === 'sources') {
+                   const sourceBox = document.getElementById('ai-source-cards');
+                   sourceBox.innerHTML = '';
+                   data.sources.forEach(src => {
+                       const a = document.createElement('a');
+                       a.href = src.url;
+                       a.target = '_blank';
+                       a.className = 'source-chip';
+                       a.innerHTML = `<span class="source-chip-title">${escapeHtml(src.title)}</span><span class="source-chip-url">${escapeHtml(src.url)}</span>`;
+                       sourceBox.appendChild(a);
+                   });
+               } else if (data.type === 'action') {
+                 if (data.action === 'render_map') {
+                    const mapId = 'map-' + Math.random().toString(36).substring(7);
+                    textDiv.innerHTML += `<div style="margin:16px 0; border-radius:12px; overflow:hidden; border:1px solid var(--border2);"><div id="${mapId}" style="height:250px; width:100%; background:#e0e0e0; z-index:0;"></div></div>`;
+                    if (typeof L !== 'undefined') {
+                      setTimeout(() => {
+                        const map = L.map(mapId).setView(data.coords, 13);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                        L.marker(data.coords).addTo(map).bindPopup(data.place).openPopup();
+                      }, 100);
+                    }
+                 } else if (data.action === 'render_images') {
+                    const gallery = document.createElement('div');
+                    gallery.className = 'canvas-gallery';
+                    data.images.forEach(img => {
+                        gallery.innerHTML += `<img src="${escapeHtml(img.src)}" title="${escapeHtml(img.title)}" onclick="window.open('${escapeHtml(img.src)}')"/>`;
+                    });
+                    mediaDiv.appendChild(gallery);
+                    messagesBox.scrollTop = messagesBox.scrollHeight;
+                 }
+               } else if (data.type === 'suggested_filters') {
                statusDiv.innerHTML = `<span style="color:var(--text3);font-weight:normal;">Orchestration complete. Suggestions: ${data.filters.join(', ')}</span>`;
                const tabs = document.querySelectorAll('.tab-btn');
                tabs.forEach(t => {
