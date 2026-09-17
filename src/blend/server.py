@@ -11,6 +11,12 @@ import json
 import asyncio
 import os
 import sys
+
+if not getattr(sys, 'frozen', False):
+    src_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if src_path and src_path not in sys.path:
+        sys.path.insert(0, src_path)
+
 import base64
 
 from timeit import default_timer
