@@ -322,9 +322,48 @@ def _clean_llm_text(text: str) -> str:
 def _call_llm_stream(messages: list[dict]):
     import json
     sarvam_error = None
-    # Try Sarvam if key exists
+    custom_error = None
+    
     sarvam_key = get_navar_api_key()
-    if sarvam_key:
+    custom_base = os.environ.get("NAVAR_API_BASE")
+    custom_model = os.environ.get("NAVAR_API_MODEL", "gpt-4o-mini")
+
+    # 1. Custom Webhook API (OpenAI Compatible)
+    if sarvam_key and custom_base:
+        try:
+            import requests
+            headers = {"Authorization": f"Bearer {sarvam_key}", "Content-Type": "application/json"}
+            payload = {
+                "model": custom_model,
+                "messages": messages,
+                "temperature": 0.3,
+                "stream": True
+            }
+            resp = requests.post(custom_base, headers=headers, json=payload, stream=True, timeout=10)
+            if resp.status_code == 200:
+                for line in resp.iter_lines():
+                    if line:
+                        line = line.decode('utf-8')
+                        if line.startswith("data: "):
+                            data_str = line[6:]
+                            if data_str == "[DONE]":
+                                break
+                            try:
+                                chunk = json.loads(data_str)
+                                content = chunk["choices"][0]["delta"].get("content", "")
+                                if content:
+                                    yield content
+                            except:
+                                pass
+                return
+            else:
+                custom_error = f"HTTP {resp.status_code}: {resp.text}"
+        except Exception as e:
+            custom_error = str(e)
+            print(f"Custom API streaming failed: {e}")
+
+    # 2. Sarvam AI (Default Native)
+    elif sarvam_key:
         try:
             import requests
             headers = {"api-subscription-key": sarvam_key, "Content-Type": "application/json"}
@@ -394,7 +433,9 @@ def _call_llm_stream(messages: list[dict]):
 
     # Option C: Inform the user clearly if no valid keys are found or if they failed
     err_msg = "Please configure a valid API key (Sarvam/Groq/OpenAI) in settings to enable AI features."
-    if sarvam_error:
+    if custom_error:
+        err_msg += f" [Custom API error: {custom_error}]"
+    elif sarvam_error:
         err_msg += f" [Sarvam error: {sarvam_error}]"
     if groq_error:
         err_msg += f" [Groq error: {groq_error}]"
