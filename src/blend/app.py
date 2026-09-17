@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import os
+import sys
 import threading
 import urllib.parse
 import urllib.request
@@ -21,6 +22,11 @@ from pathlib import Path
 from flask import Response, jsonify, redirect, render_template_string, request, send_from_directory
 
 os.environ.setdefault("BLEND_EMBEDDED_BACKEND", "1")
+
+if not getattr(sys, 'frozen', False):
+    src_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if src_path and src_path not in sys.path:
+        sys.path.insert(0, src_path)
 
 from blend.server import app, run
 from blend.navar import build_ai_response
