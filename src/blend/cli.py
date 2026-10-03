@@ -233,12 +233,14 @@ def main():
 def parse_code_install_args(argv=None):
     parser = argparse.ArgumentParser(description="Download and install the Blend source code from GitHub.")
     parser.add_argument('mode', nargs='?', choices=['all', 'clone', 'install', 'download'], help="Code install mode")
+    parser.add_argument('-all', '--all', dest='all', action='store_true', default=False, help="Install the full source tree")
     parser.add_argument('--target-dir', default=str(Path.cwd() / 'Blend'), help="Target folder for the source checkout")
     parser.add_argument('--skip-requirements', action='store_true', help="Skip installing requirements.txt")
     parser.add_argument('--no-animation', action='store_true', help="Disable the animated installer output")
     args = parser.parse_args(argv)
     if args.mode is None:
         args.mode = 'all'
+    args.all = args.all or args.mode == 'all'
     return args
 
 
