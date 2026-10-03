@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
 import sys
 import threading
@@ -200,7 +201,7 @@ SEARCH_CACHE = {}
 CACHE_TTL = 300 # 5 minutes
 
 @app.route("/api/search")
-async def api_search():
+def api_search():
     q = request.args.get("q", "").strip()
     if not q:
         return jsonify({"error": "empty query"}), 400
@@ -231,7 +232,7 @@ async def api_search():
     query_string["q"] = q
     query_string["format"] = "json"
     query_string["autoredirect"] = "0"
-    
+
     blend_mode = request.args.get("mode", "fast")
     engines_to_force = request.args.get("engines", "")
     language = request.args.get("language", "all")
@@ -241,13 +242,25 @@ async def api_search():
         router = SearchRouter()
         use_tor = request.headers.get("X-Blend-Tor") == "1"
         pageno = int(request.args.get("pageno") or 1)
-        payload = await router.route(q, category=category, mode=blend_mode, engines=engines_to_force, use_tor=use_tor, language=language, pageno=pageno)
-        
+
+        async def _run_search():
+            return await router.route(
+                q,
+                category=category,
+                mode=blend_mode,
+                engines=engines_to_force,
+                use_tor=use_tor,
+                language=language,
+                pageno=pageno,
+            )
+
+        payload = asyncio.run(_run_search())
+
         if payload.get("number_of_results", 0) == 0 and category in ("general", "web", "all"):
             fallback = _fallback_web_search(q, category, pageno)
             if fallback and fallback.get("number_of_results", 0) > 0:
                 payload = fallback
-                
+
         if payload.get("number_of_results", 0) > 0:
             SEARCH_CACHE[cache_key] = (time.time(), payload)
         return jsonify(payload), 200

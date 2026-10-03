@@ -17,9 +17,11 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
+package-dir = {"" = "src"}
 include-package-data = true
 
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["blend", "blend.*"]
 
 [tool.setuptools.package-data]
