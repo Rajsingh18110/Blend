@@ -233,19 +233,16 @@ def main():
 def parse_code_install_args(argv=None):
     parser = argparse.ArgumentParser(description="Download and install the Blend source code from GitHub.")
     parser.add_argument('mode', nargs='?', choices=['all', 'clone', 'install', 'download'], help="Code install mode")
-    parser.add_argument('-all', '--all', dest='all', action='store_true', help="Download the full source code and install requirements")
     parser.add_argument('--target-dir', default=str(Path.cwd() / 'Blend'), help="Target folder for the source checkout")
     parser.add_argument('--skip-requirements', action='store_true', help="Skip installing requirements.txt")
     parser.add_argument('--no-animation', action='store_true', help="Disable the animated installer output")
     args = parser.parse_args(argv)
-    if args.mode is None and not args.all:
-        args.all = True
-    elif args.mode == 'all' or args.all:
-        args.all = True
+    if args.mode is None:
+        args.mode = 'all'
     return args
 
 
-def run_with_spinner(command, message, cwd=None, env=None):
+def run_with_spinner(command, message, cwd=None, env=None, quiet=False):
     if env is None:
         env = os.environ.copy()
 
@@ -272,7 +269,7 @@ def run_with_spinner(command, message, cwd=None, env=None):
         stop_event.set()
         thread.join()
 
-    if output:
+    if output and (not quiet or proc.returncode != 0):
         print(output.rstrip())
     return proc.returncode
 
@@ -287,7 +284,7 @@ def install_source_tree(target_dir=None, include_requirements=True, show_animati
     if target_dir.exists() and (target_dir / '.git').exists():
         print("🔄 Repository already exists; pulling latest code...")
         git_cmd = ['git', '-C', str(target_dir), 'pull', '--ff-only']
-        git_rc = run_with_spinner(git_cmd, 'Updating source code...') if show_animation else subprocess.run(git_cmd, capture_output=True, text=True).returncode
+        git_rc = run_with_spinner(git_cmd, 'Updating source code...', quiet=True) if show_animation else subprocess.run(git_cmd, capture_output=True, text=True).returncode
         if git_rc != 0:
             print("⚠️ Git pull failed. Re-cloning the repository...")
             shutil.rmtree(target_dir, ignore_errors=True)
@@ -305,7 +302,7 @@ def install_source_tree(target_dir=None, include_requirements=True, show_animati
             print("⬇️ Cloning the repository from GitHub...")
             clone_cmd = ['git', 'clone', '--depth', '1', repo_url, str(target_dir)]
             if show_animation:
-                clone_rc = run_with_spinner(clone_cmd, 'Cloning repository from GitHub...')
+                clone_rc = run_with_spinner(clone_cmd, 'Cloning repository from GitHub...', quiet=True)
             else:
                 clone_rc = subprocess.run(clone_cmd, capture_output=True, text=True).returncode
             if clone_rc != 0:
@@ -334,9 +331,25 @@ def install_source_tree(target_dir=None, include_requirements=True, show_animati
             print("Skipping dependency installation because the repo layout does not include the file.")
             return 0
 
-        print("📦 Installing Python dependencies from requirements.txt...")
-        pip_cmd = [sys.executable, '-m', 'pip', 'install', '-r', str(req_path)]
-        pip_rc = run_with_spinner(pip_cmd, 'Installing project requirements...', cwd=str(repo_root)) if show_animation else subprocess.run(pip_cmd, cwd=str(repo_root), capture_output=True, text=True).returncode
+        venv_dir = repo_root / '.venv'
+        in_venv = hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
+        if not in_venv:
+            if not venv_dir.exists():
+                print("📦 Creating a project-local virtual environment...")
+                venv_rc = run_with_spinner([sys.executable, '-m', 'venv', str(venv_dir)], 'Creating virtual environment...', quiet=True) if show_animation else subprocess.run([sys.executable, '-m', 'venv', str(venv_dir)], capture_output=True, text=True).returncode
+                if venv_rc != 0:
+                    print("❌ Could not create a virtual environment in the project folder.")
+                    return 1
+            py_executable = venv_dir / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
+            if not py_executable.exists():
+                print("❌ Virtual environment was not created successfully.")
+                return 1
+        else:
+            py_executable = Path(sys.executable)
+
+        print("📦 Installing Python dependencies from requirements.txt in the project environment...")
+        pip_cmd = [str(py_executable), '-m', 'pip', 'install', '-r', str(req_path)]
+        pip_rc = run_with_spinner(pip_cmd, 'Installing project requirements...', cwd=str(repo_root), quiet=True) if show_animation else subprocess.run(pip_cmd, cwd=str(repo_root), capture_output=True, text=True).returncode
 
         if pip_rc != 0:
             print("⚠️ Dependency installation failed.")
@@ -350,21 +363,22 @@ def install_source_tree(target_dir=None, include_requirements=True, show_animati
             return 1
 
     print("\n✅ Blend source is ready.")
-    print(f"Run it with: cd \"{repo_root}\" && python -m blend.cli")
+    if not hasattr(sys, 'real_prefix') and not (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
+        print(f"Run it with: cd \"{repo_root}\" && .venv/bin/python -m blend.cli")
+    else:
+        print(f"Run it with: cd \"{repo_root}\" && python -m blend.cli")
     return 0
 
 
 def code_main(argv=None):
     args = parse_code_install_args(argv)
-    if args.mode in {'all', 'clone', 'install', 'download'} or args.all or args.mode is None:
+    if args.mode in {'all', 'clone', 'install', 'download'}:
         return install_source_tree(target_dir=args.target_dir, include_requirements=not args.skip_requirements, show_animation=not args.no_animation)
 
-    print("Usage: blendcode [all|clone|install|download] [--all] [--target-dir PATH]")
+    print("Usage: blendcode [all|clone|install|download] [--target-dir PATH]")
     print("Examples:")
     print("  blendcode")
-    print("  blendcode --all")
     print("  blendcode all")
-    print("  blendcode -all")
     print("  blendcode --target-dir ~/Blend")
     return 0
 

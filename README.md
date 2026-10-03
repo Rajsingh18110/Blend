@@ -150,9 +150,9 @@ Run via our hosted version:
 
 There are two supported installation paths:
 
-### Option A: Source-first install from GitHub
+### Option A: Source install from GitHub
 
-If you want the latest code and automatic dependency installation in one step, run:
+If you want the latest source code and automatic dependency setup in one command, run:
 
 ```bash
 blendcode
@@ -161,20 +161,8 @@ blendcode
 This will:
 - clone the Blend repository from GitHub
 - update it if it already exists locally
-- install all dependencies from `requirements.txt`
+- install dependencies from `requirements.txt`
 - leave you ready to run the project from source
-
-For an explicit full setup command, use:
-
-```bash
-blendcode --all
-```
-
-or:
-
-```bash
-blendcode -all
-```
 
 You can also target a custom folder:
 
@@ -184,9 +172,24 @@ blendcode --target-dir ~/Blend
 
 If dependency installation fails, the command prints manual fallback commands so you can complete the setup manually.
 
-### Option B: PyPI package install
+### Option B: Editable local install
 
-If you just want the installed launcher entry point:
+If you already have the repo checked out locally and want the package installed into your current Python environment:
+
+```bash
+cd ~/Blend
+python -m pip install -e .
+```
+
+Then start it with:
+
+```bash
+blend
+```
+
+### Option C: PyPI package install
+
+If you want the published package from PyPI:
 
 ```bash
 pip install blend-search
@@ -198,7 +201,15 @@ Then start the app with:
 blend
 ```
 
-The launcher prefers the local source checkout when you are running inside the repo, and only falls back to a downloaded binary when needed.
+### Option D: Direct Git install
+
+If you want to install directly from the GitHub repo without using the helper command:
+
+```bash
+python -m pip install "git+https://github.com/Rajsingh18110/Blend.git"
+```
+
+This installs the package from the Git source, not from a downloaded binary.
 
 ### 1. Start the Search Engine
 
@@ -229,13 +240,13 @@ blend stop
 To fetch the latest source code and reinstall requirements from the project repo, run:
 
 ```bash
-blendcode --all
+blendcode
 ```
 
-To update the downloaded binary path instead, use:
+If you want to run the built-in helper again for a fresh source install, use:
 
 ```bash
-blend -update
+blendcode
 ```
 
 ## Manual Binary Build

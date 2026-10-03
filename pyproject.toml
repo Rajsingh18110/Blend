@@ -9,7 +9,7 @@ authors = [{name = "MarkanM"}]
 dynamic = ["dependencies"]
 
 [project.scripts]
-blend = "blend.launcher:main"
+blend = "blend.cli:main"
 blendcode = "blend.cli:code_main"
 
 [build-system]

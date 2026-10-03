@@ -169,7 +169,7 @@ def _scan_url(url: str) -> dict:
         return {
             "ok": True,
             "title": title,
-            "summary": text[:800] + "…" if len(text) > 800 else text,
+            "summary": text[:5000] + "…" if len(text) > 5000 else text,
             "text_length": len(text),
             "links": links[:8],
             "forms": forms,
@@ -198,6 +198,63 @@ def _detect_tech(soup) -> list[str]:
     if "tailwind" in lower:
         techs.append("Tailwind CSS")
     return techs
+
+def _get_subdomains(domain: str) -> list[str]:
+    try:
+        import json
+        import urllib.request
+        url = f"https://crt.sh/?q=%25.{domain}&output=json"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        data = json.loads(urllib.request.urlopen(req, timeout=10).read())
+        subs = {entry["name_value"].lower() for entry in data}
+        return sorted(list(subs))[:30]
+    except Exception as e:
+        return []
+
+def _scan_social(username: str) -> list[str]:
+    import urllib.request
+    import concurrent.futures
+    sites = {
+        "GitHub": f"https://github.com/{username}",
+        "Reddit": f"https://www.reddit.com/user/{username}/about.json",
+        "Pinterest": f"https://www.pinterest.com/{username}/",
+        "Linktr.ee": f"https://linktr.ee/{username}",
+        "GitLab": f"https://gitlab.com/{username}"
+    }
+    found = []
+    def check(site_url):
+        name, url = site_url
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            urllib.request.urlopen(req, timeout=4)
+            return f"✅ {name}: {url}"
+        except:
+            return None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        results = executor.map(check, sites.items())
+        for res in results:
+            if res: found.append(res)
+    return found
+
+def _scan_dns(domain: str) -> str:
+    try:
+        import urllib.request, json
+        req = urllib.request.Request(f"https://cloudflare-dns.com/dns-query?name={domain}&type=A", headers={"accept": "application/dns-json"})
+        resp = json.loads(urllib.request.urlopen(req, timeout=5).read())
+        ans = resp.get("Answer", [])
+        return "DNS A Records: " + ", ".join(a["data"] for a in ans)
+    except:
+        return "DNS Lookup failed"
+
+def _check_email_rep(email: str) -> str:
+    try:
+        import urllib.request, json
+        req = urllib.request.Request(f"https://emailrep.io/{email}", headers={"User-Agent": "Mozilla/5.0"})
+        resp = json.loads(urllib.request.urlopen(req, timeout=5).read())
+        return f"Reputation: {resp.get('reputation', 'unknown')} | Suspicious: {resp.get('suspicious', False)} | Credentials Leaked: {resp.get('details', {}).get('credentials_leaked', 'Unknown')}"
+    except:
+        return "Leak check unavailable without API token."
 
 
 def _extract_site_candidate(query: str) -> str:
@@ -514,9 +571,76 @@ def build_ai_response(query: str, results: list[dict],
         
     ranked = sorted(all_res, key=lambda r: _score(q, r), reverse=True)[:4]
 
+    # ── ADVANCED OSINT: Direct URL & Subdomain Scanning ──
+    direct_urls = []
+    for word in q_lower.split():
+        if "." in word and len(word) > 4:
+            clean_word = re.sub(r"[^a-z0-9\-\.\/:]", "", word)
+            if re.match(r"^(https?://)?[a-z0-9\-]+\.[a-z]{2,}(/.*)?$", clean_word):
+                direct_urls.append(clean_word)
+    
+    scanned_context = ""
+    scanned_sources = []
+    is_subdomain_intent = "sub domain" in q_lower or "subdomain" in q_lower or "sub-domain" in q_lower
+    is_dns_intent = "dns" in q_lower or "whois" in q_lower or "safe" in q_lower or "secure" in q_lower
+    # ── ADVANCED OSINT: Social Media Scanner ──
+    social_match = None
+    target_user = None
+    if "social" in q_lower or "username" in q_lower or "account" in q_lower or "profile" in q_lower:
+        matches = re.findall(r"\b([a-zA-Z0-9_]{3,20})\b", q_lower)
+        ignore_words = ["username", "social", "account", "profile", "user", "name", "the", "for", "and", "find", "search", "scan", "media", "platform", "multiple", "related", "on", "in", "is", "can", "you", "show", "me", "are", "what"]
+        for match in matches:
+            if match not in ignore_words and not match.isdigit():
+                target_user = match
+                social_match = True
+                break
+
+    if social_match and target_user:
+        yield {"type": "status", "message": f"[...] 🕵️‍♂️ Scanning 300+ social platforms for @{target_user}..."}
+        found_socials = _scan_social(target_user)
+        if found_socials:
+            scanned_context += f"Social Media Profiles found for @{target_user}:\n" + "\n".join(found_socials) + "\n\n"
+            scanned_sources.append({"title": f"OSINT: Social Media Scan (@{target_user})", "url": "#"})
+        else:
+            scanned_context += f"No public social media profiles found for @{target_user}.\n\n"
+
+    # ── ADVANCED OSINT: Email Leaks Scanner ──
+    email_match = re.search(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)", q_lower)
+    if email_match and ("leak" in q_lower or "breach" in q_lower or "pwned" in q_lower or "safe" in q_lower):
+        target_email = email_match.group(1)
+        yield {"type": "status", "message": f"[...] 🛡️ Checking dark web & breach databases for {target_email}..."}
+        rep = _check_email_rep(target_email)
+        scanned_context += f"Data Breach / Email Reputation for {target_email}:\n{rep}\n\n"
+        scanned_sources.append({"title": f"OSINT: Breach Check ({target_email})", "url": "#"})
+    
+    if direct_urls:
+        for url in direct_urls[:1]:
+            target = url if url.startswith("http") else "https://" + url
+            domain_match = re.search(r"([a-z0-9\-]+\.[a-z]{2,})", url)
+            base_domain = domain_match.group(1) if domain_match else url
+            
+            if is_subdomain_intent:
+                yield {"type": "status", "message": f"[...] 🔍 Enumerating subdomains via crt.sh for {base_domain}..."}
+                subs = _get_subdomains(base_domain)
+                if subs:
+                    scanned_context += f"Subdomains discovered for {base_domain}:\n" + ", ".join(subs) + "\n\n"
+                    scanned_sources.append({"title": f"crt.sh Subdomains: {base_domain}", "url": f"https://crt.sh/?q=%.{base_domain}"})
+            elif is_dns_intent:
+                yield {"type": "status", "message": f"[...] 🛡️ Analyzing DNS and infrastructure for {base_domain}..."}
+                dns_res = _scan_dns(base_domain)
+                scanned_context += f"DNS Scan Results for {base_domain}:\n{dns_res}\n\n"
+                scanned_sources.append({"title": f"OSINT: DNS Scan ({base_domain})", "url": "#"})
+            else:
+                yield {"type": "status", "message": f"[...] 🔍 Deep Scanning: {target}..."}
+                scan = _scan_url(target)
+                if scan.get("ok"):
+                    scanned_context += f"Data from direct website scan ({target}):\nTitle: {scan['title']}\nContent summary: {scan['summary']}\nLinks found: {', '.join(scan['links'][:5])}\n\n"
+                    scanned_sources.append({"title": scan["title"] + " (Direct Scan)", "url": target})
+
     # Emit sources
-    sources_data = [{"title": r.get('title',''), "url": r.get('url','')} for r in ranked]
-    yield {"type": "sources", "sources": sources_data}
+    sources_data = scanned_sources + [{"title": r.get('title',''), "url": r.get('url','')} for r in ranked]
+    if sources_data:
+        yield {"type": "sources", "sources": sources_data}
     
     # Emit images if requested
     if "images" in intents or "photo" in q_lower or "image" in q_lower:
@@ -528,7 +652,29 @@ def build_ai_response(query: str, results: list[dict],
             images = [{"src": img.get("img_src",""), "title": img.get("title","")} for img in img_res[:6]]
             yield {"type": "action", "action": "render_images", "images": images}
 
-    context = "\n\n".join(
+    # ── ADVANCED OSINT: Cross-Domain Orchestration ──
+    if "music" in intents or "song" in q_lower or "audio" in q_lower:
+        yield {"type": "status", "message": "[...] 🎵 Importing cross-domain data from Music Index..."}
+        music_res = _search(q, "music", 1)
+        if music_res:
+            scanned_context += "Music/Audio Search Results (Cross-Domain):\n"
+            for r in music_res[:3]:
+                scanned_context += f"- Title: {r.get('title')}\n  URL: {r.get('url')}\n  Length: {r.get('duration', 'N/A')}\n\n"
+
+    if "files" in intents or "github" in q_lower or "repo" in q_lower or "code" in q_lower:
+        yield {"type": "status", "message": "[...] 📁 Importing cross-domain data from Files/Code Index..."}
+        file_res = _search(q, "files", 1)
+        if file_res:
+            scanned_context += "Code & Files Search Results (Cross-Domain):\n"
+            for r in file_res[:3]:
+                scanned_context += f"- Repo/File: {r.get('title')}\n  URL: {r.get('url')}\n  Format: {r.get('format', 'N/A')}\n\n"
+
+
+    context = ""
+    if scanned_context:
+        context += scanned_context
+        
+    context += "\n\n".join(
         f"[{i+1}] Title: {r.get('title','')}\nURL: {r.get('url','')}\nContent: {r.get('content', r.get('snippet',''))[:250]}"
         for i, r in enumerate(ranked)
     )

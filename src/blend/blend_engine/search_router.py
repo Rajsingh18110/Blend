@@ -50,18 +50,20 @@ class SearchRouter:
                 
         providers = self.provider_manager.get_providers(category, engines)
         
-        # Execute providers with a LATENCY BUDGET
-        # fast=4.0s: aggressively cut off slow providers for fast search
-        # deep=25.0s: allow slower providers + Crawl4AI time
+# Execute providers with a LATENCY BUDGET.
+        # The initial fast pass is intentionally aggressive, but if it times out with
+        # no usable results, we retry once with a larger deadline to avoid dropping
+        # valid results from slow but otherwise working providers.
         budget = 4.0 if mode == "fast" else 25.0
-        
+
+        import logging
         import time
-        async def _time_provider(p, kwargs):
+        logger = logging.getLogger("blend.search_router")
+
+        async def _time_provider(p, kwargs, deadline):
             start = time.perf_counter()
             try:
-                # Give each provider slightly more than the router budget so they have a chance to return 
-                # just before the router cuts them off.
-                res = await asyncio.wait_for(p.search(**kwargs), timeout=budget + 0.5)
+                res = await asyncio.wait_for(p.search(**kwargs), timeout=deadline + 0.5)
                 elapsed = time.perf_counter() - start
                 print(f"[SEARCH_ROUTER] Provider {p.__class__.__name__} completed in {elapsed:.3f}s with {len(res) if isinstance(res, list) else 'error'} results.")
                 return p, res
@@ -70,49 +72,59 @@ class SearchRouter:
                 print(f"[SEARCH_ROUTER] Provider {p.__class__.__name__} FAILED in {elapsed:.3f}s: {e}")
                 return p, e
 
-        tasks = []
-        task_to_provider = {}
-        for p in providers:
-            # Wrap provider.search with budget tracking
-            kwargs = {
-                "query": query,
-                "use_tor": use_tor,
-                "language": language,
-                "pageno": pageno,
-            }
-            if getattr(p, "supports_category", False):
-                kwargs["category"] = category
-                    
-            task = asyncio.create_task(_time_provider(p, kwargs))
-            tasks.append(task)
-            task_to_provider[task] = p.__class__.__name__
-                
-        # P0-5: Return partial results.
-        done, pending = await asyncio.wait(tasks, timeout=budget)
-        
-        import logging
-        logger = logging.getLogger("blend.search_router")
-        for task in pending:
-            task.cancel() # Cancel slow providers that exceeded the budget
-            provider_name = task_to_provider.get(task, "UnknownProvider")
-            logger.warning(f"ProviderTimeout: {provider_name} exceeded {budget}s budget and was cancelled. Note: Native executor threads may still be running in background.")
-            
-        all_results = []
-        errors = []
-        raw_native_count = 0
-        for task in done:
-            try:
-                p, res = task.result()
-                if isinstance(res, list):
-                    raw_native_count += len(res)
-                    normalized = [p.normalize(r) for r in res]
-                    all_results.extend(normalized)
-                elif isinstance(res, Exception):
-                    err_msg = str(res) or res.__class__.__name__
-                    errors.append(f"{p.__class__.__name__}: {err_msg}")
-            except Exception as e:
-                errors.append(f"TaskError: {str(e)}")
-                
+        async def _run_provider_batch(provider_batch, deadline):
+            tasks = []
+            task_to_provider = {}
+            for p in provider_batch:
+                kwargs = {
+                    "query": query,
+                    "use_tor": use_tor,
+                    "language": language,
+                    "pageno": pageno,
+                }
+                if getattr(p, "supports_category", False):
+                    kwargs["category"] = category
+
+                task = asyncio.create_task(_time_provider(p, kwargs, deadline))
+                tasks.append(task)
+                task_to_provider[task] = p.__class__.__name__
+
+            done, pending = await asyncio.wait(tasks, timeout=deadline)
+            for task in pending:
+                task.cancel()
+                provider_name = task_to_provider.get(task, "UnknownProvider")
+                logger.warning(f"ProviderTimeout: {provider_name} exceeded {deadline}s budget and was cancelled. Note: Native executor threads may still be running in background.")
+
+            all_results = []
+            errors = []
+            raw_native_count = 0
+            for task in done:
+                try:
+                    p, res = task.result()
+                    if isinstance(res, list):
+                        raw_native_count += len(res)
+                        normalized = [p.normalize(r) for r in res]
+                        all_results.extend(normalized)
+                    elif isinstance(res, Exception):
+                        err_msg = str(res) or res.__class__.__name__
+                        errors.append(f"{p.__class__.__name__}: {err_msg}")
+                except Exception as e:
+                    errors.append(f"TaskError: {str(e)}")
+            return all_results, errors, raw_native_count
+
+        all_results, errors, raw_native_count = await _run_provider_batch(providers, budget)
+
+        if mode == "fast" and not all_results:
+            retry_budget = max(budget * 2, 8.0)
+            retry_results, retry_errors, retry_raw = await _run_provider_batch(providers, retry_budget)
+            if retry_results:
+                all_results = retry_results
+                errors.extend(retry_errors)
+                raw_native_count = retry_raw
+            else:
+                errors.extend(retry_errors)
+                raw_native_count += retry_raw
+
         # P0-12: Deduplication. We just want to merge without losing results
         unique_results = self.result_processor.deduplicate(all_results)
         ranked_results = self.ranking_engine.rank_results(unique_results, query)
