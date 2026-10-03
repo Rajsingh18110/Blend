@@ -1,13 +1,6 @@
-import sys
 import os
-import platform
-import urllib.request
-import subprocess
-import stat
-import logging
+import sys
 from pathlib import Path
-
-logger = logging.getLogger(__name__)
 
 
 def should_use_local_repo():
@@ -19,96 +12,14 @@ def should_use_local_repo():
     except Exception:
         return False
 
-def get_binary_path():
-    os_name = platform.system().lower()
-    
-    if os_name == "windows":
-        data_dir = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")), "Blend")
-        bin_name = "blend-bin.exe"
-    else:
-        data_dir = os.path.join(os.path.expanduser("~"), ".local", "bin")
-        bin_name = "blend-bin"
-        
-    os.makedirs(data_dir, exist_ok=True)
-    return os.path.join(data_dir, bin_name)
-
-def report_progress(block_num, block_size, total_size):
-    downloaded = block_num * block_size
-    if total_size > 0:
-        percent = min(downloaded * 100 / total_size, 100)
-        
-        bar_length = 30
-        filled_length = int(bar_length * percent // 100)
-        bar = '█' * filled_length + '-' * (bar_length - filled_length)
-        
-        sys.stdout.write(f"\r📥 Downloading Blend: [{bar}] {percent:.1f}% ({downloaded / (1024*1024):.1f} MB / {total_size / (1024*1024):.1f} MB)")
-        sys.stdout.flush()
-    else:
-        sys.stdout.write(f"\r📥 Downloading Blend: {downloaded / (1024*1024):.1f} MB downloaded...")
-        sys.stdout.flush()
-
-def download_binary(binary_path):
-    os_name = platform.system().lower()
-    base_url = "https://github.com/Rajsingh18110/Blend/releases/latest/download"
-    
-    if os_name == "windows":
-        url = f"{base_url}/blend.exe"
-    elif os_name == "darwin":
-        url = f"{base_url}/blend-macos"
-    else:
-        url = f"{base_url}/blend-linux"
-        
-    logger.info(f"Fetching updates for {os_name} from GitHub...")
-    
-    import time
-    
-    max_retries = 3
-    for attempt in range(max_retries):
-        try:
-            # Delete existing binary before downloading the new one
-            if os.path.exists(binary_path):
-                try:
-                    os.remove(binary_path)
-                except Exception as e:
-                    logger.warning(f"\n⚠️ Warning: Could not delete old binary: {e}")
-
-            urllib.request.urlretrieve(url, binary_path, reporthook=report_progress)
-            logger.info("\n✅ Download successful!")
-            
-            # Set executable permissions on Linux/macOS
-            if os_name != "windows":
-                st = os.stat(binary_path)
-                os.chmod(binary_path, st.st_mode | stat.S_IEXEC)
-            
-            # Download succeeded, break the retry loop
-            break
-                
-        except KeyboardInterrupt:
-            logger.info("\n\n❌ Download cancelled by user.")
-            if os.path.exists(binary_path):
-                try:
-                    os.remove(binary_path)
-                except OSError:
-                    pass
-            sys.exit(1)
-        except Exception as e:
-            # Clean up the corrupted partial file
-            if os.path.exists(binary_path):
-                try:
-                    os.remove(binary_path)
-                except OSError:
-                    pass
-            
-            if attempt < max_retries - 1:
-                logger.warning(f"\n⚠️ Download failed: {e}. Retrying in 3 seconds... ({attempt+1}/{max_retries})")
-                time.sleep(3)
-            else:
-                logger.error(f"\n❌ Failed to download Blend after {max_retries} attempts. Error: {e}")
-                sys.exit(1)
 
 def main():
-    # Prefer the local source checkout when the user is running from a repo.
-    # This avoids stale PyInstaller builds from ~/.local/bin or other cached binaries.
+    """Compatibility shim for older launchers.
+
+    Blend is source-first and no longer downloads or executes standalone binaries.
+    This shim simply routes to the source CLI when running from a checkout and
+    otherwise falls back to the installed package entry point.
+    """
     if should_use_local_repo():
         repo_root = Path(__file__).resolve().parents[2]
         src_dir = repo_root / 'src'
@@ -116,31 +27,9 @@ def main():
         env['PYTHONPATH'] = str(src_dir) + (os.pathsep + env['PYTHONPATH'] if env.get('PYTHONPATH') else '')
         os.execvpe(sys.executable, [sys.executable, '-m', 'blend.cli', *sys.argv[1:]], env)
 
-    binary_path = get_binary_path()
+    from blend.cli import main as cli_main
+    cli_main()
 
-    # Check if user explicitly asked for an update
-    if "-update" in sys.argv or "--update" in sys.argv:
-        download_binary(binary_path)
-        sys.exit(0)
 
-    if not os.path.exists(binary_path):
-        logger.info("Blend executable not found locally. Initializing...")
-        download_binary(binary_path)
-
-    # Execute the downloaded binary
-    try:
-        if platform.system().lower() != "windows":
-            # Ensure executable permissions are set in case it was interrupted before
-            st = os.stat(binary_path)
-            os.chmod(binary_path, st.st_mode | stat.S_IEXEC)
-            # On POSIX systems, replace the current process (more native feel)
-            os.execv(binary_path, [binary_path] + sys.argv[1:])
-        else:
-            # On Windows, os.execv doesn't work perfectly with child lifecycles
-            sys.exit(subprocess.call([binary_path] + sys.argv[1:]))
-    except Exception as e:
-        logger.error(f"❌ Failed to execute Blend binary: {e}")
-        sys.exit(1)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -102,7 +102,6 @@ are unavailable.
 │   ├── app.py                     # Standalone Blend web/API launcher
 │   ├── server.py                  # Gunicorn server wrapped interface
 │   ├── cli.py                     # Command line interface for Blend
-│   ├── launcher.py                # Smart launcher for auto-fetching binaries
 │   ├── start_backend.sh           # Local development startup script
 │   ├── navar.py                   # Navar assistant and intent routing
 │   ├── navar_knowledge.py         # Markanm/Blend knowledge responses
@@ -209,7 +208,7 @@ If you want to install directly from the GitHub repo without using the helper co
 python -m pip install "git+https://github.com/Rajsingh18110/Blend.git"
 ```
 
-This installs the package from the Git source, not from a downloaded binary.
+This installs the package from the Git source.
 
 ### 1. Start the Search Engine
 
@@ -249,24 +248,22 @@ If you want to run the built-in helper again for a fresh source install, use:
 blendcode
 ```
 
-## Manual Binary Build
+## Source-Only Build Policy
 
-If you want to build the standalone Linux binary yourself, do not use the static-only Python in the project `.venv` created earlier. PyInstaller requires a Python build with a shared library, usually the distro Python at `/usr/bin/python3`.
+Blend is published and supported as a Python source package, not as a standalone binary download.
+
+This repository no longer ships a downloadable executable path or automatic binary fetcher. The supported install flows are:
 
 ```bash
-cd /home/kali/Blend
-chmod +x build_binary.sh
-./build_binary.sh
+pip install blend-search
+# or
+cd ~/Blend
+python -m pip install -e .
+# or
+blendcode
 ```
 
-This script does the following:
-- validates that the selected Python is shared-library capable
-- creates a dedicated build venv
-- installs requirements and the project
-- runs PyInstaller with the required data files and hidden imports
-- emits the final binary at `dist/blend-linux`
-
-If the selected Python is static-only, the script exits with a clear message instead of failing deep in PyInstaller.
+If a binary is shown in any older documentation or release asset, it should be treated as historical and unsupported.
 
 ## Configuration
 

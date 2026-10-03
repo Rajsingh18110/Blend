@@ -1,145 +1,52 @@
-name: Build and Release Executables
+name: Publish Python package to PyPI
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            artifact_name: blend-windows
-            asset_name: blend.exe
-            sep: ';'
-          - os: ubuntu-latest
-            artifact_name: blend-linux
-            asset_name: blend-linux
-            sep: ':'
-          - os: macos-latest
-            artifact_name: blend-macos
-            asset_name: blend-macos
-            sep: ':'
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-          cache: 'pip'
+          python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install build tooling
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install .
-          pip install pyinstaller
+          python -m pip install build
 
-      - name: Build with PyInstaller
-        run: |
-          pyinstaller --name blend `
-            --onefile `
-            --clean `
-            --add-data "src/blend/templates${{ matrix.sep }}blend/templates" `
-            --add-data "src/blend/static${{ matrix.sep }}blend/static" `
-            --add-data "src/blend/blend_core/assets${{ matrix.sep }}blend/blend_core/assets" `
-            --add-data "src/blend/blend_core/views${{ matrix.sep }}blend/blend_core/views" `
-            --add-data "src/blend/blend_core/translations${{ matrix.sep }}blend/blend_core/translations" `
-            --add-data "src/blend/blend_core/data${{ matrix.sep }}blend/blend_core/data" `
-            --add-data "src/blend/blend_core/blend_config.yml${{ matrix.sep }}blend/blend_core" `
-            --add-data "src/blend/blend_core/limiter.toml${{ matrix.sep }}blend/blend_core" `
-            --add-data "src/blend/blend_core/sources${{ matrix.sep }}blend/blend_core/sources" `
-            --add-data "src/blend/blend_core/favicons${{ matrix.sep }}blend/blend_core/favicons" `
-            --collect-all lxml `
-            --collect-all blend.blend_core.extensions `
-            --collect-all blend.blend_core.sources `
-            --hidden-import "cloudscraper" `
-            --hidden-import "lxml.etree" `
-            --hidden-import "lxml._elementpath" `
-            --hidden-import "lxml.html" `
-            --hidden-import "flask" `
-            --hidden-import "gunicorn.glogging" `
-            --hidden-import "gunicorn.workers.sync" `
-            --hidden-import "httpx_socks" `
-            --hidden-import "valkey" `
-            run_blend.py
-        if: matrix.os == 'windows-latest'
+      - name: Build source distribution and wheel
+        run: python -m build
 
-      - name: Build with PyInstaller (Linux/macOS)
-        run: |
-          pyinstaller --name ${{ matrix.asset_name }} \
-            --onefile \
-            --clean \
-            --add-data "src/blend/templates${{ matrix.sep }}blend/templates" \
-            --add-data "src/blend/static${{ matrix.sep }}blend/static" \
-            --add-data "src/blend/blend_core/assets${{ matrix.sep }}blend/blend_core/assets" \
-            --add-data "src/blend/blend_core/views${{ matrix.sep }}blend/blend_core/views" \
-            --add-data "src/blend/blend_core/translations${{ matrix.sep }}blend/blend_core/translations" \
-            --add-data "src/blend/blend_core/data${{ matrix.sep }}blend/blend_core/data" \
-            --add-data "src/blend/blend_core/blend_config.yml${{ matrix.sep }}blend/blend_core" \
-            --add-data "src/blend/blend_core/limiter.toml${{ matrix.sep }}blend/blend_core" \
-            --add-data "src/blend/blend_core/sources${{ matrix.sep }}blend/blend_core/sources" \
-            --add-data "src/blend/blend_core/favicons${{ matrix.sep }}blend/blend_core/favicons" \
-            --collect-all lxml \
-            --collect-all blend.blend_core.extensions \
-            --collect-all blend.blend_core.sources \
-            --hidden-import "cloudscraper" \
-            --hidden-import "lxml.etree" \
-            --hidden-import "lxml._elementpath" \
-            --hidden-import "lxml.html" \
-            --hidden-import "flask" \
-            --hidden-import "gunicorn.glogging" \
-            --hidden-import "gunicorn.workers.sync" \
-            --hidden-import "httpx_socks" \
-            --hidden-import "valkey" \
-            run_blend.py
-        if: matrix.os != 'windows-latest'
-
-      - name: Upload Build Artifacts
+      - name: Upload package artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: dist/${{ matrix.asset_name }}
+          name: python-package-artifacts
+          path: dist/
 
-  release:
-    name: Create GitHub Release
+  publish:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    environment:
+      name: pypi
+    permissions:
+      id-token: write
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Download all artifacts
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          path: dist-artifacts
+          name: python-package-artifacts
+          path: dist/
 
-      - name: Prepare assets for release
-        run: |
-          mkdir release-assets
-          find dist-artifacts -type f -exec cp {} release-assets/ \;
-
-      - name: Update or Create 'latest' Release
-        uses: softprops/action-gh-release@v2
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          name: Latest Release
-          tag_name: latest
-          files: release-assets/*
-          make_latest: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          packages-dir: dist/

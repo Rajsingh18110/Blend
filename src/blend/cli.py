@@ -117,6 +117,7 @@ def update_blend():
         print(f"❌ Failed to update Blend: {e}")
 
 def update_binary():
+    """Backward-compatible alias kept only for source installs; no standalone binary is shipped."""
     update_blend()
 
 def update_code():
@@ -126,12 +127,12 @@ def main():
     parser = argparse.ArgumentParser(description="Blend Search CLI")
     parser.add_argument('command', nargs='?', choices=['stop'], help="Stop the background server")
     parser.add_argument('--no-browser', action='store_true', help="Don't open browser")
-    parser.add_argument('-update', '--update', action='store_true', help="Download the latest binary update")
+    parser.add_argument('-update', '--update', action='store_true', help="Update the source checkout from GitHub")
     parser.add_argument('--daemon-worker', action='store_true', help=argparse.SUPPRESS)
     args, unknown = parser.parse_known_args()
 
     if getattr(args, 'update', False) or '-update' in sys.argv:
-        update_binary()
+        update_blend()
         sys.exit(0)
 
     if args.command == 'stop':
