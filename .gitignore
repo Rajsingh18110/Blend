@@ -3,6 +3,7 @@
 .env.*
 *.env
 !.env.example
+.lmms/
 admin_config.json
 secrets.json
 secrets.yml
